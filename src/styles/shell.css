@@ -1,0 +1,386 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — SHELL (Hatua 1)
+   App frame, header, bottom navigation (5 destinations),
+   sheet, toast, na layout ya safu ya maudhui.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* Safu ya maudhui: katikati, upana wa kupumua */
+.psh-col {
+  width: 100%;
+  max-width: var(--col);
+  margin: 0 auto;
+  padding: 0 var(--s-4);
+}
+
+.psh-main {
+  flex: 1 1 auto;
+  padding-bottom: calc(var(--nav-h) + 32px + env(safe-area-inset-bottom));
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.psh-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.psh-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  width: 100%;
+  max-width: var(--col);
+  height: var(--header-h);
+  margin: 0 auto;
+  padding: 0 var(--s-4);
+}
+.psh-header__brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.psh-header__brand:hover {
+  text-decoration: none;
+}
+/* Icon tatu ni GROUP MOJA — nafasi kati yao ni sawa */
+.psh-header__right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Bottom navigation ────────────────────────────────────── */
+.psh-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-nav);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.psh-nav__list {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  height: var(--nav-h);
+}
+.psh-nav__item {
+  flex: 1 1 0;
+  display: flex;
+}
+.psh-nav__btn {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 2px 7px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--t-2);
+  cursor: pointer;
+  transition: color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+}
+.psh-nav__btn:active {
+  background: var(--bg-hover);
+}
+.psh-nav__btn:hover {
+  color: var(--t-1);
+}
+.psh-nav__btn.is-active {
+  color: var(--c-green);
+}
+.psh-nav__icon {
+  display: grid;
+  place-items: center;
+  height: 24px;
+}
+.psh-nav__label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  line-height: 1.1;
+}
+.psh-nav__btn.is-active .psh-nav__label {
+  font-weight: 600;
+}
+/* Kionyeshi kidogo juu ya destination inayotumika (nidhamu, si mapambo) */
+.psh-nav__icon {
+  position: relative;
+}
+.psh-nav__btn.is-active .psh-nav__icon::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 2px;
+  border-radius: var(--r-full);
+  background: var(--c-green);
+}
+
+/* Tablet: nav inabaki chini lakini imejikita katikati */
+@media (min-width: 768px) {
+  .psh-nav__list {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+}
+
+/* Desktop: nav inakuwa RAIL ya mlalo inayoelea katikati chini —
+   si mobile iliyonyooshwa. */
+@media (min-width: 1024px) {
+  .psh-main {
+    padding-bottom: calc(var(--nav-h) + 56px);
+  }
+  .psh-nav {
+    left: 50%;
+    right: auto;
+    bottom: 22px;
+    width: auto;
+    transform: translateX(-50%);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-2);
+    padding: 0;
+  }
+  .psh-nav__list {
+    height: auto;
+    gap: 2px;
+    padding: 6px;
+  }
+  .psh-nav__item {
+    flex: 0 0 auto;
+  }
+  .psh-nav__btn {
+    flex-direction: row;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 11px;
+    height: 44px;
+  }
+  .psh-nav__btn:hover {
+    background: var(--bg-hover);
+  }
+  .psh-nav__btn.is-active {
+    background: var(--c-green-soft);
+  }
+  .psh-nav__icon {
+    height: auto;
+  }
+  .psh-nav__label {
+    font-size: var(--fs-13);
+  }
+}
+
+/* ── Sheet / dialog ───────────────────────────────────────── */
+.psh-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.psh-sheet__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(23, 32, 29, 0.34);
+  animation: psh-fade var(--dur-2) var(--ease);
+}
+.psh-sheet__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 90vh;
+  background: var(--bg);
+  border-radius: 18px 18px 0 0;
+  animation: psh-rise var(--dur-2) var(--ease);
+}
+.psh-sheet__grip {
+  width: 38px;
+  height: 4px;
+  margin: 8px auto 0;
+  border-radius: var(--r-full);
+  background: var(--line-2);
+}
+.psh-sheet__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4) var(--s-2);
+}
+.psh-sheet__headleft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.psh-sheet__title {
+  font-size: var(--fs-18);
+  font-weight: 600;
+}
+.psh-sheet__sub {
+  margin-top: 2px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+.psh-sheet__body {
+  overflow-y: auto;
+  padding: 4px var(--s-4) calc(var(--s-6) + env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 768px) {
+  .psh-sheet {
+    align-items: center;
+    padding: var(--s-6);
+  }
+  .psh-sheet__panel {
+    max-width: 560px;
+    max-height: 84vh;
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-3);
+    animation: psh-pop-in var(--dur-2) var(--ease);
+  }
+  .psh-sheet__grip {
+    display: none;
+  }
+  .psh-sheet__head {
+    padding: var(--s-5) var(--s-5) var(--s-3);
+  }
+  .psh-sheet__body {
+    padding: 4px var(--s-5) var(--s-5);
+  }
+}
+
+@keyframes psh-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes psh-rise {
+  from {
+    transform: translateY(16px);
+    opacity: 0.6;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes psh-pop-in {
+  from {
+    transform: translateY(6px) scale(0.99);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ── Toast ────────────────────────────────────────────────── */
+.psh-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));
+  z-index: var(--z-toast);
+  transform: translateX(-50%);
+  max-width: min(92vw, 420px);
+  padding: 10px 16px;
+  font-size: var(--fs-13);
+  font-weight: 500;
+  color: var(--t-1);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-3);
+  animation: psh-toast-in var(--dur-2) var(--ease);
+  text-align: center;
+}
+@keyframes psh-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ── Kiungo cha maendeleo (desktop pekee) ─────────────────── */
+.psh-devlink {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .psh-devlink {
+    position: fixed;
+    left: 20px;
+    bottom: 22px;
+    z-index: var(--z-nav);
+    display: inline-block;
+    padding: 7px 11px;
+    font-size: var(--fs-11);
+    font-weight: 500;
+    color: var(--t-3);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+  }
+  .psh-devlink:hover {
+    color: var(--t-2);
+    background: var(--bg-subtle);
+  }
+}
+
+/* ── Typography utilities za guide ────────────────────────── */
+.psh-t-h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-26);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.psh-t-h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: 600;
+  line-height: 1.25;
+}
+.psh-t-h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.psh-t-body {
+  font-size: var(--fs-15);
+  line-height: var(--lh-normal);
+  color: var(--t-1);
+}
+.psh-t-cap {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}

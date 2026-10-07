@@ -1,0 +1,130 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — DESIGN TOKENS (Hatua 0)
+   Rangi, typografia, nafasi, umbo na mwinuko wa vivuli.
+   Hakuna rangi au kipimo kinachotumika "moja kwa moja" (hardcoded)
+   kwenye components — kila kitu kinatoka hapa.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Rangi kuu za brand ─────────────────────────────────── */
+  --c-green: #18a982;        /* rangi kuu ya brand */
+  --c-green-600: #149174;    /* hover / pressed */
+  --c-green-700: #0f7a61;    /* maandishi ya kijani kwa AA */
+  --c-green-soft: #eaf8f3;   /* mandhari laini ya kijani */
+
+  --c-blue: #3b82f6;         /* rangi ya mwingiliano inayosaidia */
+  --c-blue-600: #2f6fe0;     /* hover / pressed */
+  --c-blue-700: #1d4ed8;     /* maandishi ya bluu kwa AA */
+  --c-blue-soft: #edf4fe;
+
+  --c-gold: #d4a72c;         /* inatumika kwa nadra tu */
+  --c-gold-soft: #fbf3e0;
+
+  --c-error: #dc2626;
+  --c-error-600: #b91c1c;
+  --c-error-soft: #fdecec;
+
+  /* ── Maandishi na mandhari ──────────────────────────────── */
+  --t-1: #17201d;            /* maandishi makuu */
+  --t-2: #66736e;            /* maandishi ya pili */
+  --t-3: #8b9793;            /* maandishi hafifu / metadata */
+  --t-inverse: #ffffff;
+
+  --bg: #ffffff;
+  --bg-subtle: #f7faf9;
+  --bg-hover: #f1f6f4;
+  --bg-sunken: #eef3f1;
+
+  --line: #e7eeea;           /* mistari nyembamba */
+  --line-2: #d9e3de;         /* mistari inayoonekana zaidi */
+
+  /* ── Typografia ─────────────────────────────────────────── */
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Inter Tight', var(--font-ui);
+
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-20: 20px;
+  --fs-22: 22px;   /* ukubwa wa wordmark */
+  --fs-26: 26px;
+  --fs-32: 32px;
+
+  --lh-tight: 1.2;
+  --lh-snug: 1.35;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  /* ── Nafasi (msingi wa 4px) ─────────────────────────────── */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+
+  /* ── Umbo (radius) ──────────────────────────────────────── */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-full: 999px;
+
+  /* Kadi za mkondo (Stitch integration — "card-lite" framing) */
+  --card-r: 16px;              /* radius ya kadi ya feed */
+  --card-pad: 16px;            /* padding ya ndani */
+  --card-gap: 12px;            /* nafasi kati ya kadi */
+
+  /* ── Mwinuko wa vivuli (wa hila tu) ─────────────────────── */
+  --sh-1: 0 1px 2px rgba(23, 32, 29, 0.05);
+  --sh-2: 0 2px 8px rgba(23, 32, 29, 0.06);
+  --sh-3: 0 8px 24px rgba(23, 32, 29, 0.1), 0 2px 6px rgba(23, 32, 29, 0.05);
+
+  /* ── Muundo wa layout ───────────────────────────────────── */
+  --col: 640px;              /* upana wa safu ya maudhui */
+  --header-h: 56px;
+  --nav-h: 60px;
+
+  --z-nav: 30;
+  --z-header: 40;
+  --z-overlay: 60;
+  --z-toast: 80;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --header-h: 60px;
+  }
+}
+
+/* ── Rangi za avatar (zilizochaguliwa, za utulivu) ────────── */
+:root {
+  --av-green-bg: #eaf8f3;
+  --av-green-fg: #0f7a61;
+  --av-blue-bg: #edf4fe;
+  --av-blue-fg: #1d4ed8;
+  --av-gold-bg: #fbf3e0;
+  --av-gold-fg: #8a6d18;
+  --av-teal-bg: #e6f5f7;
+  --av-teal-fg: #0d6a76;
+  --av-plum-bg: #f3eefb;
+  --av-plum-fg: #6b48b8;
+  --av-clay-bg: #fbefe9;
+  --av-clay-fg: #a2532c;
+  --av-slate-bg: #eef1f4;
+  --av-slate-fg: #4b5661;
+}

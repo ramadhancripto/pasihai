@@ -1,0 +1,734 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — COMPONENTS (Hatua 0)
+   Primitives: wordmark, icon buttons, avatar, identity, chips,
+   media, waveform, segmented, checkrows, dropdown, buttons, switch.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Wordmark ─────────────────────────────────────────────── */
+.psh-wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.psh-wordmark__p {
+  color: var(--c-green);
+}
+.psh-wordmark__h {
+  color: var(--c-blue);
+}
+
+/* ── Icon button ──────────────────────────────────────────── */
+.psh-icobtn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--t-2);
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease);
+}
+.psh-icobtn:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-icobtn:active {
+  background: var(--bg-sunken);
+  transform: scale(0.96);
+}
+.psh-icobtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.psh-icobtn__dot {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--c-gold);
+  border: 1.5px solid var(--bg);
+}
+
+/* ── Avatar ───────────────────────────────────────────────── */
+.psh-avatar {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--av-size, 40px);
+  height: var(--av-size, 40px);
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  user-select: none;
+}
+.psh-avatar--square {
+  border-radius: calc(var(--av-size, 40px) * 0.3);
+}
+.psh-avatar--circle {
+  border-radius: var(--r-full);
+}
+.psh-avatar__initials {
+  transform: translateY(0.5px);
+}
+
+.psh-avatar--tone-green {
+  background: var(--av-green-bg);
+  color: var(--av-green-fg);
+}
+.psh-avatar--tone-blue {
+  background: var(--av-blue-bg);
+  color: var(--av-blue-fg);
+}
+.psh-avatar--tone-gold {
+  background: var(--av-gold-bg);
+  color: var(--av-gold-fg);
+}
+.psh-avatar--tone-teal {
+  background: var(--av-teal-bg);
+  color: var(--av-teal-fg);
+}
+.psh-avatar--tone-plum {
+  background: var(--av-plum-bg);
+  color: var(--av-plum-fg);
+}
+.psh-avatar--tone-clay {
+  background: var(--av-clay-bg);
+  color: var(--av-clay-fg);
+}
+.psh-avatar--tone-slate {
+  background: var(--av-slate-bg);
+  color: var(--av-slate-fg);
+}
+
+/* Badge ya aina ya entity — uthabiti wa identity system */
+.psh-badge {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1.5px solid var(--bg);
+  color: #fff;
+}
+.psh-badge--channel {
+  background: var(--c-blue);
+}
+.psh-badge--hub {
+  background: var(--av-teal-fg);
+}
+.psh-badge--business {
+  background: var(--c-green-700);
+}
+.psh-badge--creator {
+  background: var(--c-blue-600);
+}
+.psh-badge__spark {
+  width: 42%;
+  height: 42%;
+  border-radius: var(--r-full);
+  background: #fff;
+}
+
+/* ── Chip ─────────────────────────────────────────────────── */
+.psh-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  font-size: var(--fs-12);
+  font-weight: 500;
+  line-height: 1.5;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line-2);
+  color: var(--t-2);
+  background: var(--bg);
+  white-space: nowrap;
+}
+.psh-chip--soft {
+  background: var(--bg-subtle);
+  border-color: var(--line);
+  color: var(--t-2);
+}
+.psh-chip--green {
+  background: var(--c-green-soft);
+  border-color: transparent;
+  color: var(--c-green-700);
+}
+.psh-chip--gold {
+  background: var(--c-gold-soft);
+  border-color: transparent;
+  color: var(--av-gold-fg);
+}
+/* Entity pills (Stitch integration) — muundo mmoja, doa la rangi kwa aina */
+.psh-chip--ent {
+  gap: 5px;
+  padding: 1px 8px 1px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border-color: transparent;
+}
+.psh-chip__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--r-full);
+  background: currentColor;
+  opacity: 0.9;
+}
+.psh-chip--ent-friend {
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+}
+.psh-chip--ent-channel {
+  background: var(--c-blue-soft);
+  color: var(--c-blue-700);
+}
+.psh-chip--ent-hub {
+  background: var(--av-teal-bg);
+  color: var(--av-teal-fg);
+}
+.psh-chip--ent-business {
+  background: var(--bg-subtle);
+  color: var(--c-green-700);
+}
+.psh-chip--ent-creator {
+  background: var(--c-gold-soft);
+  color: var(--av-gold-fg);
+}
+.psh-chip--ent-you {
+  background: var(--bg-sunken);
+  color: var(--t-2);
+}
+
+.psh-chip--blue {
+  background: var(--c-blue-soft);
+  border-color: transparent;
+  color: var(--c-blue-700);
+}
+
+/* ── Identity ─────────────────────────────────────────────── */
+.psh-ident {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+}
+.psh-ident__ava {
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 12px;
+  line-height: 0;
+}
+.psh-ident__text {
+  min-width: 0;
+}
+.psh-ident__top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.psh-ident__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  color: var(--t-1);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psh-ident__name:hover {
+  color: var(--c-green-700);
+}
+.psh-ident__meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  line-height: 1.4;
+  flex-wrap: wrap;
+}
+.psh-ident__rel {
+  font-weight: 500;
+  color: var(--t-2);
+}
+.psh-ident__sep {
+  color: var(--t-3);
+}
+.psh-ident__time {
+  color: var(--t-3);
+}
+.psh-ident--compact .psh-ident__name {
+  font-size: var(--fs-14);
+}
+
+/* ── Media frame ──────────────────────────────────────────── */
+.psh-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+/* Glyph ya aina ya media — kubwa na hafifu, si kelele */
+.psh-media__glyph {
+  display: grid;
+  place-items: center;
+  color: currentColor;
+  opacity: 0.5;
+}
+/* Scrim hafifu chini (video/reel) — huimarisha metadata */
+.psh-media__scrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 34%;
+  background: linear-gradient(to top, rgba(23, 32, 29, 0.34), rgba(23, 32, 29, 0));
+  pointer-events: none;
+}
+.psh-media__dur {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 7px;
+  border-radius: var(--r-xs);
+  background: rgba(23, 32, 29, 0.72);
+  color: #fff;
+  font-size: var(--fs-11);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.psh-media__views {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: var(--r-xs);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--t-1);
+  font-size: var(--fs-11);
+  font-weight: 500;
+}
+.psh-media--rounded {
+  border-radius: var(--r-md);
+}
+.psh-media--tone-green {
+  background: var(--c-green-soft);
+}
+.psh-media--tone-blue {
+  background: var(--c-blue-soft);
+}
+.psh-media--tone-gold {
+  background: var(--c-gold-soft);
+}
+.psh-media--tone-teal {
+  background: var(--av-teal-bg);
+}
+.psh-media--tone-clay {
+  background: var(--av-clay-bg);
+}
+.psh-media--tone-plum {
+  background: var(--av-plum-bg);
+}
+.psh-media--tone-slate {
+  background: var(--av-slate-bg);
+}
+.psh-media__glyph {
+  color: var(--t-1);
+  opacity: 0.16;
+}
+.psh-media__caption {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  padding: 4px 9px;
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: var(--t-1);
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: var(--r-sm);
+}
+
+/* ── Waveform ─────────────────────────────────────────────── */
+.psh-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 40px;
+}
+.psh-wave__bar {
+  width: 3px;
+  min-height: 4px;
+  border-radius: var(--r-full);
+  background: var(--line-2);
+}
+.psh-wave__bar.is-played {
+  background: var(--c-green);
+}
+
+/* ── Segmented ────────────────────────────────────────────── */
+.psh-seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+}
+.psh-seg__item {
+  padding: 6px 13px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--t-2);
+  font-size: var(--fs-13);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+}
+.psh-seg__item:hover {
+  color: var(--t-1);
+}
+.psh-seg__item.is-active {
+  background: var(--bg);
+  color: var(--t-1);
+  box-shadow: var(--sh-1);
+}
+
+/* ── Check rows ───────────────────────────────────────────── */
+.psh-checkrows {
+  display: grid;
+  gap: 2px;
+}
+.psh-checkrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  width: 100%;
+  padding: 10px var(--s-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.psh-checkrow:hover {
+  background: var(--bg-hover);
+}
+.psh-checkrow__text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.psh-checkrow__label {
+  font-size: var(--fs-14);
+  font-weight: 500;
+  color: var(--t-1);
+}
+.psh-checkrow__hint {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  line-height: 1.45;
+}
+.psh-checkrow__mark {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 6px;
+  color: #fff;
+  background: var(--bg);
+}
+.psh-checkrow__mark.is-radio {
+  border-radius: var(--r-full);
+}
+.psh-checkrow.is-checked .psh-checkrow__mark {
+  background: var(--c-green);
+  border-color: var(--c-green);
+}
+
+/* ── Dropdown ─────────────────────────────────────────────── */
+.psh-dd {
+  position: relative;
+  display: inline-flex;
+}
+.psh-dd__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  z-index: 50;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-3);
+  animation: psh-pop var(--dur-1) var(--ease);
+}
+.psh-dd__panel--right {
+  right: 0;
+}
+.psh-dd__panel--left {
+  left: 0;
+}
+.psh-dd__head {
+  padding: 8px 8px 6px;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+.psh-checkrows--tight .psh-checkrow {
+  padding: 8px;
+}
+.psh-checkrows--tight .psh-checkrow__label {
+  font-size: var(--fs-14);
+}
+
+@keyframes psh-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Vifungo ──────────────────────────────────────────────── */
+/* ── Buttons (hierarchy: primary · secondary · quiet/ghost · danger) ──
+   Fomu: rounded-rect 10px (si pill — pill ni ya chips/pills pekee).
+   Touch target: ≥ 38px kwa ukubwa wa kawaida, ≥ 32px kwa --sm.            */
+.psh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 9px 15px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--t-1);
+  font-size: var(--fs-14);
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+}
+.psh-btn:hover {
+  background: var(--bg-subtle);
+  border-color: var(--line-2);
+}
+.psh-btn:active {
+  transform: scale(0.985);
+}
+.psh-btn:disabled,
+.psh-btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.psh-btn--sm {
+  min-height: 32px;
+  padding: 6px 13px;
+  font-size: var(--fs-13);
+}
+.psh-btn:hover {
+  background: var(--bg-hover);
+}
+.psh-btn--primary {
+  background: var(--c-green);
+  border-color: var(--c-green);
+  color: #fff;
+}
+.psh-btn--primary:hover {
+  background: var(--c-green-600);
+  border-color: var(--c-green-600);
+}
+.psh-btn--quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--c-green-700);
+  padding: 8px 10px;
+}
+.psh-btn--quiet:hover {
+  background: var(--c-green-soft);
+}
+/* Hali ya "imakwisha": uhusiano umo tayari (Unafuatilia · Umejiunga · Rafiki) */
+.psh-btn--done {
+  background: var(--bg-subtle);
+  border-color: var(--line);
+  color: var(--t-2);
+  font-weight: 500;
+}
+.psh-btn--done:hover {
+  background: var(--bg-hover);
+  border-color: var(--line-2);
+  color: var(--t-1);
+}
+.psh-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--t-2);
+}
+.psh-btn--ghost:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-btn--danger {
+  border-color: transparent;
+  background: var(--c-error-soft);
+  color: var(--c-error-600);
+}
+
+/* ── Switch ───────────────────────────────────────────────── */
+.psh-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--line-2);
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease);
+}
+.psh-switch.is-on {
+  background: var(--c-green);
+}
+.psh-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-full);
+  background: #fff;
+  box-shadow: var(--sh-1);
+  transition: transform var(--dur-2) var(--ease);
+}
+.psh-switch.is-on .psh-switch__knob {
+  transform: translateX(18px);
+}
+
+/* ── Plus badge (Your Status) ─────────────────────────────── */
+.psh-plusbadge {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-full);
+  background: var(--c-green);
+  color: #fff;
+  border: 2px solid var(--bg);
+}
+
+/* ── Empty state ──────────────────────────────────────────── */
+.psh-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--t-3);
+  text-align: center;
+}
+.psh-empty p {
+  font-size: var(--fs-13);
+}
+
+/* ── Note ─────────────────────────────────────────────────── */
+.psh-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: var(--s-3);
+  font-size: var(--fs-12);
+  line-height: 1.55;
+  color: var(--t-2);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-note svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--t-3);
+}
+
+/* ── Key/value list ───────────────────────────────────────── */
+.psh-kv {
+  display: grid;
+  margin-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+.psh-kv li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.psh-kv span {
+  font-size: var(--fs-13);
+  color: var(--t-2);
+}
+.psh-kv strong {
+  font-size: var(--fs-13);
+  font-weight: 500;
+  text-align: right;
+  color: var(--t-1);
+}
+
+/* ── Relationship text (tabaka la pili la identity) ───────────── */
+.psh-ident__rel {
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: var(--t-2);
+}
+.psh-ident__rel--friend {
+  color: var(--t-2);
+}
+.psh-ident__rel--channel {
+  color: var(--t-2);
+}
+.psh-ident__meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}

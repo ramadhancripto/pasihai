@@ -1,0 +1,596 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — PANELS (Hatua 1)
+   Taarifa · Wasifu · Unda · Menyu ya Home · Muonekano ·
+   Mapendeleo · Zilizohifadhiwa
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-panelstack {
+  display: grid;
+  gap: var(--s-4);
+}
+.psh-panelstack__lead {
+  font-size: var(--fs-13);
+  line-height: 1.6;
+  color: var(--t-2);
+}
+.psh-panelstack__h {
+  font-size: var(--fs-12);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+.psh-panelstack__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.psh-panelstack__count {
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-panelstack__actions {
+  display: flex;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+.psh-panelstack__foot {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-3);
+}
+.psh-panelstack__foot svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+/* ── Taarifa ──────────────────────────────────────────────── */
+.psh-notifs {
+  display: grid;
+}
+.psh-notif {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  padding: 11px var(--s-2);
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--r-sm);
+}
+.psh-notif:hover {
+  background: var(--bg-subtle);
+}
+.psh-notif__ava {
+  position: relative;
+  flex: 0 0 auto;
+}
+.psh-notif__kind {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--bg);
+  background: var(--c-green);
+  color: #fff;
+}
+.psh-notif__kind--comment {
+  background: var(--c-blue);
+}
+.psh-notif__kind--hub {
+  background: var(--av-teal-fg);
+}
+.psh-notif__kind--heart {
+  background: var(--c-error);
+}
+.psh-notif__kind--live {
+  background: var(--c-gold);
+}
+.psh-notif__kind--store {
+  background: var(--c-green-700);
+}
+.psh-notif__body {
+  min-width: 0;
+  padding-right: 14px;
+}
+.psh-notif__text {
+  font-size: var(--fs-14);
+  line-height: 1.45;
+  color: var(--t-1);
+}
+.psh-notif.is-unread .psh-notif__text {
+  font-weight: 500;
+}
+.psh-notif__meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-notif__dot {
+  position: absolute;
+  top: 16px;
+  right: -2px;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: var(--c-green);
+}
+/* Eneo la kubofya lote la row */
+.psh-notif__open {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+}
+
+/* ── Wasifu ───────────────────────────────────────────────── */
+.psh-profile {
+  display: grid;
+  gap: var(--s-4);
+}
+.psh-profile__hero {
+  display: grid;
+  gap: var(--s-3);
+}
+.psh-profile__cover {
+  display: block;
+  height: 84px;
+  border-radius: var(--r-md);
+  background: var(--c-green-soft);
+}
+.psh-profile__top {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-3);
+  margin-top: -48px;
+  padding-left: var(--s-2);
+}
+.psh-profile__meta {
+  padding-bottom: 4px;
+  min-width: 0;
+}
+.psh-profile__name {
+  font-size: var(--fs-18);
+  font-weight: 600;
+}
+.psh-profile__line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  flex-wrap: wrap;
+}
+.psh-profile__bio {
+  font-size: var(--fs-14);
+  line-height: 1.55;
+  color: var(--t-2);
+}
+.psh-profile__since {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-profile__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.psh-profile__stats li {
+  display: grid;
+  gap: 1px;
+  padding: 12px 10px;
+  text-align: center;
+  border-right: 1px solid var(--line);
+}
+.psh-profile__stats li:last-child {
+  border-right: 0;
+}
+.psh-profile__stats strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: 600;
+}
+.psh-profile__stats span {
+  font-size: var(--fs-11);
+  color: var(--t-2);
+}
+/* Namba ya sifuri haionyeshwi kama tatizo */
+.psh-profile__stats li.is-zero strong {
+  color: var(--t-3);
+}
+.psh-profile__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: var(--s-3);
+  font-size: var(--fs-12);
+  line-height: 1.55;
+  color: var(--c-green-700);
+  background: var(--c-green-soft);
+  border-radius: var(--r-md);
+}
+.psh-profile__note svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.psh-profile__actions {
+  display: flex;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+.psh-profile__actions .psh-btn {
+  flex: 1 1 auto;
+}
+.psh-profile__list {
+  display: flex;
+  gap: var(--s-1);
+  border-top: 1px solid var(--line);
+  padding-top: var(--s-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.psh-profile__list::-webkit-scrollbar {
+  display: none;
+}
+.psh-profile__list button {
+  padding: 7px 12px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--t-2);
+  font-size: var(--fs-13);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.psh-profile__list button:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-profile__list button.is-active {
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+}
+
+/* ── Unda ─────────────────────────────────────────────────── */
+.psh-create {
+  display: grid;
+  gap: var(--s-4);
+}
+.psh-create__lead {
+  font-size: var(--fs-13);
+  line-height: 1.6;
+  color: var(--t-2);
+}
+.psh-create__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+.psh-create__item {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+}
+.psh-create__item:hover {
+  background: var(--bg-subtle);
+  border-color: var(--line-2);
+}
+.psh-create__icon {
+  color: var(--c-green-700);
+}
+.psh-create__label {
+  font-size: var(--fs-13);
+  font-weight: 500;
+  color: var(--t-1);
+}
+.psh-create__hint {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-create__foot {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+@media (max-width: 380px) {
+  .psh-create__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ── Menyu ya Home ────────────────────────────────────────── */
+.psh-menu {
+  display: grid;
+  gap: 2px;
+}
+.psh-menu__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: 11px var(--s-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  color: var(--t-1);
+  cursor: pointer;
+}
+.psh-menu__row:hover {
+  background: var(--bg-hover);
+}
+.psh-menu__row--static {
+  cursor: default;
+}
+.psh-menu__row--static:hover {
+  background: transparent;
+}
+.psh-menu__icon {
+  display: grid;
+  place-items: center;
+  color: var(--t-2);
+}
+.psh-menu__text {
+  display: grid;
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-menu__label {
+  font-size: var(--fs-14);
+  font-weight: 500;
+}
+.psh-menu__hint {
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-menu__row svg:last-child {
+  color: var(--t-3);
+}
+.psh-menu__sep {
+  height: 1px;
+  margin: var(--s-2) 0;
+  background: var(--line);
+}
+.psh-menu__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: var(--s-2);
+  padding: var(--s-3);
+  font-size: var(--fs-11);
+  line-height: 1.5;
+  color: var(--t-3);
+  background: var(--bg-subtle);
+  border-radius: var(--r-sm);
+}
+.psh-menu__note svg {
+  flex: 0 0 auto;
+}
+
+/* ── Muonekano (view modes) ───────────────────────────────── */
+.psh-vmodes {
+  display: grid;
+  gap: var(--s-2);
+}
+.psh-vmode {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+}
+.psh-vmode:hover {
+  background: var(--bg-subtle);
+}
+.psh-vmode.is-active {
+  border-color: var(--c-green);
+  background: var(--c-green-soft);
+}
+.psh-vmode__mark {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--r-full);
+  background: var(--bg);
+  color: #fff;
+}
+.psh-vmode.is-active .psh-vmode__mark {
+  background: var(--c-green);
+  border-color: var(--c-green);
+}
+.psh-vmode__text {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-vmode__label {
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+.psh-vmode__desc {
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-2);
+}
+
+/* Glyph: inaonyesha mwelekeo wa muonekano */
+.psh-vglyph {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+}
+.psh-vglyph i {
+  display: block;
+  background: var(--t-3);
+  border-radius: 1px;
+}
+.psh-vglyph--auto {
+  flex-wrap: wrap;
+  align-content: center;
+  padding: 6px;
+}
+.psh-vglyph--auto i {
+  height: 5px;
+  width: 100%;
+}
+.psh-vglyph--auto i:nth-child(2) {
+  width: 60%;
+}
+.psh-vglyph--vertical {
+  flex-direction: column;
+  padding: 8px;
+}
+.psh-vglyph--vertical i {
+  width: 100%;
+  height: 5px;
+}
+.psh-vglyph--horizontal {
+  padding: 8px;
+}
+.psh-vglyph--horizontal i {
+  width: 5px;
+  height: 100%;
+}
+
+/* ── Switch rows ──────────────────────────────────────────── */
+.psh-switchrows {
+  display: grid;
+}
+.psh-switchrows li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 11px var(--s-2);
+  border-bottom: 1px solid var(--line);
+}
+.psh-switchrows__label {
+  font-size: var(--fs-14);
+}
+.psh-switchrows li:last-child {
+  border-bottom: 0;
+}
+
+/* ── Chips za maslahi ─────────────────────────────────────── */
+.psh-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.psh-chipbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-full);
+  background: var(--bg);
+  color: var(--t-1);
+  font-size: var(--fs-13);
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
+}
+.psh-chipbtn:hover {
+  background: var(--bg-hover);
+}
+.psh-chipbtn.is-on {
+  background: var(--c-green-soft);
+  border-color: transparent;
+  color: var(--c-green-700);
+  font-weight: 500;
+}
+
+/* ── Zilizohifadhiwa ──────────────────────────────────────── */
+.psh-saved {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: var(--s-6) var(--s-3);
+  text-align: center;
+}
+.psh-saved__icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--r-full);
+  background: var(--bg-subtle);
+  color: var(--t-3);
+}
+.psh-saved h3 {
+  font-size: var(--fs-16);
+  font-weight: 600;
+}
+.psh-saved p {
+  max-width: 40ch;
+  font-size: var(--fs-13);
+  line-height: 1.6;
+  color: var(--t-2);
+}
+
+/* ── Wasifu: ROLE · RELATIONSHIP (tabaka mbili) ─────────────── */
+.psh-profile__role {
+  font-size: var(--fs-12);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--t-2);
+}
+.psh-profile__rel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  font-size: var(--fs-12);
+  color: var(--c-green-700);
+}
+.psh-profile__rel::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: currentColor;
+}

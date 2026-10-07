@@ -1,0 +1,843 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — FEED (Phase 2A)
+   Sehemu ya mkondo: shell ya chapisho, identity, bodies, actions.
+   Classes ZOTE hapa ni mpya — hakuna CSS iliyopo iliyobadilishwa.
+   Muonekano: nyeupe, clean, separation ya hila (mstari mmoja),
+   hakuna giant card / shadow kubwa / gradient / glassmorphism.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-feed {
+  padding-bottom: var(--s-4);
+}
+
+/* ── Hesabu ya kichujio ───────────────────────────────────── */
+.psh-feed__count {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: var(--s-3) 0 0;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-feed__count svg {
+  flex: 0 0 auto;
+}
+
+/* ── Orodha ───────────────────────────────────────────────── */
+.psh-feed__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  padding-top: var(--s-3);
+}
+
+/* ── Chapisho (shell) — "card-lite" ───────────────────────────
+   White surface + hairline border + radius 16. HAKUNA shadow kubwa,
+   hakuna gradient, hakuna glassmorphism (kanuni za PASIHAI).        */
+.psh-feeditem {
+  padding: var(--card-pad);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--card-r);
+  transition: border-color var(--dur-2) var(--ease);
+}
+@media (hover: hover) {
+  .psh-feeditem:hover {
+    border-color: var(--line-2);
+  }
+}
+.psh-feeditem__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.psh-feeditem__body {
+  margin-top: 12px;
+}
+.psh-feeditem__label {
+  margin-bottom: 8px;
+}
+
+/* Maandishi ya chapisho */
+.psh-feedtext {
+  font-size: var(--fs-15);
+  line-height: 1.62;
+  color: var(--t-1);
+  white-space: pre-line;
+  max-width: 62ch;
+}
+.psh-feedtext + .psh-feedmedia,
+.psh-feedtext + .psh-audio,
+.psh-feedtext + .psh-live,
+.psh-feedtext + .psh-reel {
+  margin-top: 10px;
+}
+
+/* Media */
+.psh-feedmedia {
+  margin-top: 12px;
+}
+.psh-feedmedia--first {
+  margin-top: 0;
+}
+.psh-feedmedia + .psh-feedtext {
+  margin-top: 10px;
+}
+
+/* Play overlay + duration (zinatumika kwenye media ya video/reel) */
+.psh-media__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.psh-media__playbtn {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--t-1);
+  box-shadow: var(--sh-2);
+  padding-left: 3px;
+}
+.psh-media__dur {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 3px 8px;
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: #fff;
+  background: rgba(23, 32, 29, 0.72);
+  border-radius: var(--r-xs);
+}
+
+/* ── Sauti ────────────────────────────────────────────────── */
+.psh-audio {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-subtle);
+}
+.psh-audio__play {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--bg);
+  color: var(--c-green-700);
+  cursor: pointer;
+  box-shadow: var(--sh-1);
+}
+.psh-audio__play.is-on {
+  background: var(--c-green);
+  color: #fff;
+}
+.psh-audio .psh-wave {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-audio__time {
+  flex: 0 0 auto;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Kura ─────────────────────────────────────────────────── */
+.psh-poll__q {
+  font-size: var(--fs-15);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--t-1);
+  max-width: 56ch;
+}
+.psh-poll__opts {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.psh-pollopt {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition: border-color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+}
+.psh-pollopt:active {
+  transform: scale(0.995);
+}
+.psh-pollopt:hover {
+  border-color: var(--t-3);
+}
+.psh-pollopt.is-chosen {
+  border-color: var(--c-green);
+}
+.psh-pollopt__bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--c-green-soft);
+  transition: width var(--dur-2) var(--ease);
+}
+.psh-pollopt.is-voted:not(.is-chosen) .psh-pollopt__bar {
+  background: var(--bg-sunken);
+}
+.psh-pollopt__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  font-size: var(--fs-14);
+}
+.psh-pollopt__label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--t-1);
+}
+.psh-pollopt__tick {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-full);
+  background: var(--c-green);
+  color: #fff;
+}
+.psh-pollopt__pct {
+  font-weight: 600;
+  color: var(--t-2);
+  font-variant-numeric: tabular-nums;
+}
+.psh-poll__foot {
+  margin-top: 8px;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+
+/* ── Tangazo ──────────────────────────────────────────────── */
+.psh-announce {
+  padding-left: 12px;
+  border-left: 2px solid var(--c-green);
+}
+.psh-announce__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-green-700);
+}
+
+/* ── Live Activity (si chapisho la kawaida) ───────────────── */
+.psh-live {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-subtle);
+}
+.psh-live--live {
+  background: var(--c-green-soft);
+  border-color: transparent;
+}
+.psh-live__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.psh-live__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  font-size: var(--fs-11);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border-radius: var(--r-full);
+}
+.psh-live__badge--live {
+  color: var(--c-error-600);
+  background: #fff;
+}
+.psh-live__badge--soon {
+  color: var(--av-gold-fg);
+  background: var(--c-gold-soft);
+}
+.psh-live__badge--replay {
+  color: var(--t-2);
+  background: var(--bg-sunken);
+}
+.psh-live__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: var(--c-error);
+}
+.psh-live__mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: var(--t-2);
+}
+.psh-live__cat {
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-live__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--t-1);
+  max-width: 54ch;
+}
+.psh-live__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+.psh-live__meta svg {
+  flex: 0 0 auto;
+  color: var(--t-3);
+}
+.psh-live__dotsep {
+  color: var(--t-3);
+}
+.psh-live__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: 14px;
+}
+.psh-live__cta {
+  padding: 7px 14px;
+  font-size: var(--fs-13);
+}
+
+/* ── Reel (kadi compact) ──────────────────────────────────── */
+.psh-reel {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  margin-top: 10px;
+}
+.psh-reel__thumb {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.psh-reel__thumb--tone-green {
+  background: var(--c-green-soft);
+}
+.psh-reel__thumb--tone-blue {
+  background: var(--c-blue-soft);
+}
+.psh-reel__thumb--tone-gold {
+  background: var(--c-gold-soft);
+}
+.psh-reel__thumb--tone-teal {
+  background: var(--av-teal-bg);
+}
+.psh-reel__thumb--tone-clay {
+  background: var(--av-clay-bg);
+}
+.psh-reel__thumb--tone-plum {
+  background: var(--av-plum-bg);
+}
+.psh-reel__thumb--tone-slate {
+  background: var(--av-slate-bg);
+}
+.psh-reel__play {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--t-1);
+  padding-left: 2px;
+}
+.psh-reel__thumb::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42%;
+  background: linear-gradient(to top, rgba(23, 32, 29, 0.28), rgba(23, 32, 29, 0));
+  pointer-events: none;
+}
+.psh-reel__dur {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 6px;
+  font-size: var(--fs-11);
+  font-weight: 500;
+  color: #fff;
+  background: rgba(23, 32, 29, 0.7);
+  border-radius: var(--r-xs);
+}
+.psh-reel__meta {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.psh-reel__kind .psh-chip svg {
+  margin-right: 2px;
+}
+.psh-reel__caption {
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  color: var(--t-1);
+}
+.psh-reel__views {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+
+/* ── Actions ──────────────────────────────────────────────── */
+.psh-feedactions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 12px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.psh-feedaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--t-2);
+  font-size: var(--fs-13);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+}
+.psh-feedaction:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-feedaction span {
+  font-variant-numeric: tabular-nums;
+}
+.psh-feedaction.is-liked {
+  color: var(--c-green-700);
+}
+.psh-feedaction.is-liked:hover {
+  background: var(--c-green-soft);
+}
+.psh-feedaction--save {
+  margin-left: auto;
+  padding: 7px 9px;
+}
+.psh-feedaction.is-saved {
+  color: var(--c-blue-700);
+}
+.psh-feedaction.is-saved:hover {
+  background: var(--c-blue-soft);
+}
+
+/* ── Hali tupu ────────────────────────────────────────────── */
+.psh-feed__empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin-top: var(--s-3);
+  padding: var(--s-8) var(--s-4);
+  text-align: center;
+  color: var(--t-3);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--card-r);
+}
+.psh-feed__emptyTitle {
+  font-size: var(--fs-14);
+  font-weight: 500;
+  color: var(--t-2);
+}
+.psh-feed__emptyText {
+  font-size: var(--fs-12);
+  max-width: 42ch;
+}
+
+/* ── Desktop: maandishi yasipanuke kupita kiasi ───────────── */
+@media (min-width: 1024px) {
+  .psh-feeditem__body {
+    padding-right: 8px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STITCH INTEGRATION (Stage 5) — vipengele vipya vya mkondo
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Safu ya vitendo (channel · bidhaa · tukio) ───────────── */
+.psh-ctarow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: 12px;
+}
+.psh-ctarow__btn {
+  padding: 8px 14px;
+  font-size: var(--fs-13);
+}
+
+/* ── Tangazo: orodha ya mambo makuu ───────────────────────── */
+.psh-announce__list {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+}
+.psh-announce__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--fs-14);
+  line-height: 1.55;
+  color: var(--t-1);
+}
+.psh-announce__list svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--c-green-700);
+}
+
+/* ── Kura: alama ya "(Inaongoza)" ─────────────────────────── */
+.psh-pollopt__lead {
+  font-size: var(--fs-11);
+  color: var(--c-green-700);
+}
+
+/* ── Live: jukwaa la washiriki + mawimbi ──────────────────── */
+.psh-live__stage {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg-subtle);
+  border-radius: var(--r-md);
+}
+.psh-live__speakers {
+  display: flex;
+  align-items: center;
+}
+.psh-live__speakers li + li {
+  margin-left: -9px;
+}
+.psh-live__speakers .psh-avatar {
+  box-shadow: 0 0 0 2px var(--bg-subtle);
+}
+.psh-live__stage .psh-wave {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ── Live: pills za hali ndani ya tab (si safu ya Home) ───── */
+.psh-liveseg {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) 0 var(--s-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.psh-liveseg::-webkit-scrollbar {
+  display: none;
+}
+.psh-liveseg__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--bg-subtle);
+  color: var(--t-2);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+.psh-liveseg__pill:hover {
+  background: var(--bg-hover);
+}
+.psh-liveseg__pill.is-active {
+  background: var(--c-green);
+  border-color: var(--c-green);
+  color: #fff;
+}
+.psh-liveseg__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: #fff;
+  animation: psh-pulse 1.6s var(--ease) infinite;
+}
+
+/* ── Role marker (Role ≠ Relationship ≠ Action) ─────────────
+   Maandishi madogo, si pill nyingine: role inasemwa kwa herufi
+   ndogo za juu (uppercase) kwa rangi ya aina ya entity.              */
+.psh-role {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+.psh-role--channel {
+  color: var(--c-blue-700);
+}
+.psh-role--hub {
+  color: var(--av-teal-fg);
+}
+.psh-role--business {
+  color: var(--c-green-700);
+}
+.psh-role--creator {
+  color: var(--av-gold-fg);
+}
+.psh-role--friend,
+.psh-role--you {
+  color: var(--t-3);
+}
+
+/* ── Discovery: channels zinazopendekezwa ─────────────────── */
+.psh-discover {
+  margin-top: var(--s-4);
+  padding: var(--card-pad);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--card-r);
+}
+.psh-discover__head {
+  margin-bottom: var(--s-3);
+}
+.psh-discover__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-discover__sub {
+  margin-top: 2px;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-discover__list {
+  display: grid;
+  gap: var(--s-1);
+}
+.psh-discover__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.psh-discover__item + .psh-discover__item {
+  border-top: 1px solid var(--line);
+}
+.psh-discover__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-discover__name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-14);
+  font-weight: 500;
+  color: var(--t-1);
+}
+.psh-discover__tick {
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: var(--r-full);
+  background: var(--c-blue);
+  color: #fff;
+}
+.psh-discover__meta {
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-discover__btn {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+/* ── Hali ya kupakia (skeleton) — ni halisi, si maudhui ya kubuni ── */
+.psh-skel {
+  padding: var(--card-pad);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--card-r);
+  margin-top: var(--card-gap);
+}
+.psh-skel__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.psh-skel__ava {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-full);
+  background: var(--bg-sunken);
+}
+.psh-skel__lines {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+.psh-skel__line {
+  height: 10px;
+  border-radius: var(--r-full);
+  background: var(--bg-sunken);
+}
+.psh-skel__line--w40 {
+  width: 40%;
+}
+.psh-skel__line--w70 {
+  width: 70%;
+}
+.psh-skel__line--w90 {
+  width: 90%;
+}
+.psh-skel__block {
+  margin-top: 12px;
+  height: 132px;
+  border-radius: var(--r-md);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+}
+.psh-skel__ava,
+.psh-skel__line,
+.psh-skel__block {
+  animation: psh-skel 1.4s var(--ease) infinite;
+}
+@keyframes psh-skel {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* ── Kuingia kwa mkondo (hafifu) ───────────────────────────── */
+.psh-feed__items {
+  animation: psh-fade 180ms var(--ease) both;
+}
+@keyframes psh-fade {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .psh-feed__items,
+  .psh-skel__ava,
+  .psh-skel__line,
+  .psh-skel__block {
+    animation: none;
+  }
+}
+
+/* ── Mwisho wa mkondo ─────────────────────────────────────── */
+.psh-feed__end {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin-top: var(--card-gap);
+  padding: var(--s-8) var(--s-5);
+  text-align: center;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--card-r);
+}
+.psh-feed__endicon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 6px;
+  border-radius: var(--r-full);
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+}
+.psh-feed__endTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-feed__endText {
+  max-width: 40ch;
+  font-size: var(--fs-13);
+  line-height: 1.55;
+  color: var(--t-2);
+}
+.psh-feed__endbtn {
+  margin-top: 10px;
+  padding: 9px 16px;
+  font-size: var(--fs-13);
+}
+
+/* ── Usawa wa kadi kwenye desktop: media isitawale skrini ───── */
+@media (min-width: 1024px) {
+  .psh-feedmedia .psh-media {
+    max-height: 420px;
+  }
+}

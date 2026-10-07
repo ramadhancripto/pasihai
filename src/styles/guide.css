@@ -1,0 +1,255 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — MSINGI WA MUONEKANO (Hatua 0) — zana ya maendeleo
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-guide {
+  width: 100%;
+  max-width: 940px;
+  margin: 0 auto;
+  padding: var(--s-6) var(--s-4) var(--s-10);
+}
+
+.psh-guide__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  padding-bottom: var(--s-5);
+  border-bottom: 1px solid var(--line);
+}
+.psh-guide__title {
+  margin-top: var(--s-3);
+  font-size: var(--fs-26);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.psh-guide__sub {
+  margin-top: 6px;
+  max-width: 60ch;
+  font-size: var(--fs-13);
+  line-height: 1.6;
+  color: var(--t-2);
+}
+
+.psh-gsec {
+  margin-top: var(--s-8);
+}
+.psh-gsec > h2 {
+  font-size: var(--fs-18);
+  font-weight: 600;
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--line);
+}
+.psh-gsec__note {
+  margin-top: var(--s-2);
+  font-size: var(--fs-13);
+  line-height: 1.6;
+  color: var(--t-2);
+  max-width: 66ch;
+}
+
+.psh-glabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-11);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+
+/* ── Rangi ────────────────────────────────────────────────── */
+.psh-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+.psh-swatches li {
+  display: grid;
+  gap: 4px;
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-swatch {
+  display: block;
+  height: 48px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+.psh-swatches strong {
+  font-size: var(--fs-13);
+  font-weight: 600;
+}
+.psh-swatches code {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.psh-swatches em {
+  font-style: normal;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+
+/* ── Typografia ───────────────────────────────────────────── */
+.psh-gtype {
+  display: grid;
+  gap: var(--s-4);
+  margin-top: var(--s-4);
+}
+
+/* ── Icons ────────────────────────────────────────────────── */
+.psh-gicons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+}
+.psh-gicons li {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: var(--s-3) 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--t-1);
+}
+.psh-gicons span {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ── Avatar / identity ────────────────────────────────────── */
+.psh-grow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+.psh-grow--wrap {
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.psh-gident {
+  display: grid;
+  gap: var(--s-1);
+  margin-top: var(--s-4);
+}
+.psh-gident li {
+  padding: var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-gctrl {
+  display: inline-flex;
+  align-items: center;
+}
+.psh-gcheckrows {
+  min-width: 240px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s-1);
+}
+
+/* ── Media ────────────────────────────────────────────────── */
+.psh-gmedia {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+.psh-gaudio {
+  margin-top: var(--s-3);
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+/* ── Umbo na vivuli ───────────────────────────────────────── */
+.psh-gshapes,
+.psh-gshadows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+.psh-gshapes li {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 62px;
+  font-size: var(--fs-11);
+  color: var(--t-2);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+}
+.psh-gshapes .r-xs {
+  border-radius: var(--r-xs);
+}
+.psh-gshapes .r-sm {
+  border-radius: var(--r-sm);
+}
+.psh-gshapes .r-md {
+  border-radius: var(--r-md);
+}
+.psh-gshapes .r-lg {
+  border-radius: var(--r-lg);
+}
+.psh-gshapes .r-xl {
+  border-radius: var(--r-xl);
+}
+.psh-gshapes .r-full {
+  border-radius: var(--r-full);
+}
+.psh-gshadows li {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 62px;
+  font-size: var(--fs-11);
+  color: var(--t-2);
+  background: var(--bg);
+  border-radius: var(--r-md);
+}
+.psh-gshadows .sh-1 {
+  box-shadow: var(--sh-1);
+}
+.psh-gshadows .sh-2 {
+  box-shadow: var(--sh-2);
+}
+.psh-gshadows .sh-3 {
+  box-shadow: var(--sh-3);
+}
+
+/* ── Kanuni ───────────────────────────────────────────────── */
+.psh-grules {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+}
+.psh-grules li {
+  position: relative;
+  padding: 10px 12px 10px 34px;
+  font-size: var(--fs-13);
+  line-height: 1.55;
+  color: var(--t-2);
+  background: var(--bg-subtle);
+  border-radius: var(--r-sm);
+}
+.psh-grules li::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 16px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--c-green);
+}

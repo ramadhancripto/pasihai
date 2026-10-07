@@ -1,0 +1,512 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — HOME (muundo, Hatua 1)
+   Status/Stories row · Home tabs + filter · Create area ·
+   mstari wa hali (tab · kichujio · muonekano) · kadi ya hatua
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Status / Stories ─────────────────────────────────────── */
+.psh-status {
+  margin-top: var(--s-2);
+}
+.psh-status__row {
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  /* Safu inasogea kwa mlalo kwa UHURU, kutoka ukingo hadi ukingo */
+  margin: 0 calc(var(--s-4) * -1);
+  padding: 6px var(--s-4) 10px;
+  -webkit-overflow-scrolling: touch;
+}
+.psh-status__row::-webkit-scrollbar {
+  display: none;
+}
+.psh-status__row {
+  scrollbar-width: none;
+}
+.psh-status__item {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: 74px;
+}
+.psh-status__btn {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: center;
+}
+.psh-status__ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--r-full);
+  background: var(--line-2);
+  padding: 2.5px;
+  transition: transform var(--dur-2) var(--ease);
+}
+.psh-status__btn:hover .psh-status__ring {
+  transform: translateY(-1px);
+}
+.psh-status__inner {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--bg);
+  padding: 2.5px;
+}
+.psh-status__ring--green {
+  background: var(--c-green);
+}
+.psh-status__ring--blue {
+  background: var(--c-blue);
+}
+.psh-status__ring--gold {
+  background: var(--c-gold);
+}
+.psh-status__ring--viewed {
+  background: var(--line-2);
+}
+.psh-status__ring--own {
+  background: var(--c-green-soft);
+}
+.psh-status__ring--more {
+  background: var(--line);
+}
+.psh-status__moreicon {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--bg-subtle);
+  color: var(--t-2);
+}
+.psh-status__video {
+  position: absolute;
+  left: -1px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: var(--r-full);
+  background: var(--c-blue);
+  color: #fff;
+  border: 2px solid var(--bg);
+  bottom: 8px;
+}
+/* Live badge (Stitch integration) — status ya mtu aliye hewani sasa */
+.psh-status__live {
+  position: absolute;
+  right: -3px;
+  bottom: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px 1px 4px;
+  border-radius: var(--r-full);
+  background: var(--c-error);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  border: 2px solid var(--bg);
+}
+.psh-status__livedot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--r-full);
+  background: #fff;
+  animation: psh-pulse 1.6s var(--ease) infinite;
+}
+@keyframes psh-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+.psh-status__name {
+  max-width: 74px;
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: var(--t-1);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psh-status__name.is-viewed {
+  color: var(--t-3);
+  font-weight: 400;
+}
+.psh-status__ago {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+  line-height: 1;
+}
+
+/* ── Home tabs + content filter ───────────────────────────── */
+.psh-htabs {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0 calc(var(--s-4) * -1);
+  padding: 0 var(--s-4);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+}
+.psh-htabs__scroll {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.psh-htabs__scroll::-webkit-scrollbar {
+  display: none;
+}
+.psh-htab {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 13px 10px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--t-2);
+  font-size: var(--fs-14);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--dur-1) var(--ease);
+}
+.psh-htab:hover {
+  color: var(--t-1);
+}
+.psh-htab.is-active {
+  color: var(--t-1);
+  font-weight: 600;
+}
+.psh-htab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 2px;
+  border-radius: var(--r-full);
+  background: var(--c-green);
+}
+.psh-htabs__filter {
+  flex: 0 0 auto;
+}
+.psh-htabs__tools {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.psh-filterbtn--icon {
+  padding: 7px 8px;
+  border-radius: 9px;
+  background: transparent;
+  border-color: transparent;
+}
+.psh-filterbtn--icon:hover {
+  background: var(--bg-hover);
+}
+.psh-filterbtn--icon.is-set {
+  background: var(--c-green-soft);
+  border-color: transparent;
+  color: var(--c-green-700);
+}
+.psh-filterbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--bg-subtle);
+  color: var(--t-2);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  cursor: pointer;
+}
+.psh-filterbtn:hover {
+  color: var(--t-1);
+  border-color: var(--line-2);
+}
+.psh-filterbtn.is-set {
+  background: var(--c-green-soft);
+  border-color: transparent;
+  color: var(--c-green-700);
+}
+.psh-filterbtn__label {
+  max-width: 92px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Create area ──────────────────────────────────────────── */
+.psh-createbar {
+  margin: var(--s-4) 0 0;
+  padding: var(--s-3);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.psh-createbar__top {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.psh-createbar__prompt {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: var(--fs-14);
+  color: var(--t-3);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
+}
+.psh-createbar__prompt:hover {
+  background: var(--bg-hover);
+  border-color: var(--line-2);
+  color: var(--t-2);
+}
+.psh-createbar__plus {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--c-green-700);
+  cursor: pointer;
+}
+.psh-createbar__plus:hover {
+  background: var(--c-green-soft);
+  border-color: transparent;
+}
+.psh-createbar__quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  margin-top: var(--s-3);
+  padding-top: var(--s-2);
+  border-top: 1px solid var(--line);
+}
+.psh-createbar__act {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--t-2);
+  font-size: var(--fs-13);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease);
+}
+.psh-createbar__act:hover {
+  background: var(--bg-hover);
+  color: var(--c-green-700);
+}
+
+/* ── Mstari wa hali: tab · kichujio · muonekano ───────────── */
+.psh-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: var(--s-3) 2px var(--s-1);
+}
+.psh-strip__label {
+  font-size: var(--fs-12);
+  color: var(--t-3);
+  margin-right: 2px;
+}
+.psh-strip__mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--c-blue-soft);
+  color: var(--c-blue-700);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  cursor: pointer;
+}
+.psh-strip__mode:hover {
+  background: #e3eefe;
+}
+
+/* ── Kadi ya hali ya ujenzi ───────────────────────────────── */
+.psh-next {
+  margin: var(--s-3) 0 var(--s-4);
+  padding: var(--s-4);
+  background: var(--c-green-soft);
+  border-radius: var(--r-lg);
+}
+.psh-next__head {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.psh-next__title {
+  font-size: var(--fs-18);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.psh-next__text {
+  font-size: var(--fs-13);
+  line-height: 1.6;
+  color: var(--t-2);
+  max-width: 54ch;
+}
+.psh-next__list {
+  display: grid;
+  gap: 10px;
+  margin-top: var(--s-4);
+}
+.psh-next__list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.psh-next__badge {
+  flex: 0 0 auto;
+  min-width: 62px;
+  text-align: center;
+  padding: 3px 7px;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: var(--c-green-700);
+  background: var(--bg);
+  border-radius: var(--r-xs);
+}
+.psh-next__itemtext {
+  font-size: var(--fs-13);
+  line-height: 1.55;
+  color: var(--t-2);
+}
+.psh-next__trywrap {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+}
+/* Maandishi yenye icon ndani: icon inafuata mtiririko wa maneno,
+   kwa hivyo haiwezi kutenganishwa kwa bahati mbaya. */
+.psh-next__try {
+  font-size: var(--fs-12);
+  line-height: 1.6;
+  color: var(--t-2);
+  max-width: 52ch;
+}
+.psh-next__try svg {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 6px;
+}
+.psh-next__try strong {
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-next__foot {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: var(--s-3);
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+
+/* ── Mahali pa mkondo (ghost) ─────────────────────────────── */
+.psh-feedghost {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: var(--s-8) var(--s-5);
+  text-align: center;
+  border: 1.5px dashed var(--line-2);
+  border-radius: var(--r-lg);
+}
+.psh-feedghost__icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--r-full);
+  background: var(--bg-subtle);
+  color: var(--t-3);
+}
+.psh-feedghost h3 {
+  font-size: var(--fs-16);
+  font-weight: 600;
+}
+.psh-feedghost p {
+  max-width: 44ch;
+  font-size: var(--fs-13);
+  line-height: 1.6;
+  color: var(--t-2);
+}
+.psh-feedghost__tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.psh-feedghost__tags span {
+  padding: 3px 10px;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+}
+
+/* ── Tab meaning ──────────────────────────────────────────── */
+.psh-tabmeaning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: var(--s-3) 0;
+  font-size: var(--fs-12);
+  line-height: 1.55;
+  color: var(--t-2);
+}
