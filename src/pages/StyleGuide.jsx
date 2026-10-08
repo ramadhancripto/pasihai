@@ -35,10 +35,10 @@ const SWATCHES = [
 ]
 
 const RULES = [
-  'Bottom nav ni destinations tano pekee — Home, Soga, Gundua, Spaces, Business.',
+  'Bottom nav ni destinations tano pekee — Home, Chat, Gundua, Spaces, Business.',
   'Home tabs: Mchanganyiko · Reels · Friends · Channels · Live. Hakuna "For You".',
   'Home haijengwi kwa followers. Mtumiaji mwenye marafiki pekee anapata uzoefu kamili.',
-  'Channels ≠ Chat. Hubs ≠ Chat. Soga ndiyo mawasiliano.',
+  'Channels ≠ Chat. Hubs ≠ Chat. Chat ndiyo mawasiliano — mfumo mmoja.',
   'Chapisho si giant cards — separation ya hila, si masanduku makubwa.',
   'Hakuna glassmorphism, gradients nyingi, dark dashboard, huge shadows au pill overload.',
   'Gold inatumika kwa nadra. Green ni kuu, blue inasaidia.',

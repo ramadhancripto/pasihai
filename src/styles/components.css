@@ -524,91 +524,199 @@
 }
 
 /* ── Vifungo ──────────────────────────────────────────────── */
-/* ── Buttons (hierarchy: primary · secondary · quiet/ghost · danger) ──
+/* ── BUTTON SYSTEM (kanuni MOJA kwa app yote) ──────────────────
    Fomu: rounded-rect 10px (si pill — pill ni ya chips/pills pekee).
-   Touch target: ≥ 38px kwa ukubwa wa kawaida, ≥ 32px kwa --sm.            */
-.psh-btn {
+   Aina:  --primary (kijani) · (default = secondary) · --ghost · --quiet
+          --soft (kijani hafifu) · --done (hali iliyokamilika) · --danger
+   Ukubwa: (default md 40px) · --sm 34px · --lg 48px · --block (upana kamili)
+   Hali:  hover · active (shinikizo) · :disabled / aria-disabled · .is-loading
+   Kila kitufe kinapata: focus ring, shinikizo la 0.98, na mabadiliko laini.
+   Jina la kizamani `.psh-gu-btn` linabaki kama ALIAS — muonekano mmoja.  */
+
+.psh-btn,
+.psh-gu-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 38px;
+  min-height: 40px;
   padding: 9px 15px;
   border: 1px solid var(--line-2);
   border-radius: 10px;
   background: var(--bg);
   color: var(--t-1);
+  font: inherit;
   font-size: var(--fs-14);
   font-weight: 500;
   line-height: 1.2;
+  text-decoration: none;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease),
-    color var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+    color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease);
 }
-.psh-btn:hover {
-  background: var(--bg-subtle);
+.psh-btn:hover,
+.psh-gu-btn:hover {
+  background: var(--bg-hover);
   border-color: var(--line-2);
 }
-.psh-btn:active {
-  transform: scale(0.985);
+.psh-btn:active,
+.psh-gu-btn:active {
+  transform: scale(0.98);
+}
+.psh-btn:focus-visible,
+.psh-gu-btn:focus-visible {
+  outline: 2px solid var(--c-green);
+  outline-offset: 2px;
 }
 .psh-btn:disabled,
-.psh-btn[aria-disabled='true'] {
-  opacity: 0.5;
-  cursor: not-allowed;
+.psh-btn[aria-disabled='true'],
+.psh-btn.is-loading,
+.psh-gu-btn:disabled,
+.psh-gu-btn[aria-disabled='true'],
+.psh-gu-btn.is-loading {
+  cursor: progress;
   transform: none;
 }
-.psh-btn--sm {
-  min-height: 32px;
-  padding: 6px 13px;
+.psh-btn:disabled,
+.psh-btn[aria-disabled='true'],
+.psh-gu-btn:disabled,
+.psh-gu-btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Kitufe kinapofanya kazi (busy): maandishi yanabaki, spinner inaongezwa */
+.psh-btn.is-loading,
+.psh-gu-btn.is-loading {
+  opacity: 1;
+  color: transparent;
+}
+.psh-btn.is-loading > *,
+.psh-gu-btn.is-loading > * {
+  opacity: 0;
+}
+.psh-btn.is-loading::after,
+.psh-gu-btn.is-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: var(--r-full);
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  color: var(--t-inverse);
+  animation: psh-spin 700ms linear infinite;
+}
+.psh-btn.is-loading.psh-btn--ghost::after,
+.psh-btn.is-loading.psh-btn--quiet::after,
+.psh-btn.is-loading.psh-btn--soft::after,
+.psh-gu-btn.is-loading.psh-gu-btn--ghost::after,
+.psh-gu-btn.is-loading.psh-gu-btn--quiet::after {
+  color: var(--c-green);
+}
+@keyframes psh-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Ukubwa ───────────────────────────────────────────────── */
+.psh-btn--sm,
+.psh-gu-btn--sm {
+  min-height: 34px;
+  padding: 6px 12px;
   font-size: var(--fs-13);
+  border-radius: 9px;
 }
-.psh-btn:hover {
-  background: var(--bg-hover);
+.psh-btn--lg,
+.psh-gu-btn--lg {
+  min-height: 48px;
+  padding: 12px 20px;
+  font-size: var(--fs-15);
+  border-radius: 12px;
 }
-.psh-btn--primary {
+.psh-btn--block,
+.psh-gu-btn--block {
+  width: 100%;
+}
+.psh-btn--icon,
+.psh-gu-btn--icon {
+  width: 40px;
+  padding: 0;
+}
+
+/* ── Aina ─────────────────────────────────────────────────── */
+.psh-btn--primary,
+.psh-gu-btn--primary {
   background: var(--c-green);
   border-color: var(--c-green);
   color: #fff;
+  box-shadow: var(--sh-1);
 }
-.psh-btn--primary:hover {
+.psh-btn--primary:hover,
+.psh-gu-btn--primary:hover {
   background: var(--c-green-600);
   border-color: var(--c-green-600);
 }
-.psh-btn--quiet {
+.psh-btn--primary:active,
+.psh-gu-btn--primary:active {
+  box-shadow: none;
+}
+.psh-btn--soft {
+  background: var(--c-green-soft);
+  border-color: var(--c-green-soft-2, var(--c-green-soft));
+  color: var(--c-green-700);
+  font-weight: 600;
+}
+.psh-btn--soft:hover {
+  background: var(--c-green-soft-2, var(--c-green-soft));
+  border-color: var(--c-green);
+}
+.psh-btn--quiet,
+.psh-gu-btn--quiet {
   border-color: transparent;
   background: transparent;
   color: var(--c-green-700);
   padding: 8px 10px;
 }
-.psh-btn--quiet:hover {
+.psh-btn--quiet:hover,
+.psh-gu-btn--quiet:hover {
   background: var(--c-green-soft);
 }
-/* Hali ya "imakwisha": uhusiano umo tayari (Unafuatilia · Umejiunga · Rafiki) */
+/* Hali ya "imekamilika": uhusiano umo tayari (Unafuatilia · Umejiunga · Rafiki).
+   Rangi tulivu ya kijani — inasoma kama hali, si kama kitufe kipya. */
 .psh-btn--done {
-  background: var(--bg-subtle);
-  border-color: var(--line);
-  color: var(--t-2);
+  background: var(--c-green-soft);
+  border-color: transparent;
+  color: var(--c-green-700);
   font-weight: 500;
 }
 .psh-btn--done:hover {
-  background: var(--bg-hover);
-  border-color: var(--line-2);
-  color: var(--t-1);
+  background: var(--c-green-soft-2);
+  border-color: transparent;
 }
-.psh-btn--ghost {
+.psh-btn--ghost,
+.psh-gu-btn--ghost {
   border-color: transparent;
   background: transparent;
-  color: var(--t-2);
+  color: var(--c-green-700);
 }
-.psh-btn--ghost:hover {
-  background: var(--bg-hover);
-  color: var(--t-1);
+.psh-btn--ghost:hover,
+.psh-gu-btn--ghost:hover {
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
 }
 .psh-btn--danger {
   border-color: transparent;
   background: var(--c-error-soft);
   color: var(--c-error-600);
+}
+.psh-btn--danger:hover {
+  background: var(--c-error-soft);
+  border-color: var(--c-error);
 }
 
 /* ── Switch ───────────────────────────────────────────────── */

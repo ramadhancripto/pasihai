@@ -1,0 +1,764 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — SYSTEM LAYER (Data Saved · System · Relay · Nearby ·
+   Sync · Save Offline · Share Nearby · Activity)
+
+   Kanuni: lugha ileile ya muonekano (tokens · hairline · radius 16 ·
+   vivuli vidogo). Hakuna rangi mpya — kila kitu kinatoka tokens.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Vitendo vya mfumo kwenye header ───────────────────────── */
+
+.psh-header__sys {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.psh-header__sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 2px;
+  background: var(--line);
+}
+
+.psh-ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--t-2);
+  font-family: var(--font-ui);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.psh-ctl:hover {
+  background: var(--bg-hover);
+  border-color: var(--line-2);
+  color: var(--t-1);
+}
+
+.psh-ctl:active {
+  background: var(--bg-sunken);
+}
+
+.psh-ctl svg {
+  color: var(--t-3);
+  flex: 0 0 auto;
+}
+
+.psh-ctl__num {
+  font-weight: 600;
+  color: var(--t-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.psh-ctl__word {
+  color: var(--t-3);
+}
+
+.psh-ctl--system {
+  padding: 0 8px 0 10px;
+}
+
+/* Doa ya hali — kidogo, si badge */
+.psh-ctl__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--t-3);
+  flex: 0 0 auto;
+}
+.psh-ctl__dot--ok {
+  background: var(--c-green);
+}
+.psh-ctl__dot--blue {
+  background: var(--c-blue);
+}
+.psh-ctl__dot--gold {
+  background: var(--c-gold);
+}
+.psh-ctl__dot--off {
+  background: var(--line-2);
+}
+
+/* ── Vipimo (metric) ───────────────────────────────────────── */
+
+.psh-sys-metric {
+  display: grid;
+  gap: 2px;
+}
+.psh-sys-metric strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-32);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--t-1);
+}
+.psh-sys-metric span {
+  font-size: var(--fs-13);
+  color: var(--t-2);
+}
+.psh-sys-metric--sm strong {
+  font-size: var(--fs-26);
+}
+
+/* ── Safu za maelezo (breakdown / kv) ──────────────────────── */
+
+.psh-sys-break,
+.psh-sys-items,
+.psh-sys-transports,
+.psh-sys-people {
+  display: grid;
+  border-top: 1px solid var(--line);
+}
+
+.psh-sys-break li,
+.psh-sys-items li,
+.psh-sys-transports li,
+.psh-sys-people li {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--line);
+}
+.psh-sys-break li:last-child,
+.psh-sys-items li:last-child,
+.psh-sys-transports li:last-child,
+.psh-sys-people li:last-child {
+  border-bottom: 0;
+}
+
+.psh-sys-break__text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.psh-sys-break__label {
+  font-size: var(--fs-13);
+  font-weight: 500;
+  color: var(--t-1);
+}
+.psh-sys-break__hint {
+  font-size: var(--fs-12);
+  line-height: 1.45;
+  color: var(--t-3);
+}
+.psh-sys-break strong,
+.psh-sys-transports strong {
+  font-size: var(--fs-13);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-1);
+  text-align: right;
+}
+
+/* ── Athari kwa mtandao (impact grid) ──────────────────────── */
+
+.psh-sys-impact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: var(--s-2) var(--s-4);
+}
+.psh-sys-impact li {
+  display: grid;
+  gap: 1px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.psh-sys-impact strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-sys-impact span {
+  font-size: var(--fs-12);
+  line-height: 1.4;
+  color: var(--t-2);
+}
+
+/* ── Stats (Activity) ──────────────────────────────────────── */
+
+.psh-sys-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s-2);
+}
+.psh-sys-stats li {
+  display: grid;
+  gap: 1px;
+  padding: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-sys-stats strong {
+  font-size: var(--fs-15);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-sys-stats span {
+  font-size: var(--fs-11);
+  line-height: 1.35;
+  color: var(--t-2);
+}
+
+/* ── Hali ya kifaa (status block) ──────────────────────────── */
+
+.psh-sys-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-sys-status__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--t-3);
+  flex: 0 0 auto;
+  box-shadow: 0 0 0 3px var(--bg);
+}
+.psh-sys-status__dot--ok {
+  background: var(--c-green);
+}
+.psh-sys-status__dot--gold {
+  background: var(--c-gold);
+}
+.psh-sys-status__dot--off {
+  background: var(--line-2);
+}
+.psh-sys-status__text {
+  display: grid;
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-sys-status__label {
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-sys-status__detail {
+  font-size: var(--fs-12);
+  line-height: 1.45;
+  color: var(--t-2);
+}
+
+/* ── Vitendo vinavyofaa SASA (quick actions) ───────────────── */
+
+.psh-sys-actions {
+  display: grid;
+  gap: 2px;
+}
+
+.psh-sys-act {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 8px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  color: var(--t-1);
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease);
+}
+.psh-sys-act:hover {
+  background: var(--bg-hover);
+}
+.psh-sys-act svg:last-child {
+  color: var(--t-3);
+}
+.psh-sys-act__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  color: var(--t-2);
+  flex: 0 0 auto;
+}
+.psh-sys-act__text {
+  display: grid;
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-sys-act__label {
+  font-size: var(--fs-14);
+  font-weight: 500;
+}
+.psh-sys-act__hint {
+  font-size: var(--fs-12);
+  line-height: 1.4;
+  color: var(--t-3);
+}
+.psh-sys-act__badge {
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--c-blue-soft);
+  color: var(--c-blue-700);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+/* Haipatikani sasa — inasomeka kama hali, si kosa */
+.psh-sys-act.is-off {
+  cursor: default;
+}
+.psh-sys-act.is-off .psh-sys-act__icon {
+  color: var(--t-3);
+  background: var(--bg);
+}
+.psh-sys-act.is-off .psh-sys-act__label {
+  color: var(--t-2);
+}
+.psh-sys-act.is-off .psh-sys-act__hint {
+  color: var(--t-3);
+}
+
+.psh-sys-act.is-attention .psh-sys-act__icon {
+  background: var(--c-blue-soft);
+  border-color: transparent;
+  color: var(--c-blue-700);
+}
+
+/* ── Rows za vitu (queue · content · activity) ─────────────── */
+
+.psh-sys-items__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  color: var(--t-2);
+  flex: 0 0 auto;
+}
+.psh-sys-items__at {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+  flex: 0 0 auto;
+}
+
+/* ── Hali za vitendo (WAITING · SENDING · SYNCED · FAILED) ─── */
+
+.psh-sys-state {
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex: 0 0 auto;
+}
+.psh-sys-state--waiting {
+  background: var(--c-gold-soft);
+  color: #8a6d16;
+}
+.psh-sys-state--sending {
+  background: var(--c-blue-soft);
+  color: var(--c-blue-700);
+}
+.psh-sys-state--synced {
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+}
+.psh-sys-state--failed {
+  background: var(--c-error-soft);
+  color: var(--c-error-600);
+}
+
+/* ── Idhini (consent) — mstari wa usalama ──────────────────── */
+
+.psh-sys-consent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-sys-consent__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--c-blue-soft);
+  color: var(--c-blue-700);
+  flex: 0 0 auto;
+}
+.psh-sys-consent__text {
+  display: grid;
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ── Switch rows zenye maelezo ─────────────────────────────── */
+
+.psh-sys-switchrow {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+.psh-sys-switchrow__hint {
+  font-size: var(--fs-12);
+  line-height: 1.45;
+  color: var(--t-3);
+}
+
+/* ── Njia (transports) ─────────────────────────────────────── */
+
+.psh-sys-transports li.is-off .psh-sys-break__label {
+  color: var(--t-2);
+}
+
+/* ── Mistari mifupi (notes) ────────────────────────────────── */
+
+.psh-sys-lines {
+  display: grid;
+  gap: 4px;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-sys-lines li {
+  display: flex;
+  gap: 7px;
+}
+.psh-sys-lines li::before {
+  content: '•';
+  color: var(--line-2);
+}
+
+/* ── Watu walio karibu ─────────────────────────────────────── */
+
+.psh-sys-people li {
+  align-items: center;
+}
+.psh-sys-people .psh-ident {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ── Composer (Chapisho) ───────────────────────────────────── */
+
+.psh-compose {
+  display: block;
+}
+.psh-compose__input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: var(--t-1);
+  font-family: var(--font-ui);
+  font-size: var(--fs-15);
+  line-height: 1.5;
+  resize: vertical;
+}
+.psh-compose__input::placeholder {
+  color: var(--t-3);
+}
+.psh-compose__input:focus {
+  outline: none;
+  border-color: var(--c-green);
+  box-shadow: 0 0 0 3px var(--c-green-soft);
+}
+
+/* ── Kichwa cha panel: sentensi ya hali ────────────────────── */
+
+.psh-panelstack__foot svg,
+.psh-panelstack__count svg {
+  flex: 0 0 auto;
+}
+.psh-panelstack__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE — header: simu ni compact, desktop inapumua
+   ══════════════════════════════════════════════════════════════ */
+
+/* Simu: "184 MB saved" → "184 MB"; System → icon + doa */
+@media (max-width: 720px) {
+  .psh-ctl__word {
+    display: none;
+  }
+  .psh-ctl {
+    padding: 0 10px;
+  }
+  .psh-ctl--system {
+    padding: 0 9px;
+  }
+}
+
+/* Simu ndogo: nafasi za kutosha, hakuna overflow */
+@media (max-width: 420px) {
+  .psh-header__sys {
+    gap: 4px;
+  }
+  .psh-header__sep {
+    display: none;
+  }
+  .psh-ctl {
+    padding: 0 9px;
+    gap: 5px;
+  }
+  .psh-sys-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Eneo la kugusa (touch target ≈44px) kwa vidole ────────
+   Muonekano unabaki compact; eneo la kugusa linapanuka kwa
+   wima pekee ili vitendo visivyogongana.                        */
+
+@media (pointer: coarse) {
+  .psh-ctl {
+    position: relative;
+  }
+  .psh-ctl::after {
+    content: '';
+    position: absolute;
+    inset: -4px 0;
+  }
+  .psh-sys-items .psh-btn--sm,
+  .psh-sys-people .psh-btn--sm {
+    position: relative;
+  }
+  .psh-sys-items .psh-btn--sm::after,
+  .psh-sys-people .psh-btn--sm::after {
+    content: '';
+    position: absolute;
+    inset: -6px 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .psh-ctl__num {
+    font-size: var(--fs-11);
+  }
+  .psh-ctl {
+    padding: 0 8px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RELAY — sera ya ujumbe mfupi (Internet Relay ≠ Local Mesh)
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-sys-block {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+}
+
+.psh-sys-status--bare {
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.psh-sys-irhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.psh-sys-kicker {
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+
+.psh-sys-foot-note {
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-3);
+}
+
+/* Chips za aina (Local Mesh) na zile zilizozuiliwa */
+.psh-sys-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.psh-sys-chips--blocked .psh-chip {
+  color: var(--t-3);
+  background: var(--bg-subtle);
+  border-color: var(--line);
+  text-decoration: line-through;
+  text-decoration-color: var(--line-2);
+}
+
+/* Tangazo la hali (off · ukomo umefikiwa) */
+.psh-sys-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-2);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+}
+.psh-sys-alert svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.psh-sys-alert b {
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-sys-alert--limit {
+  background: var(--c-gold-soft);
+  border-color: transparent;
+  color: #7a6013;
+}
+.psh-sys-alert--limit b {
+  color: #6b5310;
+}
+.psh-sys-alert--limit svg {
+  color: #8a6d16;
+}
+
+/* Baa ya matumizi (used / limit) */
+.psh-sys-meter {
+  display: grid;
+  gap: 6px;
+}
+.psh-sys-meter__track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  overflow: hidden;
+}
+.psh-sys-meter__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--c-green);
+  transition: width var(--dur-2, 240ms) var(--ease, ease);
+}
+.psh-sys-meter__cap {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sera: inaruhusiwa (✓) */
+.psh-sys-policy {
+  display: grid;
+  border-top: 1px solid var(--line);
+}
+.psh-sys-policy li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--line);
+}
+.psh-sys-policy__mark {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+  font-size: 11px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+/* Kipaumbele (1·2·3) */
+.psh-sys-prior {
+  display: grid;
+  gap: 6px;
+}
+.psh-sys-prior li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: var(--fs-13);
+  color: var(--t-1);
+}
+.psh-sys-prior__num {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--c-blue-soft);
+  color: var(--c-blue-700);
+  font-size: 11px;
+  font-weight: 600;
+  flex: 0 0 auto;
+}
+
+/* Njia: maandishi ya kushoto */
+.psh-sys-transports__text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* Kinga ya faili (Share Nearby) */
+.psh-sys-guard {
+  display: grid;
+  gap: 8px;
+}
+
+/* ── Relay: eneo la kugusa kwa "Tuma" ──────────────────────── */
+@media (pointer: coarse) {
+  .psh-sys-items .psh-btn--sm::after {
+    content: '';
+    position: absolute;
+    inset: -6px 0;
+  }
+  .psh-sys-items .psh-btn--sm {
+    position: relative;
+  }
+}

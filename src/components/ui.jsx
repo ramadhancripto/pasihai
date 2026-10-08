@@ -99,6 +99,68 @@ export function IconButton({ label, children, badge, className = '', ...rest }) 
   )
 }
 
+/* ── Button (mfumo MMOJA wa vitufe) ───────────────────────────
+   Aina: primary · soft · ghost · quiet · done · danger (default = secondary)
+   Ukubwa: sm (34) · md (40) · lg (48)
+   `loading` → kitufe kinajifunga kwa muda, spinner inaonekana, label inabaki
+   kwa screen-reader (aria-busy + aria-live). Hakuna kubofya kwenye hali hiyo. */
+export function Button({
+  variant = 'secondary',
+  size = 'md',
+  icon = null,
+  block = false,
+  loading = false,
+  disabled = false,
+  loadingLabel,
+  className = '',
+  children,
+  ...rest
+}) {
+  const cls = [
+    'psh-btn',
+    variant !== 'secondary' ? `psh-btn--${variant}` : '',
+    size !== 'md' ? `psh-btn--${size}` : '',
+    block ? 'psh-btn--block' : '',
+    loading ? 'is-loading' : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
+  return (
+    <button
+      type="button"
+      className={cls}
+      aria-busy={loading || undefined}
+      aria-disabled={disabled || loading || undefined}
+      disabled={disabled || loading}
+      {...rest}
+    >
+      {icon}
+      <span className="psh-btn__label">{loading && loadingLabel ? loadingLabel : children}</span>
+    </button>
+  )
+}
+
+/* ── Skeleton (kadi inayopakia — umbo lile lile la kadi halisi) ── */
+export function Skeleton({ lines = 2, block = true, ava = true, className = '' }) {
+  return (
+    <div className={`psh-skel ${className}`} aria-hidden="true">
+      {ava ? (
+        <div className="psh-skel__row">
+          <span className="psh-skel__ava" />
+          <span className="psh-skel__lines">
+            <span className="psh-skel__line psh-skel__line--w40" />
+            <span className="psh-skel__line psh-skel__line--w70" />
+          </span>
+        </div>
+      ) : null}
+      {lines > 0 ? <span className="psh-skel__line psh-skel__line--w90" /> : null}
+      {lines > 1 ? <span className="psh-skel__line psh-skel__line--w60" /> : null}
+      {block ? <div className="psh-skel__block" /> : null}
+    </div>
+  )
+}
+
 /* ── Chip ─────────────────────────────────────────────────── */
 
 export function Chip({ children, tone = 'neutral', className = '', ...rest }) {
@@ -368,16 +430,23 @@ export function Dropdown({ trigger, children, align = 'right', width = 288, labe
    Hub → Jiunge · Biashara → Fuata/Wasiliana) na hubadilika pale uhusiano
    unapokuwepo tayari (Fuata → Unafuatilia · Jiunge → Umejiunga).             */
 
-export function EntityAction({ vocab, isDone = false, onClick, className = '' }) {
+export function EntityAction({ vocab, isDone = false, onClick, className = '', busy = false, disabled = false }) {
   if (!vocab) return null
+  const off = busy || disabled
   return (
     <button
       type="button"
       className={`psh-btn psh-btn--sm ${isDone ? 'psh-btn--done' : 'psh-btn--primary'} ${className}`}
       aria-pressed={isDone}
+      aria-busy={busy || undefined}
+      disabled={off}
       onClick={onClick}
     >
-      {isDone ? <IconCheck size={14} strokeWidth={2.2} /> : null}
+      {busy ? (
+        <span className="psh-btn__spinner" aria-hidden="true" />
+      ) : isDone ? (
+        <IconCheck size={14} strokeWidth={2.2} />
+      ) : null}
       {isDone ? vocab.done : vocab.action}
     </button>
   )

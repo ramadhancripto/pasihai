@@ -20,7 +20,19 @@ import { BODIES } from './bodies.jsx'
 import FeedActions from './FeedActions.jsx'
 import { formatAge } from '../../utils/time.js'
 
-export default function FeedItem({ item, onOpenProfile, onToast }) {
+export default function FeedItem({
+  item,
+  onOpenProfile,
+  onToast,
+  onToggleLike,
+  onToggleSave,
+  onOpenComments,
+  onOpenShare,
+  onOpenMenu,
+  onVote,
+  onOpenLive,
+  onCta,
+}) {
   const Body = BODIES[item.kind]
   if (!Body || !item.entity) return null
 
@@ -52,10 +64,26 @@ export default function FeedItem({ item, onOpenProfile, onToast }) {
           </p>
         ) : null}
 
-        <Body item={item} onToast={onToast} />
+        <Body
+          item={item}
+          onToast={onToast}
+          onVote={onVote}
+          onOpenLive={onOpenLive}
+          onCta={onCta}
+        />
       </div>
 
-      <FeedActions stats={item.stats} onToast={onToast} />
+      <FeedActions
+        item={item}
+        liked={item.liked}
+        saved={item.saved}
+        stats={item.stats}
+        onToggleLike={() => onToggleLike?.(item)}
+        onToggleSave={() => onToggleSave?.(item)}
+        onOpenComments={() => onOpenComments?.(item)}
+        onOpenShare={() => onOpenShare?.(item)}
+        onOpenMenu={() => onOpenMenu?.(item)}
+      />
     </article>
   )
 }

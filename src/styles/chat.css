@@ -1,0 +1,1403 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — CHAT (mfumo mmoja wa mawasiliano)
+
+   Background ya mazungumzo: RANGI MOJA SAFI (`--c-green-soft`).
+   Hakuna dots · pattern · wallpaper · texture · gradient.
+   Bubbles: outgoing = kijani kirefu + maandishi meupe ·
+            incoming = uso mweupe + hairline.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-chat {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .psh-chat {
+    grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+    gap: 0;
+    align-items: stretch;
+    min-height: 640px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .psh-chat__pane--list {
+    border-right: 1px solid var(--line);
+    max-height: 72vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .psh-chat__pane--thread {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    max-height: 72vh;
+  }
+  /* Desktop: panes ZOTE MBILI zinaonekana pamoja (orodha | mazungumzo).
+     Kubadilishana kwa pane ni tabia ya simu pekee. */
+  .psh-chat__pane--thread {
+    display: flex;
+  }
+}
+
+@media (max-width: 1023px) {
+  .psh-chat[data-mobile-view='thread'] .psh-chat__pane--list {
+    display: none;
+  }
+  .psh-chat[data-mobile-view='list'] .psh-chat__pane--thread {
+    display: none;
+  }
+}
+
+/* ── Kichwa cha ukurasa wa Chat ────────────────────────────── */
+
+.psh-chat__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 10px 0 8px;
+}
+.psh-chat__headleft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.psh-chat__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--t-1);
+}
+.psh-chat__sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--t-2);
+}
+.psh-chat__syncdot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line-2);
+}
+.psh-chat__syncdot--ok {
+  background: var(--c-green);
+}
+.psh-chat__syncdot--blue {
+  background: var(--c-blue);
+}
+.psh-chat__syncdot--gold {
+  background: var(--c-gold);
+}
+.psh-chat__headactions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ── Status ya mfumo (chips) — hali moja, si dashboard ─────── */
+
+.psh-chat__sysline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+}
+.psh-chat__syschip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  font-size: var(--fs-11);
+  font-weight: 500;
+  color: var(--t-2);
+}
+.psh-chat__syschip b {
+  color: var(--t-1);
+  font-weight: 600;
+}
+.psh-chat__syschip--ok {
+  background: var(--c-green-soft);
+  border-color: transparent;
+  color: var(--c-green-700);
+}
+.psh-chat__syschip--ok b {
+  color: var(--c-green-700);
+}
+
+/* ── Tafuta (Chat pekee) ───────────────────────────────────── */
+
+.psh-chat__search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-subtle);
+  color: var(--t-3);
+  font-size: var(--fs-14);
+  text-align: left;
+  cursor: pointer;
+}
+.psh-chat__search:hover {
+  background: var(--bg-hover);
+}
+
+/* ── Chips za kichujio ─────────────────────────────────────── */
+
+.psh-chat__filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 0 6px;
+  scrollbar-width: none;
+}
+.psh-chat__filters::-webkit-scrollbar {
+  display: none;
+}
+.psh-chat__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--t-2);
+  font-size: var(--fs-13);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.psh-chat__filter:hover {
+  background: var(--bg-hover);
+}
+.psh-chat__filter.is-active {
+  background: var(--c-green);
+  border-color: var(--c-green);
+  color: #fff;
+}
+.psh-chat__filterdot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-green);
+}
+.psh-chat__filter.is-active .psh-chat__filterdot {
+  background: #fff;
+}
+.psh-chat__filtercount {
+  font-size: var(--fs-11);
+  opacity: 0.7;
+}
+
+/* ── Orodha ya mazungumzo ──────────────────────────────────── */
+
+.psh-chat__list {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 6px;
+}
+.psh-chat__row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.psh-chat__row:hover {
+  background: var(--bg-subtle);
+}
+.psh-chat__row.is-active {
+  background: var(--c-green-soft);
+}
+.psh-chat__rowmain {
+  display: grid;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-chat__rowtop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.psh-chat__rowname {
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--t-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.psh-chat__rowtext {
+  font-size: var(--fs-13);
+  color: var(--t-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.psh-chat__rowmeta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+.psh-chat__rowtime {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-chat__unread {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--c-green);
+  color: #fff;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+}
+.psh-chat__context {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-11);
+  color: var(--c-blue-700);
+}
+
+/* ── Muundo wa kikundi / avatars ───────────────────────────── */
+
+.psh-chat__ava {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: var(--bg-sunken);
+  color: var(--t-1);
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: 600;
+  flex: 0 0 auto;
+}
+.psh-chat__ava--green { background: var(--c-green-soft); color: var(--c-green-700); }
+.psh-chat__ava--blue { background: var(--c-blue-soft); color: var(--c-blue-700); }
+.psh-chat__ava--gold { background: var(--c-gold-soft); color: #8a6d16; }
+.psh-chat__ava--clay { background: #fbeee6; color: #9a5b34; }
+.psh-chat__ava--plum { background: #f3e9fb; color: #6b3f96; }
+.psh-chat__ava--slate { background: #eef2f6; color: #45566b; }
+.psh-chat__ava--teal { background: #e6f6f4; color: #14746b; }
+.psh-chat__ava svg {
+  color: currentColor;
+}
+.psh-chat__online {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--c-green);
+  border: 2px solid var(--bg);
+}
+.psh-chat__online--off {
+  background: var(--line-2);
+}
+
+/* ── Thread ────────────────────────────────────────────────── */
+
+.psh-chat__thread {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+  background: var(--c-green-soft); /* rangi MOJA safi */
+}
+
+.psh-chat__thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.psh-chat__theadtext {
+  display: grid;
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-chat__theadname {
+  font-size: var(--fs-15);
+  font-weight: 600;
+  color: var(--t-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.psh-chat__theadsub {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+
+.psh-chat__banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 8px 10px 0;
+  padding: 9px 11px;
+  border-radius: var(--r-md);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-2);
+}
+.psh-chat__banner b {
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-chat__banner--mesh {
+  background: var(--c-blue-soft);
+  border-color: transparent;
+  color: var(--c-blue-700);
+}
+.psh-chat__banner--mesh b {
+  color: var(--c-blue-700);
+}
+.psh-chat__banner svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.psh-chat__banner a {
+  color: var(--c-blue-700);
+  font-weight: 600;
+  text-decoration: none;
+}
+.psh-chat__banner a:hover {
+  text-decoration: underline;
+}
+
+.psh-chat__messages {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 10px 14px;
+}
+
+.psh-chat__day {
+  align-self: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+
+/* ── Bubbles ───────────────────────────────────────────────── */
+
+.psh-msg {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  max-width: min(78%, 520px);
+}
+.psh-msg--me {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+  margin-left: auto;
+}
+.psh-msg--them {
+  align-self: flex-start;
+}
+.psh-msg__sender {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 2px;
+  font-size: var(--fs-11);
+  color: var(--t-2);
+}
+.psh-msg__sender b {
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-msg__role {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--t-2);
+}
+.psh-msg__role--gold {
+  background: var(--c-gold-soft);
+  border-color: transparent;
+  color: #8a6d16;
+}
+.psh-msg__role--blue {
+  background: var(--c-blue-soft);
+  border-color: transparent;
+  color: var(--c-blue-700);
+}
+
+.psh-msg__bubble {
+  position: relative;
+  max-width: 100%;
+  padding: 9px 12px 7px;
+  border-radius: 14px 14px 14px 5px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--t-1);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  touch-action: pan-y;
+}
+.psh-msg--me .psh-msg__bubble {
+  border-radius: 14px 14px 5px 14px;
+  background: var(--c-green-700);
+  border-color: transparent;
+  color: #fff;
+}
+.psh-msg__text {
+  margin: 0;
+}
+.psh-msg__meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--t-3);
+}
+.psh-msg--me .psh-msg__meta {
+  color: rgba(255, 255, 255, 0.78);
+}
+.psh-msg__ticks {
+  display: inline-flex;
+}
+
+/* Quoted reply */
+.psh-msg__quote {
+  display: grid;
+  gap: 1px;
+  margin-bottom: 6px;
+  padding: 5px 8px;
+  border-left: 2px solid var(--c-green);
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  font-size: var(--fs-12);
+}
+.psh-msg--me .psh-msg__quote {
+  background: rgba(255, 255, 255, 0.14);
+  border-left-color: rgba(255, 255, 255, 0.7);
+}
+.psh-msg__quoteby {
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-msg--me .psh-msg__quoteby {
+  color: #fff;
+}
+.psh-msg__quotetext {
+  color: var(--t-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.psh-msg--me .psh-msg__quotetext {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* ── Aina za ujumbe ────────────────────────────────────────── */
+
+/* Sauti */
+.psh-msg__audio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 210px;
+}
+.psh-msg__play {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--c-green);
+  color: #fff;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.psh-msg--me .psh-msg__play {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--c-green-700);
+}
+.psh-msg__wave {
+  flex: 1 1 auto;
+  min-width: 90px;
+}
+.psh-msg__dur {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-msg--me .psh-msg__dur {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Kura */
+.psh-msg__poll {
+  display: grid;
+  gap: 6px;
+  min-width: 240px;
+}
+.psh-msg__pollhead {
+  font-size: var(--fs-11);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+.psh-msg--me .psh-msg__pollhead {
+  color: rgba(255, 255, 255, 0.75);
+}
+.psh-msg__pollq {
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+.psh-msg__opt {
+  display: grid;
+  gap: 3px;
+}
+.psh-msg__optrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--fs-13);
+}
+.psh-msg__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  overflow: hidden;
+}
+.psh-msg--me .psh-msg__bar {
+  background: rgba(255, 255, 255, 0.25);
+}
+.psh-msg__barfill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--c-green);
+}
+.psh-msg--me .psh-msg__barfill {
+  background: rgba(255, 255, 255, 0.85);
+}
+.psh-msg__opt--chosen .psh-msg__barfill {
+  background: var(--c-green);
+}
+.psh-msg__pollfoot {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-msg--me .psh-msg__pollfoot {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Eneo (location) */
+.psh-msg__loc {
+  display: grid;
+  gap: 6px;
+  min-width: 240px;
+}
+.psh-msg__map {
+  position: relative;
+  height: 118px;
+  border-radius: 10px;
+  background: #e7eff6; /* rangi MOJA safi — hakuna gradient wala pattern */
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.psh-msg__mapbadge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: var(--c-blue-700);
+}
+.psh-msg__mapeta {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--c-green-700);
+  color: #fff;
+  font-size: var(--fs-11);
+  font-weight: 600;
+}
+.psh-msg__loctitle {
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+
+/* Shared (chapisho/makala) */
+.psh-msg__shared {
+  display: grid;
+  gap: 4px;
+  min-width: 230px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+}
+.psh-msg--me .psh-msg__shared {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.psh-msg__eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+.psh-msg--me .psh-msg__eyebrow {
+  color: rgba(255, 255, 255, 0.78);
+}
+.psh-msg__sharedtitle {
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+.psh-msg__sharedsub {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  line-height: 1.45;
+}
+.psh-msg--me .psh-msg__sharedsub,
+.psh-msg--me .psh-msg__sharedmeta {
+  color: rgba(255, 255, 255, 0.82);
+}
+.psh-msg__sharedmeta {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-msg__cta {
+  justify-self: start;
+  margin-top: 2px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  color: var(--c-green-700);
+  cursor: pointer;
+}
+
+/* Hati (document) */
+.psh-msg__doc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 230px;
+  padding: 8px 9px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+}
+.psh-msg--me .psh-msg__doc {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.psh-msg__docicon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--c-error-soft);
+  color: var(--c-error-600);
+  flex: 0 0 auto;
+}
+.psh-msg__doctext {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.psh-msg__docname {
+  font-size: var(--fs-13);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.psh-msg__docmeta {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-msg--me .psh-msg__docmeta {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Tangazo */
+.psh-msg__ann {
+  display: grid;
+  gap: 4px;
+  min-width: 230px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: var(--c-gold-soft);
+  border: 1px solid transparent;
+}
+
+/* Media iliyozuiliwa (sera ya relay) */
+.psh-msg__guard {
+  display: grid;
+  gap: 7px;
+  min-width: 250px;
+}
+.psh-msg__guardcard {
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--c-gold-soft);
+}
+.psh-msg__guardtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: #6b5310;
+}
+.psh-msg__guardtext {
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: #7a6013;
+}
+.psh-msg__guardactions {
+  display: grid;
+  gap: 6px;
+}
+.psh-msg__guardbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--t-1);
+  font-size: var(--fs-13);
+  font-weight: 500;
+  cursor: pointer;
+}
+.psh-msg__guardbtn--primary {
+  background: var(--c-green);
+  border-color: var(--c-green);
+  color: #fff;
+}
+.psh-msg__guardbtn:hover {
+  filter: brightness(0.98);
+}
+.psh-msg__videoframe {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  height: 132px;
+  border-radius: 10px;
+  background: #22303c;
+  color: #fff;
+  font-size: var(--fs-12);
+}
+.psh-msg__videobadge {
+  font-size: var(--fs-11);
+  opacity: 0.8;
+}
+
+/* ── Hali ya ujumbe (state chip) ───────────────────────────── */
+
+.psh-msg__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-msg--me .psh-msg__state {
+  justify-self: end;
+}
+.psh-msg__state--ok {
+  color: var(--c-green-700);
+}
+.psh-msg__state--blue {
+  color: var(--c-blue-700);
+}
+.psh-msg__state--gold {
+  color: #8a6d16;
+}
+
+/* ── Itikio (reactions) ────────────────────────────────────── */
+
+.psh-msg__reactions {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: -2px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: var(--fs-11);
+  color: var(--t-2);
+}
+.psh-msg--me .psh-msg__reactions {
+  justify-self: end;
+}
+
+/* ── Vitendo vya ujumbe (kitufe cha kufikia) ───────────────── */
+
+.psh-msg__more {
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--t-3);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur-1) var(--ease);
+}
+.psh-msg:hover .psh-msg__more,
+.psh-msg__more:focus-visible,
+.psh-msg__more.is-on {
+  opacity: 1;
+}
+.psh-msg__col {
+  display: grid;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-items: start;
+}
+.psh-msg--me .psh-msg__col {
+  justify-items: end;
+}
+
+/* ── Mwonekano wa typing ───────────────────────────────────── */
+
+.psh-chat__typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0 0 4px;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-chat__typingdots {
+  display: inline-flex;
+  gap: 3px;
+}
+.psh-chat__typingdots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--t-3);
+  animation: psh-typing 1.1s infinite;
+}
+.psh-chat__typingdots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.psh-chat__typingdots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes psh-typing {
+  0%, 60%, 100% { opacity: 0.3; }
+  30% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .psh-chat__typingdots i {
+    animation: none;
+  }
+}
+
+/* ── Composer (mmoja kwa Direct + Group) ───────────────────── */
+
+.psh-chat__composer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 8px 10px 10px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+.psh-chat__cbtn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--t-2);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.psh-chat__cbtn:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-chat__cbtn--send {
+  background: var(--c-green);
+  color: #fff;
+}
+.psh-chat__cbtn--send:hover {
+  background: var(--c-green-600);
+  color: #fff;
+}
+.psh-chat__cbtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.psh-chat__input {
+  flex: 1 1 auto;
+  min-height: 38px;
+  max-height: 120px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--bg-subtle);
+  color: var(--t-1);
+  font-family: var(--font-ui);
+  font-size: var(--fs-14);
+  line-height: 1.4;
+  resize: none;
+}
+.psh-chat__input:focus {
+  outline: none;
+  border-color: var(--c-green);
+  background: var(--bg);
+  box-shadow: 0 0 0 3px var(--c-green-soft);
+}
+.psh-chat__reply {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 10px;
+  padding: 6px 10px;
+  border-radius: 10px 10px 0 0;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+.psh-chat__reply b {
+  color: var(--t-1);
+}
+.psh-chat__reply button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--t-3);
+  cursor: pointer;
+}
+
+/* ── FAB ya New Chat (simu) ────────────────────────────────── */
+
+.psh-chat__fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(var(--nav-h) + 20px + env(safe-area-inset-bottom));
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--c-green);
+  color: #fff;
+  font-size: var(--fs-14);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--sh-2, 0 8px 24px -8px rgba(15, 23, 42, 0.28));
+}
+.psh-chat__fab:hover {
+  background: var(--c-green-600);
+}
+@media (min-width: 1024px) {
+  .psh-chat__fab {
+    position: static;
+    margin: 8px 0 4px;
+    justify-content: center;
+  }
+}
+
+/* ── Panels za Chat (New Chat · New Group · Requests · Search) ── */
+
+.psh-chat-section {
+  display: grid;
+  gap: 6px;
+}
+.psh-chat-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 6px;
+}
+.psh-chat-section__title {
+  font-size: var(--fs-11);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+.psh-chat-section__count {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-chat-person {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--r-sm);
+}
+.psh-chat-person.is-selected {
+  background: var(--c-green-soft);
+}
+.psh-chat-person__main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.psh-chat-person:hover .psh-chat-person__main,
+.psh-chat-person__main:hover {
+  background: var(--bg-hover);
+}
+.psh-chat-person__text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.psh-chat-person__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-14);
+  font-weight: 500;
+  color: var(--t-1);
+}
+.psh-chat-person__meta {
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-chat-person__action {
+  flex: 0 0 auto;
+}
+.psh-chat__ava--sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: var(--fs-13);
+}
+
+.psh-chat-lookup {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-subtle);
+}
+.psh-chat-lookup__row {
+  display: flex;
+  gap: 6px;
+}
+.psh-chat-lookup__country {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: var(--fs-13);
+  color: var(--t-2);
+  flex: 0 0 auto;
+}
+.psh-chat-lookup__input {
+  flex: 1 1 auto;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  font-family: var(--font-ui);
+  font-size: var(--fs-15);
+  letter-spacing: 0.02em;
+  color: var(--t-1);
+}
+.psh-chat-lookup__input:focus {
+  outline: none;
+  border-color: var(--c-green);
+  box-shadow: 0 0 0 3px var(--c-green-soft);
+}
+.psh-chat-case {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+}
+.psh-chat-case__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.psh-chat-case__badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: var(--t-2);
+}
+.psh-chat-case__note {
+  display: flex;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-2);
+}
+.psh-chat-case__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.psh-chat-request {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg);
+}
+.psh-chat-request__msg {
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  font-size: var(--fs-13);
+  line-height: 1.55;
+  color: var(--t-1);
+}
+.psh-chat-request__mutual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+.psh-chat-request__actions {
+  display: grid;
+  gap: 6px;
+}
+.psh-chat-request__actions--row {
+  display: flex;
+  gap: 6px;
+}
+.psh-chat-request__actions--row .psh-btn {
+  flex: 1 1 0;
+}
+.psh-chat__guard-note {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--c-blue-soft);
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--c-blue-700);
+}
+.psh-chat__guard-note svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+/* ── Chips za hali kwenye thread (E2E · Mesh · Synced) ─────── */
+
+.psh-chat__footnotes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 12px 8px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-chat__footnotes span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Actions za ujumbe (sheet) ─────────────────────────────── */
+
+.psh-msgact {
+  display: grid;
+  gap: 10px;
+}
+.psh-msgact__quote {
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  font-size: var(--fs-13);
+  line-height: 1.5;
+  color: var(--t-2);
+}
+.psh-msgact__reactions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.psh-msgact__reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: var(--fs-16);
+  cursor: pointer;
+}
+.psh-msgact__reaction:hover {
+  background: var(--bg-hover);
+}
+
+/* ── Simu: compact ─────────────────────────────────────────── */
+
+@media (max-width: 420px) {
+  .psh-msg {
+    max-width: 88%;
+  }
+  .psh-chat__ava {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+  }
+}
+
+/* Eneo la kugusa kwa vidole */
+@media (pointer: coarse) {
+  .psh-chat__row {
+    min-height: 48px;
+  }
+  .psh-msg__more {
+    opacity: 1;
+  }
+  .psh-chat__cbtn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+
+/* ── Desktop: Chat inapata upana wa panes mbili (§26) ─────────
+   Kurasa nyingine zinabaki kwenye safu ya kawaida (--col); Chat
+   pekee inaongezwa kwa sababu ina orodha + mazungumzo. */
+@media (min-width: 1024px) {
+  .psh-main--wide .psh-col {
+    max-width: 1160px;
+  }
+  .psh-main--wide .psh-header__inner,
+  .psh-main--wide .psh-nav__list {
+    max-width: 1160px;
+  }
+}

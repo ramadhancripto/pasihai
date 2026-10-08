@@ -10,6 +10,14 @@
   padding-bottom: var(--s-4);
 }
 
+/* Muktadha wa tab (Stitch: context line) — mstari mmoja, hauna kelele */
+.psh-feed__context {
+  padding: 10px 2px 0;
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-3);
+}
+
 /* ── Hesabu ya kichujio ───────────────────────────────────── */
 .psh-feed__count {
   display: flex;
@@ -28,7 +36,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--card-gap);
-  padding-top: var(--s-3);
+  padding-top: 10px;
 }
 
 /* ── Chapisho (shell) — "card-lite" ───────────────────────────
@@ -483,9 +491,9 @@
 .psh-feed__empty {
   display: grid;
   justify-items: center;
-  gap: 6px;
-  margin-top: var(--s-3);
-  padding: var(--s-8) var(--s-4);
+  gap: 5px;
+  margin-top: 10px;
+  padding: 22px var(--s-4);
   text-align: center;
   color: var(--t-3);
   background: var(--bg);
@@ -649,14 +657,14 @@
 
 /* ── Discovery: channels zinazopendekezwa ─────────────────── */
 .psh-discover {
-  margin-top: var(--s-4);
-  padding: var(--card-pad);
+  margin-top: var(--card-gap);
+  padding: 14px;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: var(--card-r);
 }
 .psh-discover__head {
-  margin-bottom: var(--s-3);
+  margin-bottom: 6px;
 }
 .psh-discover__title {
   font-family: var(--font-display);
@@ -677,7 +685,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 0;
+  padding: 7px 0;
 }
 .psh-discover__item + .psh-discover__item {
   border-top: 1px solid var(--line);
@@ -799,9 +807,9 @@
 .psh-feed__end {
   display: grid;
   justify-items: center;
-  gap: 4px;
+  gap: 3px;
   margin-top: var(--card-gap);
-  padding: var(--s-8) var(--s-5);
+  padding: 22px var(--s-5) 20px;
   text-align: center;
   background: var(--bg);
   border: 1px solid var(--line);
@@ -810,9 +818,9 @@
 .psh-feed__endicon {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  margin-bottom: 6px;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 4px;
   border-radius: var(--r-full);
   background: var(--c-green-soft);
   color: var(--c-green-700);
@@ -830,7 +838,7 @@
   color: var(--t-2);
 }
 .psh-feed__endbtn {
-  margin-top: 10px;
+  margin-top: 8px;
   padding: 9px 16px;
   font-size: var(--fs-13);
 }
@@ -840,4 +848,347 @@
   .psh-feedmedia .psh-media {
     max-height: 420px;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PANELS ZA CHAPISHO — Maoni · Kushiriki · Zaidi · Live · Status
+   Panels hizi ni sehemu ya mkondo. Zinatumia tokens za PASIHAI
+   (hakuna rangi mpya) na mfumo mmoja wa vitufe (.psh-btn).
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Maoni ─────────────────────────────────────────────────── */
+.psh-cmts {
+  display: grid;
+  gap: 12px;
+}
+
+.psh-cmts__lead {
+  margin: 0;
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-2);
+}
+.psh-cmts__lead svg {
+  color: var(--c-green);
+  vertical-align: -2px;
+  margin-right: 5px;
+}
+.psh-cmts__lead b { color: var(--t-1); }
+
+/* Maandishi ya chapisho yenyewe (muktadha wa maoni) */
+.psh-cmts__post {
+  margin: 0;
+  padding: 11px 12px;
+  border-left: 3px solid var(--c-green-soft-2);
+  border-radius: 0 10px 10px 0;
+  background: var(--bg-subtle);
+  font-size: var(--fs-14);
+  line-height: 1.55;
+  color: var(--t-1);
+}
+
+.psh-cmts__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.psh-cmts__list > li {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+.psh-cmts__list > li.is-mine .psh-cmts__body { background: var(--c-green-soft); }
+.psh-cmts__body {
+  min-width: 0;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--bg-hover);
+}
+.psh-cmts__name {
+  margin: 0 0 3px;
+  font-size: var(--fs-12);
+  font-weight: var(--fw-6);
+  color: var(--t-1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.psh-cmts__you {
+  font-size: var(--fs-10);
+  font-weight: var(--fw-6);
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--c-green-700);
+}
+.psh-cmts__text {
+  margin: 0;
+  font-size: var(--fs-14);
+  line-height: 1.5;
+  color: var(--t-1);
+}
+.psh-cmts__at {
+  margin: 4px 0 0;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+.psh-cmts__empty {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-13);
+  color: var(--t-3);
+}
+.psh-cmts__empty svg { color: var(--t-3); }
+
+.psh-cmts__form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding-top: 4px;
+}
+.psh-share__input {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: var(--fs-14);
+  color: var(--t-1);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+}
+.psh-share__input::placeholder { color: var(--t-3); }
+.psh-share__input:focus-visible {
+  outline: 2px solid var(--c-green);
+  outline-offset: 1px;
+  background: var(--bg);
+}
+
+/* ── Kushiriki ─────────────────────────────────────────────── */
+.psh-share__lead {
+  margin: 0 0 12px;
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--t-2);
+}
+.psh-share__lead svg {
+  color: var(--c-green);
+  vertical-align: -2px;
+  margin-right: 5px;
+}
+.psh-share__lead b { color: var(--t-1); }
+
+.psh-share__quick,
+.psh-share__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.psh-share__row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+  text-align: left;
+  cursor: pointer;
+  transition: background .16s ease, border-color .16s ease;
+}
+.psh-share__row:hover { background: var(--bg-hover); border-color: var(--line-2); }
+.psh-share__row:disabled { opacity: .55; cursor: default; }
+.psh-share__icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+}
+.psh-share__text { min-width: 0; display: grid; gap: 2px; }
+.psh-share__text b { font-size: var(--fs-13); color: var(--t-1); }
+.psh-share__text span {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psh-share__h {
+  margin: 16px 0 8px;
+  font-size: var(--fs-12);
+  font-weight: var(--fw-6);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+.psh-share__list > li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.psh-share__who { min-width: 0; display: grid; gap: 2px; }
+.psh-share__who b,
+.psh-share__who span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psh-share__who b { font-size: var(--fs-13); }
+.psh-share__who span { font-size: var(--fs-12); color: var(--t-2); }
+.psh-share__note {
+  margin: 12px 0 0;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+
+/* ── Zaidi (menyu ya chapisho) ─────────────────────────────── */
+.psh-postmenu__item { grid-template-columns: 34px 1fr; }
+
+/* ── Kikao cha Live ────────────────────────────────────────── */
+.psh-livepanel__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.psh-livepanel__title {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  line-height: 1.3;
+  color: var(--t-1);
+}
+.psh-livepanel__meta {
+  margin: 0 0 12px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+.psh-livepanel__facts {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.psh-livepanel__facts li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 9px;
+  align-items: start;
+  font-size: var(--fs-13);
+  line-height: 1.5;
+  color: var(--t-2);
+}
+.psh-livepanel__facts svg { color: var(--c-green); margin-top: 1px; }
+.psh-livepanel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ── Status zote ───────────────────────────────────────────── */
+.psh-statusall {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.psh-statusall__row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 40px 1fr 10px;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--bg);
+  text-align: left;
+  cursor: pointer;
+}
+.psh-statusall__row:hover { background: var(--bg-hover); border-color: var(--line); }
+.psh-statusall__text { min-width: 0; display: grid; gap: 2px; }
+.psh-statusall__text b { font-size: var(--fs-14); color: var(--t-1); }
+.psh-statusall__text span {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psh-statusall__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--line-2);
+}
+.psh-statusall__dot--new { border-color: var(--c-green); background: var(--c-green); }
+.psh-statusall__dot--own { border-color: var(--c-blue); background: var(--c-blue); }
+.psh-statusall__dot--viewed { border-color: var(--line-2); background: transparent; }
+
+/* ── Orodha ya zilizohifadhiwa ─────────────────────────────── */
+.psh-savedlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.psh-savedlist > li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.psh-savedlist__row {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.psh-savedlist__kind {
+  font-size: var(--fs-11);
+  font-weight: var(--fw-6);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+.psh-savedlist__text { min-width: 0; display: grid; gap: 2px; }
+.psh-savedlist__text b { font-size: var(--fs-13); color: var(--t-1); }
+.psh-savedlist__text span {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

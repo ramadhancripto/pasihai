@@ -10,10 +10,10 @@ import useAsyncData from '../../hooks/useAsyncData.js'
 import { Avatar, PlusBadge } from '../ui.jsx'
 import { IconArrowRight, IconPlay } from '../icons.jsx'
 
-export default function StatusRow({ onOpenStatus, onOpenAll }) {
+export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
   // Data inakuja kwa application service (si mock.js moja kwa moja).
   // Service inaunganisha status na entity yake — component haijui map ya users.
-  const items = useAsyncData(() => homeService.getStatusStrip(), [])
+  const items = useAsyncData(() => homeService.getStatusStrip(), [version])
 
   if (!items) return null
 

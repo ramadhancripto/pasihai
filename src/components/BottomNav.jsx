@@ -1,14 +1,14 @@
 // ══════════════════════════════════════════════════════════════
 // PASIHAI — BOTTOM NAVIGATION (Hatua 1)
 // Destinations TANO pekee:
-//   Home → Consume     · Soga → Communicate · Gundua → Discover
+//   Home → Consume     · Chat → Communicate · Gundua → Discover
 //   Spaces → Participate · Business → Operate
 // Hakuna ya sita. Hakuna duplication na Home tabs.
 // ══════════════════════════════════════════════════════════════
 
 import {
   IconHome,
-  IconSoga,
+  IconChat,
   IconGundua,
   IconSpaces,
   IconBusiness,
@@ -16,7 +16,7 @@ import {
 
 export const NAV_ITEMS = [
   { id: 'home', label: 'Home', Icon: IconHome, purpose: 'Kutazama' },
-  { id: 'soga', label: 'Soga', Icon: IconSoga, purpose: 'Mawasiliano' },
+  { id: 'chat', label: 'Chat', Icon: IconChat, purpose: 'Mawasiliano' },
   { id: 'gundua', label: 'Gundua', Icon: IconGundua, purpose: 'Kugundua' },
   { id: 'spaces', label: 'Spaces', Icon: IconSpaces, purpose: 'Kushiriki' },
   { id: 'business', label: 'Business', Icon: IconBusiness, purpose: 'Kuendesha' },

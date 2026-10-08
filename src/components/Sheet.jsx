@@ -13,6 +13,7 @@ export default function Sheet({ open, onClose, onBack, title, subtitle, children
 
   useEffect(() => {
     if (!open) return
+    const opener = document.activeElement
     const onKey = (e) => {
       if (e.key === 'Escape') onClose()
     }
@@ -29,6 +30,8 @@ export default function Sheet({ open, onClose, onBack, title, subtitle, children
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = prevOverflow
       window.clearTimeout(t)
+      // Rudisha focus kwenye kitufe kilichofungua panel (keyboard flow)
+      if (opener instanceof HTMLElement) opener.focus?.({ preventScroll: true })
     }
   }, [open, onClose])
 

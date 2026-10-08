@@ -333,11 +333,13 @@
 .psh-devlink {
   display: none;
 }
+/* Desktop ina bottom nav ya kati — kitufe cha maendeleo kinapanda juu yake
+   ili kisigongane na nav (§TOP SYSTEM: header/nav zisifurike). */
 @media (min-width: 1024px) {
   .psh-devlink {
     position: fixed;
     left: 20px;
-    bottom: 22px;
+    bottom: calc(var(--nav-h) + 16px);
     z-index: var(--z-nav);
     display: inline-block;
     padding: 7px 11px;

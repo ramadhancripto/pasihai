@@ -12,6 +12,7 @@
 // ══════════════════════════════════════════════════════════════
 
 import { identityRepository, catalogRepository } from '../data/repositories/index.js'
+import { feedService } from './feedService.js'
 
 export const accountService = {
   async getCurrentUser() {
@@ -25,6 +26,18 @@ export const accountService = {
 
   async listDirectory() {
     return identityRepository.listUsers()
+  },
+
+  /** Sasisha wasifu wangu (jina · bio · eneo) — hali ya kikao. */
+  async updateMyProfile(patch) {
+    return identityRepository.updateProfile(patch)
+  },
+
+  /** Content yangu kwa tab ya wasifu: machapisho · kupenda · zilizohifadhiwa. */
+  async getMyContent(kind = 'posts') {
+    if (kind === 'liked') return feedService.listLikedItems()
+    if (kind === 'saved') return feedService.listSaved()
+    return feedService.listMine()
   },
 
   /** Vocabulary ya ROLE (huyu ni nani) na ACTION (nifanye nini). */

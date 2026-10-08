@@ -31,7 +31,7 @@ export const IconHome = (p) => (
   </S>
 )
 
-export const IconSoga = (p) => (
+export const IconChat = (p) => (
   <S {...p}>
     <path d="M20.4 11.6c0 4-3.8 7-8.4 7-1 0-2-.15-2.9-.43l-4.5 1.63a.5.5 0 0 1-.65-.62l1.2-3.5C3.9 14.4 3.6 13 3.6 11.6c0-4 3.8-7 8.4-7s8.4 3 8.4 7Z" />
   </S>
@@ -44,12 +44,16 @@ export const IconGundua = (p) => (
   </S>
 )
 
+/* Spaces — watu WATATU (lugha ya Stitch: "diversity_3").
+   Mtu wa mbele katikati; watu wawili nyuma kushoto na kulia. */
 export const IconSpaces = (p) => (
   <S {...p}>
-    <circle cx="9.6" cy="8.6" r="3.1" />
-    <path d="M3.9 19.2c0-3.15 2.55-5.1 5.7-5.1s5.7 1.95 5.7 5.1" />
-    <path d="M16.2 6.1a2.7 2.7 0 0 1 0 5.2" />
-    <path d="M17.6 14.4c2 .5 3.5 2.05 3.5 4.4" />
+    <circle cx="12" cy="6.9" r="2.7" />
+    <path d="M7.4 20.1c0-3.1 2.05-5 4.6-5s4.6 1.9 4.6 5" />
+    <circle cx="5.7" cy="9" r="2.05" />
+    <path d="M2.3 19.3c0-2.6 1.6-4.2 3.5-4.2" />
+    <circle cx="18.3" cy="9" r="2.05" />
+    <path d="M21.7 19.3c0-2.6-1.6-4.2-3.5-4.2" />
   </S>
 )
 
@@ -384,5 +388,178 @@ export const IconCalendarAdd = (p) => (
     <rect x="3.8" y="5.6" width="16.4" height="14" rx="2.4" />
     <path d="M3.8 9.8h16.4M8.4 3.8v3.4M15.6 3.8v3.4" />
     <path d="M12 12.6v4.2M9.9 14.7h4.2" />
+  </S>
+)
+
+/* ── Mfumo (system controls) ──────────────────────────────
+   Iconi za safu ya mfumo: Data Saved · System · Relay ·
+   Nearby · Save Offline · Activity. Style ileile (viewBox 24,
+   stroke 1.7, hakuna fill).                                     */
+
+export const IconDatabase = (p) => (
+  <S {...p}>
+    <ellipse cx="12" cy="6.2" rx="7" ry="3.2" />
+    <path d="M5 6.2v11.6c0 1.77 3.13 3.2 7 3.2s7-1.43 7-3.2V6.2" />
+    <path d="M5 12c0 1.77 3.13 3.2 7 3.2s7-1.43 7-3.2" />
+  </S>
+)
+
+export const IconSwap = (p) => (
+  <S {...p}>
+    <path d="M4.2 8.6h13" />
+    <path d="M14.4 5.6 17.4 8.6l-3 3" />
+    <path d="M19.8 15.4H6.8" />
+    <path d="M9.6 12.4 6.6 15.4l3 3" />
+  </S>
+)
+
+export const IconRelay = (p) => (
+  <S {...p}>
+    <circle cx="6.2" cy="12" r="2.6" />
+    <circle cx="17.6" cy="6.8" r="2.4" />
+    <circle cx="17.6" cy="17.2" r="2.4" />
+    <path d="M8.7 10.8 15.3 7.8" />
+    <path d="M8.7 13.2 15.3 16.2" />
+  </S>
+)
+
+export const IconRadar = (p) => (
+  <S {...p}>
+    <circle cx="12" cy="12" r="1.5" />
+    <path d="M15.6 8.4a5.1 5.1 0 0 1 0 7.2" />
+    <path d="M18.7 5.3a9.5 9.5 0 0 1 0 13.4" />
+    <path d="M8.4 8.4a5.1 5.1 0 0 0 0 7.2" />
+    <path d="M5.3 5.3a9.5 9.5 0 0 0 0 13.4" />
+  </S>
+)
+
+export const IconDownload = (p) => (
+  <S {...p}>
+    <path d="M12 3.8v10.4" />
+    <path d="M7.6 10 12 14.4 16.4 10" />
+    <path d="M4.8 19.6h14.4" />
+  </S>
+)
+
+export const IconSend = (p) => (
+  <S {...p}>
+    <path d="M20.4 3.6 3.6 10.3l6.6 2.6 2.6 6.6z" />
+    <path d="M20.4 3.6 10.2 12.9" />
+  </S>
+)
+
+export const IconPaperclip = (p) => (
+  <S {...p}>
+    <path d="M17.4 7.6 9.1 15.9a3.1 3.1 0 0 0 4.4 4.4l8.3-8.3a5 5 0 0 0-7.1-7.1L6 12.7a7 7 0 0 0 9.9 9.9" />
+  </S>
+)
+
+export const IconPhone = (p) => (
+  <S {...p}>
+    <path d="M6.2 3.8h3l1.4 3.6-1.8 1.4a11 11 0 0 0 5.4 5.4l1.4-1.8 3.6 1.4v3a1.8 1.8 0 0 1-2 1.8A15.4 15.4 0 0 1 4.4 5.8a1.8 1.8 0 0 1 1.8-2Z" />
+  </S>
+)
+
+export const IconChecks = (p) => (
+  <S {...p}>
+    <path d="m2.6 12.6 3 3 6.4-6.4" />
+    <path d="m10.4 15.6 1.4 1.4 9-9" />
+  </S>
+)
+
+export const IconPin = (p) => (
+  <S {...p}>
+    <path d="M12 21.2s6.2-5.6 6.2-10.2a6.2 6.2 0 1 0-12.4 0C5.8 15.6 12 21.2 12 21.2Z" />
+    <circle cx="12" cy="10.6" r="2.2" />
+  </S>
+)
+
+export const IconArchive = (p) => (
+  <S {...p}>
+    <path d="M3.8 7.4h16.4v11.4a1.6 1.6 0 0 1-1.6 1.6H5.4a1.6 1.6 0 0 1-1.6-1.6Z" />
+    <path d="M3 4.2h18v3.2H3z" />
+    <path d="M9.8 12.2h4.4" />
+  </S>
+)
+
+export const IconBan = (p) => (
+  <S {...p}>
+    <circle cx="12" cy="12" r="8.4" />
+    <path d="m6.2 17.8 11.6-11.6" />
+  </S>
+)
+
+/* ── GUNDUA (safu ya ugunduzi) — icons 7 ─────────────────────
+   Lugha ileile: viewBox 24 · stroke 1.7 · currentColor.
+   Kila moja ina maana MOJA (Mchanganyiko · Friends · Channels ·
+   Live · Biashara · Watu · Vikundi · Ongeza Rafiki). */
+
+export const IconPeople = (p) => (
+  <S {...p}>
+    <circle cx="9.4" cy="8.2" r="3" />
+    <path d="M3.6 19.6c0-3.2 2.6-5.2 5.8-5.2s5.8 2 5.8 5.2" />
+    <path d="M16.2 5.6a2.7 2.7 0 0 1 0 5.2" />
+    <path d="M17.4 14.6c1.9.5 3.1 2.1 3.1 4.2" />
+  </S>
+)
+
+export const IconPersonSearch = (p) => (
+  <S {...p}>
+    <circle cx="10.4" cy="8" r="3.2" />
+    <path d="M4.4 19.8c0-3.3 2.7-5.4 6-5.4 1 0 1.9.2 2.7.5" />
+    <circle cx="17.2" cy="16.6" r="3" />
+    <path d="m19.5 18.9 2.1 2.1" />
+  </S>
+)
+
+export const IconPersonAdd = (p) => (
+  <S {...p}>
+    <circle cx="10" cy="8" r="3.2" />
+    <path d="M4 19.8c0-3.3 2.7-5.4 6-5.4.9 0 1.7.15 2.4.42" />
+    <path d="M17.6 13.4v5.4M20.3 16.1h-5.4" />
+  </S>
+)
+
+export const IconGroup = (p) => (
+  <S {...p}>
+    <path d="M4.6 6.6h10.2a1.6 1.6 0 0 1 1.6 1.6v5a1.6 1.6 0 0 1-1.6 1.6H10l-3.4 2.6v-2.6H4.6A1.6 1.6 0 0 1 3 13.2v-5a1.6 1.6 0 0 1 1.6-1.6Z" />
+    <circle cx="8.2" cy="10.7" r="1.15" />
+    <circle cx="12.4" cy="10.7" r="1.15" />
+    <path d="M17.2 9.4h2.2a1.6 1.6 0 0 1 1.6 1.6v4.6a1.6 1.6 0 0 1-1.6 1.6h-.9v2.2l-2.7-2.2" />
+  </S>
+)
+
+export const IconStar = (p) => (
+  <S {...p}>
+    <path d="m12 4.4 2.3 4.8 5.3.7-3.8 3.7.9 5.2L12 16.4l-4.7 2.4.9-5.2L4.4 9.9l5.3-.7Z" />
+  </S>
+)
+
+export const IconTag = (p) => (
+  <S {...p}>
+    <path d="M12.6 3.6H20a.9.9 0 0 1 .9.9v7.4a1 1 0 0 1-.3.7l-8 8a1 1 0 0 1-1.3 0l-7-7a1 1 0 0 1 0-1.4l8-8a1 1 0 0 1 .8-.3Z" />
+    <circle cx="16.4" cy="7.6" r="1.4" />
+  </S>
+)
+
+export const IconQr = (p) => (
+  <S {...p}>
+    <path d="M4 4h5.4v5.4H4zM14.6 4H20v5.4h-5.4zM4 14.6h5.4V20H4z" />
+    <path d="M14.6 14.6h2.2v2.2h-2.2zM17.8 17.8H20V20h-2.2z" />
+  </S>
+)
+
+export const IconFile = (p) => (
+  <S {...p}>
+    <path d="M6.6 3.6h7.1l4.3 4.3v12.5H6.6z" />
+    <path d="M13.5 3.7v4.4h4.4" />
+    <path d="M9.2 13.2h5.6" />
+    <path d="M9.2 16.4h3.6" />
+  </S>
+)
+
+export const IconBolt = (p) => (
+  <S {...p}>
+    <path d="M13.4 3.4 5.8 13.2h5.2l-.9 7.4 7.7-9.9h-5.2z" />
   </S>
 )

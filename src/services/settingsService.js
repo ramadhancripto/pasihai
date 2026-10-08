@@ -7,7 +7,7 @@
 // Kumbuka: hizi ni thamani za app/preferences, si content ya mtumiaji.
 // ══════════════════════════════════════════════════════════════
 
-import { catalogRepository } from '../data/repositories/index.js'
+import { catalogRepository, systemRepository } from '../data/repositories/index.js'
 
 export const settingsService = {
   async getViewModes() {
@@ -16,5 +16,13 @@ export const settingsService = {
 
   async getFeedPreferences() {
     return catalogRepository.getFeedPreferences()
+  },
+  /* Mapendeleo yaliyohifadhiwa na mtumiaji (kikao hiki) */
+  async getUserPrefs() {
+    return systemRepository.getPrefs()
+  },
+
+  async saveUserPrefs(patch) {
+    return systemRepository.savePrefs(patch)
   },
 }

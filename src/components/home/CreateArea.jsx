@@ -18,11 +18,11 @@ import {
 } from '../icons.jsx'
 
 const QUICK = [
-  { id: 'photo', label: 'Picha', Icon: IconPhoto },
-  { id: 'video', label: 'Video', Icon: IconVideo },
-  { id: 'post', label: 'Chapisho', Icon: IconPlus },
-  { id: 'reel', label: 'Reel', Icon: IconReel },
-  { id: 'live', label: 'Live', Icon: IconLive },
+  { id: 'photo', label: 'Picha', Icon: IconPhoto, aria: 'Unda chapisho la picha' },
+  { id: 'video', label: 'Video', Icon: IconVideo, aria: 'Unda chapisho la video' },
+  { id: 'post', label: 'Chapisho', Icon: IconPlus, aria: 'Unda chapisho la maandishi' },
+  { id: 'reel', label: 'Reel', Icon: IconReel, aria: 'Unda Reel' },
+  { id: 'live', label: 'Live', Icon: IconLive, aria: 'Anza kikao cha moja kwa moja' },
 ]
 
 export default function CreateArea({ onCreate, prompt = 'Nini kinaendelea?' }) {
@@ -52,9 +52,14 @@ export default function CreateArea({ onCreate, prompt = 'Nini kinaendelea?' }) {
         </button>
       </div>
       <ul className="psh-createbar__quick">
-        {QUICK.map(({ id, label, Icon }) => (
+        {QUICK.map(({ id, label, Icon, aria }) => (
           <li key={id}>
-            <button type="button" className="psh-createbar__act" onClick={() => onCreate(id)}>
+            <button
+              type="button"
+              className="psh-createbar__act"
+              aria-label={aria}
+              onClick={() => onCreate(id)}
+            >
               <Icon size={18} />
               <span>{label}</span>
             </button>

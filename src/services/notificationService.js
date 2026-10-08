@@ -27,4 +27,11 @@ export const notificationService = {
     const items = await activityRepository.listNotifications()
     return items.filter((n) => n.unread).length
   },
+  async markRead(id) {
+    return activityRepository.markRead(id)
+  },
+
+  async markAllRead() {
+    return activityRepository.markAllRead()
+  },
 }

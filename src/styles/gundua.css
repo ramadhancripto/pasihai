@@ -1,0 +1,1652 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — GUNDUA (Discover)
+   Safu ya ugunduzi: moduli kuu · kategoria · kadi za aina mbalimbali
+   · vichujio · panels. Rangi, nafasi na umbo zinatoka kwenye tokens.
+
+   Kanuni za muonekano:
+   · Kila AINA ya kitu ina kadi yenye utambulisho wake (band + alama),
+     ili kadi isionekane kama kadi ya ujumbe.
+   · Kijani = utambulisho wa PASIHAI · Bluu = mwingiliano wa pili ·
+     Dhahabu = kwa nadra (ofa · live).
+   · Radius ya wastani (--card-r) — si pilipili (pill) kila mahali.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-gu {
+  padding-bottom: var(--s-6);
+}
+
+/* ── Kichwa cha ukurasa ─────────────────────────────────────── */
+
+.psh-gu-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-1) 0 var(--s-3);
+}
+
+.psh-gu-head__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--t-1);
+  line-height: var(--lh-tight);
+}
+
+.psh-gu-head__sub {
+  margin-top: 2px;
+  font-size: var(--fs-13);
+  color: var(--t-2);
+}
+.psh-gu-head__sub b {
+  color: var(--c-green-700);
+  font-weight: 600;
+}
+
+/* ── Utafutaji + kitufe cha vichujio (vichujio karibu na search) ── */
+
+.psh-gu-search {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-bottom: var(--s-2);
+}
+
+.psh-gu-search__ic {
+  display: none;
+}
+
+.psh-gu-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  padding: 0 var(--s-4);
+  font: inherit;
+  font-size: var(--fs-14);
+  color: var(--t-1);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-gu-search__input::placeholder {
+  color: var(--t-3);
+}
+.psh-gu-search__input:focus,
+.psh-gu-input:focus {
+  background: var(--bg);
+  border-color: var(--c-green);
+}
+.psh-gu-search__input:focus-visible,
+.psh-gu-input:focus-visible {
+  outline: 2px solid var(--c-green);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--c-green-soft);
+}
+
+.psh-gu-search__x {
+  width: 30px;
+  height: 30px;
+  margin-left: -40px;
+  margin-right: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--t-3);
+  font-size: var(--fs-13);
+  border-radius: var(--r-full);
+  cursor: pointer;
+}
+.psh-gu-search__x:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+
+.psh-gu-search__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 46px;
+  padding: 0 var(--s-3);
+  font: inherit;
+  font-size: var(--fs-14);
+  font-weight: 500;
+  color: var(--t-1);
+  background: var(--bg);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.psh-gu-search__filter:hover {
+  border-color: var(--c-green);
+  color: var(--c-green-700);
+}
+.psh-gu-search__filter.is-on {
+  background: var(--c-green-soft);
+  border-color: var(--c-green);
+  color: var(--c-green-700);
+}
+.psh-gu-search__filterlabel {
+  display: none;
+}
+@media (min-width: 768px) {
+  .psh-gu-search__filterlabel {
+    display: inline;
+  }
+}
+
+.psh-gu-search__badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: inline-grid;
+  place-items: center;
+  font-size: var(--fs-11);
+  font-weight: 700;
+  color: var(--t-inverse);
+  background: var(--c-green);
+  border-radius: var(--r-full);
+}
+
+/* ── Mstari wa vichujio vilivyowekwa (huonekani kama hakuna) ── */
+
+.psh-gu-filterbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+}
+
+.psh-gu-filterbar.is-active {
+  padding: 6px 6px 6px var(--s-3);
+  background: var(--c-green-soft);
+  border: 1px solid var(--c-green-soft-2);
+  border-radius: var(--r-md);
+}
+
+.psh-gu-filterbar__main,
+.psh-gu-filterbar--empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  font: inherit;
+  font-size: var(--fs-13);
+  font-weight: 500;
+  color: var(--c-green-700);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.psh-gu-filterbar__main b {
+  font-weight: 700;
+}
+
+.psh-gu-filterbar__list {
+  color: var(--t-2);
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.psh-gu-filterbar__hint {
+  color: var(--t-3);
+  font-weight: 400;
+}
+
+.psh-gu-filterbar__clear {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 var(--s-3);
+  font: inherit;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--c-green-700);
+  background: var(--bg);
+  border: 1px solid var(--c-green-soft-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.psh-gu-filterbar__clear:hover {
+  border-color: var(--c-green);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Moduli kuu za ugunduzi (§3)
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-gu-mods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-2);
+  margin-bottom: var(--s-5);
+}
+
+.psh-gu-mod {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 64px;
+  padding: var(--s-3);
+  font: inherit;
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease);
+}
+.psh-gu-mod:hover {
+  border-color: var(--line-2);
+  box-shadow: var(--sh-1);
+  transform: translateY(-1px);
+}
+.psh-gu-mod.is-active {
+  border-color: var(--c-green);
+  background: var(--c-green-soft);
+  box-shadow: 0 0 0 1px var(--c-green) inset;
+}
+
+.psh-gu-mod__ic {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+}
+.psh-gu-mod--blue .psh-gu-mod__ic {
+  background: var(--c-blue-soft);
+  color: var(--c-blue-700);
+}
+.psh-gu-mod--gold .psh-gu-mod__ic {
+  background: var(--c-gold-soft);
+  color: var(--av-gold-fg);
+}
+.psh-gu-mod.is-active .psh-gu-mod__ic {
+  background: var(--bg);
+}
+
+.psh-gu-mod__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.psh-gu-mod__label {
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--t-1);
+}
+
+.psh-gu-mod__hint {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Simu: moduli zinaonyesha jina pekee; hesabu inakaa kona (hint inakuja tablet+) */
+@media (max-width: 559px) {
+  .psh-gu-mod {
+    position: relative;
+    align-items: center;
+    min-height: 68px;
+  }
+  .psh-gu-mod__hint {
+    display: none;
+  }
+  .psh-gu-mod__label {
+    font-size: var(--fs-15);
+  }
+  .psh-gu-mod__text {
+    padding-right: 22px;
+  }
+  .psh-gu-mod__count {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    margin-left: 0;
+    padding: 1px 6px;
+  }
+}
+
+.psh-gu-mod__count {
+  margin-left: auto;
+  font-size: var(--fs-11);
+  font-weight: 700;
+  color: var(--t-2);
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  background: var(--bg-sunken);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Kategoria (§5) — grid, si ukuta wa vitufe
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-gu-cats {
+  margin-bottom: var(--s-5);
+}
+
+.psh-gu-cats__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+
+.psh-gu-cat {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: 10px var(--s-3);
+  font: inherit;
+  text-align: left;
+  color: var(--t-1);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+}
+.psh-gu-cat:hover {
+  border-color: var(--c-green);
+  background: var(--bg-subtle);
+}
+
+.psh-gu-cat__ic {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  background: var(--bg-sunken);
+  color: var(--c-green-700);
+}
+
+.psh-gu-cat__label {
+  font-size: var(--fs-13);
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.psh-gu-cat__count {
+  margin-left: auto;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Sehemu · kichwa cha sehemu · rail · grid
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-gu-results {
+  scroll-margin-top: 64px;
+  outline: none;
+}
+
+.psh-gu-sec {
+  margin-bottom: var(--s-5);
+}
+
+.psh-gu-sechead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+
+.psh-gu-sechead__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: 600;
+  color: var(--t-1);
+  line-height: var(--lh-snug);
+}
+
+.psh-gu-sechead__hint {
+  margin-top: 2px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+
+.psh-gu-sechead__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 var(--s-2);
+  font: inherit;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--c-green-700);
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.psh-gu-sechead__action:hover {
+  background: var(--c-green-soft);
+}
+
+/* Rail: mlalo kwenye simu (snap), grid kwenye desktop */
+
+.psh-gu-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(272px, 78%);
+  gap: var(--s-3);
+  overflow-x: auto;
+  padding-bottom: var(--s-2);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.psh-gu-rail > * {
+  scroll-snap-align: start;
+}
+
+.psh-gu-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-3);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KADI — muundo mmoja, utambulisho kwa aina
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-gu-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--card-r);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+  transition: border-color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease);
+}
+.psh-gu-card:hover {
+  border-color: var(--line-2);
+  box-shadow: var(--sh-2);
+}
+
+.psh-gu-card__main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  padding: var(--card-pad);
+  font: inherit;
+  text-align: left;
+  color: var(--t-1);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.psh-gu-card__top {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.psh-gu-card__id {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.psh-gu-card--person .psh-gu-card__main {
+  gap: 8px;
+}
+
+.psh-gu-card__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: 600;
+  color: var(--t-1);
+  line-height: var(--lh-snug);
+}
+
+.psh-gu-card__sub {
+  font-size: var(--fs-13);
+  color: var(--t-2);
+  line-height: var(--lh-normal);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.psh-gu-card__acts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--card-pad);
+  border-top: 1px solid var(--line);
+  background: var(--bg-subtle);
+}
+
+.psh-gu-card__more {
+  margin-left: auto;
+  order: 2;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--t-2);
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.psh-gu-card__more:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-gu-card__acts > .psh-gu-card__more {
+  margin-left: auto;
+}
+
+/* ── Band: kichwa cha aina (utambulisho wa kadi) ────────────── */
+
+.psh-gu-band {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 10px var(--card-pad);
+  color: var(--c-green-700);
+  background: var(--c-green-soft);
+}
+
+.psh-gu-band__label {
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.psh-gu-band__tags {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.psh-gu-band--biz {
+  color: var(--c-green-700);
+  background: var(--c-green-soft);
+}
+.psh-gu-band--channel {
+  color: var(--c-blue-700);
+  background: var(--c-blue-soft);
+}
+.psh-gu-band--hub {
+  color: var(--av-teal-fg);
+  background: var(--av-teal-bg);
+}
+.psh-gu-band--community {
+  color: var(--av-plum-fg);
+  background: var(--av-plum-bg);
+}
+.psh-gu-band--group {
+  color: var(--av-blue-fg);
+  background: var(--av-blue-bg);
+}
+.psh-gu-band--live {
+  color: var(--t-2);
+  background: var(--bg-sunken);
+}
+.psh-gu-band--live.is-live {
+  color: var(--c-error);
+  background: var(--c-error-soft);
+}
+
+/* ── Alama ndogo ───────────────────────────────────────────── */
+
+.psh-gu-ava {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-13);
+  font-weight: 700;
+  border-radius: var(--r-full);
+  background: var(--av-green-bg);
+  color: var(--av-green-fg);
+}
+.psh-gu-ava--blue { background: var(--av-blue-bg); color: var(--av-blue-fg); }
+.psh-gu-ava--gold { background: var(--av-gold-bg); color: var(--av-gold-fg); }
+.psh-gu-ava--teal { background: var(--av-teal-bg); color: var(--av-teal-fg); }
+.psh-gu-ava--plum { background: var(--av-plum-bg); color: var(--av-plum-fg); }
+.psh-gu-ava--clay { background: var(--av-clay-bg); color: var(--av-clay-fg); }
+.psh-gu-ava--slate { background: var(--av-slate-bg); color: var(--av-slate-fg); }
+
+.psh-gu-verified {
+  color: var(--c-blue);
+}
+
+.psh-gu-dot {
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--c-green);
+  box-shadow: 0 0 0 3px var(--c-green-soft);
+}
+
+.psh-gu-livebadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-11);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.psh-gu-livedot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: var(--c-error);
+  animation: psh-gu-pulse 1.8s var(--ease) infinite;
+}
+@keyframes psh-gu-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}
+
+/* ── Pill · rating · meta · tags ───────────────────────────── */
+
+.psh-gu-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: var(--t-2);
+  background: var(--bg);
+  border-radius: var(--r-full);
+}
+.psh-gu-pill--open {
+  color: var(--c-green-700);
+  background: var(--bg);
+}
+.psh-gu-pill--gold {
+  color: var(--av-gold-fg);
+  background: var(--c-gold-soft);
+}
+
+.psh-gu-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-12);
+  color: var(--av-gold-fg);
+}
+.psh-gu-rating b {
+  color: var(--t-1);
+  font-weight: 600;
+}
+.psh-gu-rating span {
+  color: var(--t-3);
+  font-size: var(--fs-11);
+}
+.psh-gu-rating--lg {
+  font-size: var(--fs-14);
+}
+
+.psh-gu-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+.psh-gu-meta--soft {
+  color: var(--t-3);
+}
+.psh-gu-meta__sep {
+  color: var(--t-3);
+}
+
+.psh-gu-reason {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  padding: 4px 9px;
+  font-size: var(--fs-12);
+  color: var(--c-green-700);
+  background: var(--c-green-soft);
+  border-radius: var(--r-sm);
+}
+.psh-gu-reason--wide {
+  align-self: stretch;
+  margin-bottom: var(--s-3);
+}
+
+.psh-gu-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.psh-gu-tag {
+  padding: 2px 8px;
+  font-size: var(--fs-11);
+  color: var(--t-2);
+  background: var(--bg-sunken);
+  border-radius: var(--r-full);
+}
+
+.psh-gu-viewers {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: inherit;
+  background: var(--bg);
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+}
+
+.psh-gu-note-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+
+/* ── Preview (bidhaa · channel · taarifa) ──────────────────── */
+
+.psh-gu-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 2px;
+  padding: 10px var(--s-3);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-gu-preview--wide {
+  background: var(--bg-subtle);
+}
+
+.psh-gu-preview__label {
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--t-3);
+  text-transform: uppercase;
+}
+
+.psh-gu-preview__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  font-size: var(--fs-13);
+}
+.psh-gu-preview__row b {
+  font-weight: 500;
+  color: var(--t-1);
+  min-width: 0;
+}
+.psh-gu-preview__row span {
+  color: var(--c-green-700);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.psh-gu-preview__title {
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--t-1);
+}
+
+.psh-gu-preview__text {
+  font-size: var(--fs-13);
+  color: var(--t-2);
+  line-height: var(--lh-normal);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Ofa (kadi) ────────────────────────────────────────────── */
+
+.psh-gu-card--offer {
+  border-color: var(--c-gold-soft);
+}
+.psh-gu-offerlabel {
+  display: block;
+  padding: 7px var(--card-pad);
+  font-size: var(--fs-11);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--av-gold-fg);
+  background: var(--c-gold-soft);
+}
+.psh-gu-offerlabel--green { color: var(--c-green-700); background: var(--c-green-soft); }
+.psh-gu-offerlabel--blue { color: var(--c-blue-700); background: var(--c-blue-soft); }
+
+.psh-gu-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+.psh-gu-code b {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--t-1);
+}
+
+/* ── Vitufe vya Gundua ──────────────────────────────────────────
+   Muonekano wa vitufe unatoka kwenye MFUMO MMOJA (`.psh-btn` kwenye
+   components.css); `.psh-gu-btn` ni jina la muktadha linalorithi kitu
+   kilekile. Hapa kunabaki mipangilio ya muktadha pekee. */
+
+.psh-gu-entity__acts .psh-gu-btn,
+.psh-gu-filters__foot .psh-gu-btn {
+  flex: 1 1 auto;
+  min-height: 46px;
+}
+
+/* Muktadha wa Gundua: vitendo vyote vinagusa ≥44px kwenye skrini
+   ndogo (§27). Hii si mfumo wa pili wa vitufe — ni ukubwa wa muktadha. */
+.psh-gu .psh-gu-btn {
+  min-height: 44px;
+}
+
+.psh-gu-actions-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+
+.psh-gu-chip-ok,
+.psh-gu-chip-wait,
+.psh-gu-chip-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 var(--s-3);
+  font-size: var(--fs-12);
+  font-weight: 600;
+  border-radius: var(--r-sm);
+}
+.psh-gu-chip-ok {
+  color: var(--c-green-700);
+  background: var(--c-green-soft-2);
+}
+.psh-gu-chip-wait {
+  color: var(--t-2);
+  background: var(--bg-sunken);
+}
+.psh-gu-chip-block {
+  color: var(--t-2);
+  background: var(--bg-sunken);
+}
+
+/* ── Ramani (mfano wa muundo, si ramani halisi) ─────────────── */
+
+.psh-gu-map {
+  border: 1px solid var(--line);
+  border-radius: var(--card-r);
+  overflow: hidden;
+  background: var(--bg);
+}
+.psh-gu-map__art {
+  display: block;
+  width: 100%;
+  height: 132px;
+  background: #eef4f2;
+}
+.psh-gu-map__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--card-pad);
+  border-top: 1px solid var(--line);
+}
+.psh-gu-map__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.psh-gu-map__text b {
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-gu-map__text span {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+.psh-gu-map__bar .psh-gu-btn {
+  margin-left: auto;
+}
+
+/* ── Bango la faragha ──────────────────────────────────────── */
+
+.psh-gu-privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+  padding: var(--s-3) var(--s-4);
+  background: var(--c-green-soft);
+  border: 1px solid var(--c-green-soft-2);
+  border-radius: var(--r-md);
+}
+.psh-gu-privacy__ic {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  color: var(--c-green-700);
+  background: var(--bg);
+}
+.psh-gu-privacy__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  line-height: var(--lh-normal);
+}
+.psh-gu-privacy__text b {
+  font-size: var(--fs-13);
+  color: var(--t-1);
+}
+.psh-gu-privacy__x {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: var(--t-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.psh-gu-privacy__x:hover {
+  background: var(--bg);
+  color: var(--t-1);
+}
+
+/* ── Mwisho wa ukurasa ─────────────────────────────────────── */
+
+.psh-gu-foot {
+  display: flex;
+  gap: 6px;
+  padding: var(--s-4) 0 0;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-12);
+  color: var(--t-3);
+  line-height: var(--lh-normal);
+}
+
+.psh-gu-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-4);
+  font-size: var(--fs-13);
+  color: var(--t-2);
+  background: var(--bg-subtle);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+}
+.psh-gu-empties {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.psh-gu-hintline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-12);
+  color: var(--t-3);
+}
+.psh-gu-linkbtn {
+  font: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--c-green-700);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.psh-gu-friendbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PANEL: Vichujio
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-gu-filters__lead {
+  margin-bottom: var(--s-4);
+  font-size: var(--fs-13);
+  color: var(--t-2);
+  line-height: var(--lh-normal);
+}
+.psh-gu-filters__lead b {
+  color: var(--t-1);
+}
+
+.psh-gu-fgroup {
+  padding-bottom: var(--s-4);
+  margin-bottom: var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+.psh-gu-fgroup:last-of-type {
+  border-bottom: 0;
+}
+
+.psh-gu-fgroup__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+}
+
+.psh-gu-fgroup__label {
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--t-1);
+}
+
+.psh-gu-fgroup__hint {
+  font-size: var(--fs-11);
+  color: var(--t-3);
+}
+
+.psh-gu-fchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.psh-gu-fchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 var(--s-3);
+  font: inherit;
+  font-size: var(--fs-13);
+  color: var(--t-1);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--dur-1) var(--ease), background var(--dur-1) var(--ease);
+}
+.psh-gu-fchip:hover {
+  border-color: var(--line-2);
+  background: var(--bg-hover);
+}
+.psh-gu-fchip.is-on {
+  color: var(--c-green-700);
+  background: var(--c-green-soft);
+  border-color: var(--c-green);
+  font-weight: 600;
+}
+.psh-gu-fchip--sm {
+  min-height: 44px;
+  font-size: var(--fs-12);
+}
+
+.psh-gu-fdistance {
+  margin-top: var(--s-3);
+  padding: var(--s-3);
+  background: var(--bg-subtle);
+  border-radius: var(--r-md);
+}
+.psh-gu-fdistance__label {
+  display: block;
+  margin-bottom: var(--s-2);
+  font-size: var(--fs-12);
+  font-weight: 600;
+  color: var(--t-2);
+}
+
+.psh-gu-fnote {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: var(--s-3);
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  line-height: var(--lh-normal);
+}
+.psh-gu-fnote b {
+  color: var(--t-1);
+}
+
+.psh-gu-filters__foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: var(--s-2);
+  padding: var(--s-3) 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+.psh-gu-filters__foot .psh-gu-btn {
+  flex: 1;
+  min-height: 46px;
+}
+
+.psh-gu-filters__cancel {
+  width: 100%;
+  min-height: 40px;
+  font: inherit;
+  font-size: var(--fs-13);
+  font-weight: 500;
+  color: var(--t-2);
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.psh-gu-filters__cancel:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+
+/* ── Panel: Ongeza Rafiki ──────────────────────────────────── */
+
+.psh-gu-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 var(--s-3);
+  font: inherit;
+  font-size: var(--fs-14);
+  color: var(--t-1);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-gu-input--inline {
+  flex: 1;
+  min-width: 0;
+}
+
+.psh-gu-lookup {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.psh-gu-lookup__cc {
+  flex: 0 0 auto;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--s-3);
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--t-2);
+  background: var(--bg-sunken);
+  border-radius: var(--r-md);
+}
+
+.psh-gu-plist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+.psh-gu-plist > li {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  padding: var(--s-3);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-gu-plist__id {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-right: auto;
+}
+.psh-gu-plist__id b {
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-gu-plist__id span {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+
+.psh-gu-qr {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-4);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  margin-bottom: var(--s-3);
+}
+.psh-gu-qr__art {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  color: var(--t-1);
+  background: var(--bg);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+}
+.psh-gu-qr__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.psh-gu-qr__text b {
+  font-family: var(--font-display);
+  font-size: var(--fs-14);
+  letter-spacing: 0.04em;
+  color: var(--t-1);
+}
+.psh-gu-qr__text span {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  line-height: var(--lh-normal);
+}
+
+/* ── Panel: maelezo ya kitu ────────────────────────────────── */
+
+.psh-gu-entity {
+  display: flex;
+  flex-direction: column;
+}
+
+.psh-gu-entity__hero {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3);
+  margin-bottom: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--c-green-soft);
+}
+.psh-gu-entity__hero--channel { background: var(--c-blue-soft); }
+.psh-gu-entity__hero--hub { background: var(--av-teal-bg); }
+.psh-gu-entity__hero--community { background: var(--av-plum-bg); }
+.psh-gu-entity__hero--group { background: var(--av-blue-bg); }
+.psh-gu-entity__hero--live,
+.psh-gu-entity__hero--room { background: var(--c-error-soft); }
+.psh-gu-entity__hero--business { background: var(--c-green-soft); }
+.psh-gu-entity__hero--person { background: var(--bg-subtle); }
+
+.psh-gu-entity__ic {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: var(--t-1);
+}
+
+.psh-gu-entity__id {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.psh-gu-entity__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: 700;
+  color: var(--t-1);
+  line-height: var(--lh-tight);
+}
+
+.psh-gu-entity__sub {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+
+.psh-gu-entity__bio {
+  font-size: var(--fs-14);
+  color: var(--t-1);
+  line-height: var(--lh-normal);
+  margin-bottom: var(--s-3);
+}
+
+.psh-gu-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  margin-bottom: var(--s-3);
+}
+.psh-gu-kv > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 10px var(--s-3);
+  font-size: var(--fs-13);
+}
+.psh-gu-kv > li + li {
+  border-top: 1px solid var(--line);
+}
+.psh-gu-kv span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--t-2);
+}
+.psh-gu-kv strong {
+  font-weight: 600;
+  color: var(--t-1);
+  text-align: right;
+}
+
+.psh-gu-trust {
+  padding: var(--s-3);
+  margin-bottom: var(--s-3);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-gu-trust__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-2);
+}
+.psh-gu-trust__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+
+.psh-gu-offerbox {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: var(--s-3);
+  margin-bottom: var(--s-3);
+  background: var(--c-gold-soft);
+  border: 1px solid #f0e2bf;
+  border-radius: var(--r-md);
+}
+.psh-gu-offerbox b {
+  font-size: var(--fs-14);
+  color: var(--t-1);
+}
+
+.psh-gu-sub {
+  margin-bottom: var(--s-4);
+}
+.psh-gu-sub__h {
+  margin-bottom: var(--s-2);
+  font-size: var(--fs-12);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+
+.psh-gu-prod {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.psh-gu-prod > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 10px var(--s-3);
+  font-size: var(--fs-13);
+}
+.psh-gu-prod > li + li {
+  border-top: 1px solid var(--line);
+}
+.psh-gu-prod__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--t-1);
+}
+.psh-gu-prod > li strong {
+  color: var(--c-green-700);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.psh-gu-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--s-3);
+}
+.psh-gu-pills > li {
+  padding: 5px 10px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  background: var(--bg-sunken);
+  border-radius: var(--r-full);
+}
+.psh-gu-pills--label > li {
+  color: var(--c-green-700);
+  background: var(--c-green-soft);
+}
+
+.psh-gu-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--fs-13);
+  color: var(--t-2);
+}
+
+.psh-gu-updates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.psh-gu-updates > li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 10px var(--s-3);
+  font-size: var(--fs-13);
+  color: var(--t-1);
+  background: var(--bg-subtle);
+  border-radius: var(--r-sm);
+}
+.psh-gu-updates em {
+  font-style: normal;
+  font-size: var(--fs-11);
+  color: var(--t-3);
+  white-space: nowrap;
+}
+
+.psh-gu-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: var(--s-3) 0;
+  padding: var(--s-3);
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  line-height: var(--lh-normal);
+  background: var(--bg-subtle);
+  border-left: 3px solid var(--c-green);
+  border-radius: var(--r-sm);
+}
+.psh-gu-note b {
+  color: var(--t-1);
+}
+
+.psh-gu-entity__acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+}
+.psh-gu-entity__acts .psh-gu-btn {
+  flex: 1 1 auto;
+  min-height: 46px;
+}
+
+.psh-gu-entity__privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: var(--s-3);
+  font-size: var(--fs-11);
+  color: var(--t-3);
+  line-height: var(--lh-normal);
+}
+
+/* ── Panel: vitendo vya haraka ─────────────────────────────── */
+
+.psh-gu-quick__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-3);
+  margin-bottom: var(--s-3);
+  background: var(--bg-subtle);
+  border-radius: var(--r-md);
+}
+.psh-gu-quick__item b {
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-gu-quick__item span {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE — tablet grid · desktop multi-column
+   ══════════════════════════════════════════════════════════════ */
+
+@media (min-width: 768px) {
+  .psh-gu-cats__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .psh-gu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .psh-gu-rail {
+    grid-auto-columns: minmax(300px, 46%);
+  }
+  .psh-gu-map__art {
+    height: 168px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .psh-gu-mods {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-3);
+  }
+  .psh-gu-cats__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .psh-gu-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  /* Desktop: rail inakuwa grid (hakuna scroll ya mlalo) */
+  .psh-gu-rail {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-columns: auto;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .psh-gu-map__art {
+    height: 200px;
+  }
+  .psh-gu-grid--sheet {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── Motion ndogo kwa wanaopenda motion pungufu ─────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .psh-gu-livedot {
+    animation: none;
+  }
+  .psh-gu-mod,
+  .psh-gu-card {
+    transition: none;
+  }
+}

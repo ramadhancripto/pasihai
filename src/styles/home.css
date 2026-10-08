@@ -6,7 +6,7 @@
 
 /* ── Status / Stories ─────────────────────────────────────── */
 .psh-status {
-  margin-top: var(--s-2);
+  margin-top: 2px;
 }
 .psh-status__row {
   display: flex;
@@ -15,7 +15,7 @@
   scroll-snap-type: x proximity;
   /* Safu inasogea kwa mlalo kwa UHURU, kutoka ukingo hadi ukingo */
   margin: 0 calc(var(--s-4) * -1);
-  padding: 6px var(--s-4) 10px;
+  padding: 4px var(--s-4) 6px;
   -webkit-overflow-scrolling: touch;
 }
 .psh-status__row::-webkit-scrollbar {
@@ -190,7 +190,7 @@
 .psh-htab {
   position: relative;
   flex: 0 0 auto;
-  padding: 13px 10px 12px;
+  padding: 11px 10px 10px;
   border: 0;
   background: transparent;
   color: var(--t-2);
@@ -271,8 +271,8 @@
 
 /* ── Create area ──────────────────────────────────────────── */
 .psh-createbar {
-  margin: var(--s-4) 0 0;
-  padding: var(--s-3);
+  margin: 10px 0 0;
+  padding: 10px;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
@@ -285,7 +285,7 @@
 .psh-createbar__prompt {
   flex: 1 1 auto;
   min-width: 0;
-  padding: 10px 14px;
+  padding: 9px 14px;
   text-align: left;
   font-size: var(--fs-14);
   color: var(--t-3);
@@ -320,9 +320,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 2px 6px;
-  margin-top: var(--s-3);
-  padding-top: var(--s-2);
+  gap: 2px 4px;
+  margin-top: 8px;
+  padding-top: 6px;
   border-top: 1px solid var(--line);
 }
 .psh-createbar__act {
@@ -350,7 +350,7 @@
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
-  padding: var(--s-3) 2px var(--s-1);
+  padding: 8px 2px 0;
 }
 .psh-strip__label {
   font-size: var(--fs-12);

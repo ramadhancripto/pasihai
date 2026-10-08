@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════
 // PASIHAI — KURASA ZA PLACEHOLDER (Hatua 1)
-// Soga · Gundua · Spaces · Business
+// Gundua · Spaces · Business  (Chat ni ukurasa halisi)
 // Hizi zinaonyesha MIPAKA ya navigation, si UI ya mwisho.
 // Kila moja ina kazi moja wazi — mipaka haivunjwi.
 // ══════════════════════════════════════════════════════════════
@@ -9,7 +9,7 @@ import { productInfoService } from '../services/productInfoService.js'
 import useAsyncData from '../hooks/useAsyncData.js'
 import { Chip } from '../components/ui.jsx'
 import {
-  IconSoga,
+  IconChat,
   IconGundua,
   IconSpaces,
   IconBusiness,
@@ -22,7 +22,6 @@ import {
 } from '../components/icons.jsx'
 
 const PAGE_ICON = {
-  soga: IconSoga,
   gundua: IconGundua,
   spaces: IconSpaces,
   business: IconBusiness,
@@ -41,7 +40,6 @@ const ITEM_ICON = {
 
 const BOUNDARIES = [
   { key: 'home', name: 'Home', role: 'Kutazama (consume)' },
-  { key: 'soga', name: 'Soga', role: 'Mawasiliano (communicate)' },
   { key: 'gundua', name: 'Gundua', role: 'Kugundua (discover)' },
   { key: 'spaces', name: 'Spaces', role: 'Kushiriki (participate)' },
   { key: 'business', name: 'Business', role: 'Kuendesha (operate)' },
@@ -102,10 +100,15 @@ export default function PlaceholderPage({ pageKey }) {
               const TypeIcon = ITEM_ICON[t.icon] ?? IconSpaces
               return (
                 <li key={t.name}>
-                  <span className={`psh-typecards__icon psh-typecards__icon--${t.icon}`} aria-hidden="true">
-                    <TypeIcon size={16} />
-                  </span>
-                  <h3>{t.name}</h3>
+                  <div className="psh-typecards__head">
+                    <span
+                      className={`psh-typecards__icon psh-typecards__icon--${t.icon}`}
+                      aria-hidden="true"
+                    >
+                      <TypeIcon size={15} />
+                    </span>
+                    <h3>{t.name}</h3>
+                  </div>
                   <p>{t.desc}</p>
                 </li>
               )

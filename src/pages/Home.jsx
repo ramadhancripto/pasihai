@@ -25,8 +25,13 @@ export default function Home({
   viewMode,
   onCreate,
   onOpenStatus,
+  onOpenAllStatus,
   onOpenProfile,
   onToast,
+  onOpenPanel,
+  onRefreshFeed,
+  onOpenChat,
+  feedVersion = 0,
   onOpenViewMode,
   onOpenMore,
 }) {
@@ -41,7 +46,11 @@ export default function Home({
 
   return (
     <div className="psh-col">
-      <StatusRow onOpenStatus={onOpenStatus} onOpenAll={() => onToast('Status zote — kionyeshi kamili ni Hatua 6')} />
+      <StatusRow
+        onOpenStatus={onOpenStatus}
+        onOpenAll={onOpenAllStatus}
+        version={feedVersion}
+      />
 
       <HomeTabs
         active={homeTab}
@@ -72,8 +81,13 @@ export default function Home({
         tab={homeTab}
         filter={filter}
         filterLabel={activeFilter?.label}
+        tabMeaning={activeTab?.meaning}
         onOpenProfile={onOpenProfile}
         onToast={onToast}
+        onOpenPanel={onOpenPanel}
+        onRefreshFeed={onRefreshFeed}
+        onOpenChat={onOpenChat}
+        feedVersion={feedVersion}
       />
     </div>
   )

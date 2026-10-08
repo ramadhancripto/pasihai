@@ -65,7 +65,7 @@ node scripts/shots.mjs   # UI verification: DOM assertions + screenshots (inahit
 ### Shell
 - **Header:** `Pasihai` kushoto · 🔔 👤 ⋮ kama group moja compact kulia (nafasi sawa)
 - **Bottom nav — destinations tano pekee:**
-  Home (Kutazama) · Soga (Mawasiliano) · Gundua (Kugundua) · Spaces (Kushiriki) · Business (Kuendesha)
+  Home (Kutazama) · Chat (Mawasiliano) · Gundua (Kugundua) · Spaces (Kushiriki) · Business (Kuendesha)
 - **Desktop:** bottom nav inakuwa rail iliyoelea katikati chini — si mobile iliyonyooshwa
 
 ### Home (muundo)
@@ -116,8 +116,10 @@ Kubadilisha chanzo cha data baadaye (Local DB / Firebase / Sync) = kubadilisha
 | `accountService` | mtumiaji wa sasa, wasifu, directory |
 | `settingsService` | view modes, mapendeleo ya mkondo |
 | `notificationService` | taarifa (scope filter + unread count + join) |
-| `productInfoService` | taarifa za kurasa za Soga/Gundua/Spaces/Business |
+| `productInfoService` | taarifa za kurasa za Chat/Gundua/Spaces/Business |
 | `feedService` | mkondo wa Home (tab · kichujio · mpangilio deterministic · channels zinazopendekezwa) |
+| `gunduaService` | ugunduzi (modes · kategoria · vichujio vya mode · friends view · biashara · live · panels) |
+| `chatService` | mazungumzo (Inbox · Direct · Vikundi · New Chat · Requests · hali za local/offline/sync) |
 
 Ramani kamili: `docs/PHASE-1-REPORT.md` · plan: `docs/PHASE-1-PLAN.md`
 
@@ -128,6 +130,57 @@ ghost · icon) · identity tabaka tatu (**ROLE** pill · **RELATIONSHIP** meta �
 ya entity) · status compact (64px) · media scrim/badges · live speakers · **Spaces icons**
 (Hub · Jumla · Spaces · Shield · Megaphone) · bottom nav touch 44px + kionyeshi active ·
 skeleton + fade ya mkondo. Ripoti: `docs/UI-POLISH-REPORT.md` · picha: `docs/review/polish/`.
+
+### UI polish — mzunguko wa 2 (Spaces · density · urembe)
+
+`IconSpaces` sasa = **watu watatu** (kama Stitch) · mstari wa **muktadha wa tab**
+(`homeTabs[].meaning` → `FeedList` → `.psh-feed__context`) · **density**: `--card-gap` 12→10,
+strip/tabs/create/feed/end/discover/kurasa zimepunguzwa 10–25% · **urembe**: primary shadow,
+hali ya “imekamilika” kijani tulivu (`--c-green-soft-2`), typecards zenye kichwa kimoja.
+Ripoti: `docs/UI-POLISH-2-REPORT.md` · picha 17 `docs/review/polish/` + `gallery.html`.
+
+### Safu ya mfumo — top system components (Data Saved · System · Relay · Sync · Nearby)
+
+Vitendo viwili vya kudumu kwenye header: **💾 Data Saved** (`DataSavedIndicator`) na
+**⇄ System** (`SystemQuickButton`). Panel moja ya mfumo yenye vitendo vya **muktadha**:
+Relay · Nearby · Sync · Save Offline · Share Nearby · Activity — hali 6 za kifaa
+(`ONLINE · LIMITED · LOCAL · OFFLINE · WAITING_SYNC · SYNCING`), foleni ya vitendo
+(waiting · sending · synced · failed), idhini ya relay ya internet (default: haijaruhusiwa),
+na **composer MOJA** ya chapisho (uwasilishaji = metadata: Local only · Nearby · Community · Global).
+Bottom nav inabaki **5**.
+
+**Sera ya Internet Relay (2026-10-07):** Internet Relay = **ujumbe mfupi pekee** (maandishi · metadata ·
+uelekezaji mdogo) — video · picha · sauti · hati · PDF · ZIP · viambatisho **haziruhusiwi** (hakuna vighairi).
+Ukomo wa lazima **5 MB/siku** (default 3 MB; 3 au 5 pekee; zaidi ya 5 inakataliwa) · ujumbe mmoja ≤ 32 KB ·
+**OFF kwa default** (idhini ya wazi) · ukomo ukifikiwa: *Internet Relay paused* — hakuna trafiki zaidi ·
+hakuna kugeuka internet kimya kimya. **Local Mesh** (Wi-Fi Direct · Bluetooth · Wi-Fi ya karibu) hubeba
+content kubwa bila data ya simu. **Relay Data Used ≠ Data Saved** (vipimo viwili tofauti). Ripoti: `docs/TOP-SYSTEM-COMPONENTS-REPORT.md` ·
+audit: `docs/SYSTEM-COMPONENT-AUDIT.md` · picha 21: `docs/review/system/gallery.html`.
+
+### Chat — mfumo MMOJA wa mawasiliano (2026-10-07)
+
+Chat ni **destination ya pili** kwenye bottom nav (`Home | Chat | Gundua | Spaces | Business`) — jina rasmi **Chat**
+(neno "Soga" halitumiki tena). Mfumo **mmoja**: `conversation.type` = `direct` | `group`; community/hub ni
+`parentContext` (metadata), **si** type. Hakuna `DirectChatService`/`GroupChatService`, hakuna account system ya pili,
+hakuna engine ya pili ya ujumbe.
+
+- **Inbox:** kichwa `Chat` + hali ya Sync + Search + ⋮ pekee (hakuna account icon) · chips za hali · vichujio
+  **Zote · Direct · Vikundi · Haijasomwa** · orodha (direct · vikundi · vikundi vilivyounganishwa na community/hub) · FAB `New Chat`.
+- **Thread:** bubbles zote (text · reply · reactions · sauti · picha/video · hati · eneo · shared posts/reels · kura ·
+  tangazo) · **composer MOJA** · vitendo vya ujumbe (`long-press` au kitufe ⋯ → sheet ileile) · swipe → jibu.
+- **Background ya mazungumzo = rangi MOJA safi** (hakuna dots/pattern/wallpaper/gradient). Rangi: outgoing green
+  `#18A982`-family + maandishi meupe · incoming uso mweupe + hairline.
+- **New Chat:** Saved Friends → PASIHAI Friends → mawasiliano ya simu → **namba** (lookup kesi 4) · **Requests**
+  (Kubali → conversation ya kawaida · Kataa kimya kimya · Zuia) · **New Group** (jina · picha · wanachama).
+- **Hali za local/offline/sync zinatoka safu ya System ileile:** ONLINE → synced · LOCAL → Local Mesh · LIMITED/WAITING_SYNC →
+  relayed (ujumbe mfupi) au foleni · OFFLINE → *Imehifadhiwa (Offline Vault)* + foleni ileile ya Sync.
+- **Sera ya relay inaendelea:** media haipiti Internet Relay (maandishi pekee); guard inatoa njia 3 (Local Mesh · Data yako · Wi-Fi)
+  na **hakuna** kubadili njia kimya kimya.
+- **Responsive:** simu (inbox ↔ mazungumzo) · desktop **panes mbili** (orodha | mazungumzo, upana 1160px) · a11y: labels · 44px · focus ring · focus restore.
+
+Code: `services/chatService.js` · `data/repositories/chatRepository.js` · `components/chat/` ·
+`styles/chat.css` · mock: `data/mock.js` (sehemu ya CHAT). Audit: `docs/CHAT-AUDIT.md` · ripoti: `docs/CHAT-REPORT.md` ·
+picha 28: `docs/review/chat/gallery.html`.
 
 ### Stitch UI integration (Stages 3–5)
 

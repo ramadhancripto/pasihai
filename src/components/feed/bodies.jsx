@@ -70,7 +70,7 @@ function MediaWithOverlay({ media, tone, icon, rounded = true }) {
 }
 
 /* ── Prima: safu ya kitendo (channel · bidhaa · tukio) ─────── */
-function CtaRow({ cta, onToast }) {
+function CtaRow({ item, cta, onCta }) {
   if (!cta) return null
   const primary = cta.tone === 'primary'
   return (
@@ -78,7 +78,7 @@ function CtaRow({ cta, onToast }) {
       <button
         type="button"
         className={`psh-btn ${primary ? 'psh-btn--primary' : 'psh-btn--quiet'} psh-ctarow__btn`}
-        onClick={() => onToast?.(`${cta.label}: kitendo kamili kinakuja hatua ijayo`)}
+        onClick={() => onCta?.(item, cta)}
       >
         {cta.label}
         <IconArrowRight size={16} />
@@ -88,25 +88,25 @@ function CtaRow({ cta, onToast }) {
 }
 
 /* ── 1. Maandishi ─────────────────────────────────────────── */
-export function TextBody({ item }) {
+export function TextBody({ item, onCta}) {
   return <FeedText text={item.text} />
 }
 
 /* ── 2. Picha (pamoja na maandishi + picha) ───────────────── */
-export function MediaBody({ item, onToast }) {
+export function MediaBody({ item, onToast, onCta }) {
   return (
     <>
       <FeedText text={item.text} />
       <div className="psh-feedmedia">
         <MediaWithOverlay media={item.media} />
       </div>
-      <CtaRow cta={item.cta} onToast={onToast} />
+      <CtaRow item={item} cta={item.cta} onCta={onCta} />
     </>
   )
 }
 
 /* ── 3. Video-first: media kwanza, maelezo baadaye ────────── */
-export function VideoBody({ item }) {
+export function VideoBody({ item, onCta }) {
   return (
     <>
       <div className="psh-feedmedia psh-feedmedia--first">
@@ -140,10 +140,15 @@ export function AudioBody({ item }) {
 }
 
 /* ── 5. Kura ──────────────────────────────────────────────── */
-export function PollBody({ item }) {
+export function PollBody({ item, onVote, onCta}) {
   const poll = item.poll
   const [vote, setVote] = useState(poll?.myVote ?? null)
   if (!poll) return <FeedText text={item.text} />
+
+  const choose = (optionId) => {
+    setVote(optionId)
+    onVote?.(item.id, optionId)
+  }
 
   const total = poll.total + (vote ? 1 : 0)
   const maxVotes = Math.max(
@@ -164,7 +169,7 @@ export function PollBody({ item }) {
               <button
                 type="button"
                 className={`psh-pollopt ${chosen ? 'is-chosen' : ''} ${vote ? 'is-voted' : ''}`}
-                onClick={() => setVote(option.id)}
+                onClick={() => choose(option.id)}
                 aria-pressed={chosen}
               >
                 <span className="psh-pollopt__bar" style={{ width: `${pct}%` }} aria-hidden="true" />
@@ -194,7 +199,7 @@ export function PollBody({ item }) {
 }
 
 /* ── 6. Tangazo (channel) ─────────────────────────────────── */
-export function AnnouncementBody({ item, onToast }) {
+export function AnnouncementBody({ item, onToast, onCta}) {
   return (
     <div className="psh-announce">
       <p className="psh-announce__head">
@@ -214,7 +219,7 @@ export function AnnouncementBody({ item, onToast }) {
         </ul>
       ) : null}
 
-      <CtaRow cta={item.cta} onToast={onToast} />
+      <CtaRow item={item} cta={item.cta} onCta={onCta} />
     </div>
   )
 }
@@ -233,12 +238,12 @@ const VIEWER_WORD = {
   Mchanganyiko: 'wanaoshiriki',
 }
 
-export function LiveActivityBody({ item, onToast }) {
+export function LiveActivityBody({ item, onOpenLive }) {
   const live = item.live
   if (!live) return <FeedText text={item.text} />
 
   const state = LIVE_STATE[live.state] ?? { label: live.state, tone: 'replay' }
-  const cta = live.state === 'live' ? 'Jiunge' : live.state === 'replay' ? 'Tazama tena' : 'Kumbuka'
+  const cta = item.liveRunning ? 'Endesha kikao' : live.state === 'live' ? 'Jiunge' : live.state === 'replay' ? 'Tazama tena' : 'Kumbuka'
   const CtaIcon =
     live.state === 'live' ? IconArrowRight : live.state === 'replay' ? IconRefresh : IconCalendarAdd
   const ModeIcon = live.mode === 'Sauti' ? IconHeadset : live.mode === 'Video' ? IconVideo : IconLive
@@ -311,7 +316,7 @@ export function LiveActivityBody({ item, onToast }) {
         <button
           type="button"
           className={`psh-btn ${live.state === 'live' ? 'psh-btn--primary' : ''} psh-live__cta`}
-          onClick={() => onToast?.(`${cta}: uzoefu kamili wa Live unakuja hatua ijayo`)}
+          onClick={() => onOpenLive?.(item)}
         >
           {cta}
           <CtaIcon size={16} />

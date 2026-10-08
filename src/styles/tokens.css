@@ -12,7 +12,8 @@
   --c-green: #18a982;        /* rangi kuu ya brand */
   --c-green-600: #149174;    /* hover / pressed */
   --c-green-700: #0f7a61;    /* maandishi ya kijani kwa AA */
-  --c-green-soft: #eaf8f3;   /* mandhari laini ya kijani */
+  --c-green-soft: #eaf8f3;
+  --c-green-soft-2: #dcf1e8;   /* hali ya "imekamilika" (Unafuatilia · Umejiunga) */   /* mandhari laini ya kijani */
 
   --c-blue: #3b82f6;         /* rangi ya mwingiliano inayosaidia */
   --c-blue-600: #2f6fe0;     /* hover / pressed */
@@ -83,7 +84,7 @@
   /* Kadi za mkondo (Stitch integration — "card-lite" framing) */
   --card-r: 16px;              /* radius ya kadi ya feed */
   --card-pad: 16px;            /* padding ya ndani */
-  --card-gap: 12px;            /* nafasi kati ya kadi */
+  --card-gap: 10px;            /* nafasi kati ya kadi */
 
   /* ── Mwinuko wa vivuli (wa hila tu) ─────────────────────── */
   --sh-1: 0 1px 2px rgba(23, 32, 29, 0.05);
