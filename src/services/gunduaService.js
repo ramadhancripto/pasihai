@@ -213,6 +213,16 @@ export const gunduaService = {
     return gunduaRepository.getFriendRequests()
   },
 
+  async cancelFriend(id) {
+    const res = await gunduaRepository.cancelFriend(id)
+    return { ...res, hint: res.changed ? 'Ombi limeondolewa' : 'Hakuna ombi la kuondoa' }
+  },
+
+  /* Mahusiano ya Account: sent · myFriends · discover (PYMK) — chanzo kimoja: gunduaRepository */
+  async getFriends(filters = {}) {
+    return gunduaRepository.getFriends(filters)
+  },
+
   /* ── Channels: kufuata ──────────────────────────────────── */
 
   async toggleFollow(id, follow) {

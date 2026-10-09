@@ -375,7 +375,7 @@ for (const tab of feedTabs) {
   assert(result.items.length > 0, `feedService.getFeed({ tab: '${tab}' })`, `${result.items.length} items`)
 }
 
-assert(perTab.mchanganyiko.items.length === 20, 'Mchanganyiko = posts 12 + reels 8', `${perTab.mchanganyiko.items.length}`)
+assert(perTab.mchanganyiko.items.length === 19, 'Mchanganyiko = posts 11 + reels 8 (channel isiyofuatwa imetolewa)', `${perTab.mchanganyiko.items.length}`)
 assert(perTab.reels.items.length === 8, 'Reels tab', `${perTab.reels.items.length}`)
 assert(perTab.live.items.length === 12, 'Live tab', `${perTab.live.items.length}`)
 assert(
@@ -423,10 +423,10 @@ assert(
 
 /* ── Mpangilio wa deterministic ──────────────────────────── */
 /* Hesabu za tabs — chanzo kimoja cha ukweli (zinathibitishwa pia kwenye UI: scripts/shots.mjs)
-   Mchanganyiko = 32 − 12 (vikao vya Live vina tab yao) = 20
-   Friends 10 = posts 6 + live activity 1 + reels 4 · Channels 4 = posts 3 + reel 1 */
+   Mchanganyiko = 32 − 12 (vikao vya Live vina tab yao) − 1 (channel isiyofuatwa) = 19
+   Friends 10 = posts 6 + live activity 1 + reels 4 · Channels = zinazofuatwa pekee = 3 */
 for (const [tab, expected] of [
-  ['mchanganyiko', 20], ['reels', 8], ['friends', 10], ['channels', 4], ['live', 12],
+  ['mchanganyiko', 19], ['reels', 8], ['friends', 10], ['channels', 3], ['live', 12],
 ]) {
   const r = await feedService.getFeed({ tab })
   assert(r.items.length === expected, `Tab "${tab}" → vipengele ${expected}`, `${r.items.length}`)
@@ -447,7 +447,7 @@ assert(liveOrder[liveOrder.length - 1] === 'replay', 'Live tab: marudio mwisho',
 //   picha   4 = p3 · p7 · p8 (bidhaa) · p12 (tukio)
 //   video   9 = p4 + reels 8 (reel ni video fupi)
 const filtersToTest = [
-  ['all', 20], ['posts', 10], ['picha', 4], ['video', 9],
+  ['all', 19], ['posts', 9], ['picha', 3], ['video', 9],
   ['reels', 8], ['audio', 2], ['polls', 1], ['live', 1], ['announcements', 1],
 ]
 for (const [f, expected] of filtersToTest) {
@@ -1378,10 +1378,7 @@ assert(mReel.kind === 'reel' && mReel.media?.duration, 'M1: Reel inaundwa na med
 
 const feedAfterPost = await feedSvcM.getFeed({ tab: 'mchanganyiko' })
 const reelIdx = feedAfterPost.items.findIndex((i) => i.id === mReel.id)
-assert(
-  reelIdx >= 0 && feedAfterPost.items.slice(0, reelIdx + 1).every((i) => i.mine),
-  'M1: machapisho yangu yanatangulia kwenye mkondo (mine)',
-)
+assert(reelIdx >= 0, 'M1: chapisho langu linaonekana kwenye mkondo (si pinned: sheria za feed)')
 
 /* ── M2: Kura inabaki (state) ───────────────────────────────── */
 await feedSvcM.votePoll(mPoll.id, 'o1')

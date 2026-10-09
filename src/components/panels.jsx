@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { accountService } from '../services/accountService.js'
 import { spacesService } from '../services/spacesService.js'
 import { feedService } from '../services/feedService.js'
+import { gunduaService } from '../services/gunduaService.js'
 import { chatService } from '../services/chatService.js'
 import { systemService } from '../services/systemService.js'
 import { notificationService } from '../services/notificationService.js'
@@ -189,6 +190,126 @@ const MY_TABS = [
   { id: 'spaces', label: 'Nafasi Zangu' },
 ]
 
+/* ── Friends & Connections (Account) ─────────────────────────
+   Chanzo: gunduaService (maombi yaliyopokelewa · yaliyotumwa · marafiki · PYMK).
+   Counts ni za majaribio (mock) — backend bado haipo. */
+const FC_VIEWS = [
+  { id: 'requests', label: 'Maombi yaliyopokelewa' },
+  { id: 'sent', label: 'Maombi yaliyotumwa' },
+  { id: 'friends', label: 'Marafiki' },
+  { id: 'suggest', label: 'Watu unaoweza kuwajua' },
+]
+
+export function FriendsConnections({ onToast }) {
+  const [view, setView] = useState(null)
+  const [version, setVersion] = useState(0)
+  const [busyId, setBusyId] = useState(null)
+  const friends = useAsyncData(() => gunduaService.getFriends({}), [version])
+  const incoming = useAsyncData(() => gunduaService.getFriendRequests(), [version])
+
+  if (!friends || !incoming) return null
+
+  const counts = {
+    requests: incoming.length,
+    sent: friends.sent.length,
+    friends: friends.myFriends.length,
+    suggest: friends.discover.length,
+  }
+  const lists = {
+    requests: incoming.map((r) => ({ ...r.person, id: r.from })),
+    sent: friends.sent,
+    friends: friends.myFriends,
+    suggest: friends.discover,
+  }
+
+  const refresh = () => setVersion((v) => v + 1)
+  const run = async (person, fn, msg) => {
+    setBusyId(person.id)
+    try {
+      await fn()
+      onToast?.(msg)
+      refresh()
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const rowActions = (kind, p) => {
+    const busy = busyId === p.id
+    if (kind === 'requests')
+      return (
+        <div className="psh-fc__acts">
+          <Button size="sm" variant="primary" disabled={busy} onClick={() => run(p, () => gunduaService.respondFriend(p.id, 'accept'), 'Sasa ni rafiki')}>Kubali</Button>
+          <Button size="sm" variant="ghost" disabled={busy} onClick={() => run(p, () => gunduaService.respondFriend(p.id, 'decline'), 'Ombi limekataliwa')}>Kataa</Button>
+        </div>
+      )
+    if (kind === 'sent')
+      return (
+        <div className="psh-fc__acts">
+          <Button size="sm" variant="ghost" disabled={busy} onClick={() => run(p, () => gunduaService.cancelFriend(p.id), 'Ombi limeondolewa')}>Ghairi</Button>
+        </div>
+      )
+    if (kind === 'suggest')
+      return (
+        <div className="psh-fc__acts">
+          <Button size="sm" variant="primary" disabled={busy} onClick={() => run(p, () => gunduaService.addFriend(p.id), 'Ombi la urafiki limetumwa')}>Ongeza</Button>
+        </div>
+      )
+    return null
+  }
+
+  const active = FC_VIEWS.find((v) => v.id === view)
+
+  return (
+    <section className="psh-fc" aria-label="Friends & Connections">
+      <header className="psh-fc__head">
+        <h4 className="psh-fc__title">Friends &amp; Connections</h4>
+        <p className="psh-fc__mock">Data ya majaribio (mock) — backend bado haipo.</p>
+      </header>
+
+      {!active ? (
+        <ul className="psh-fc__grid">
+          {FC_VIEWS.map((v) => (
+            <li key={v.id}>
+              <button type="button" className="psh-fc__tile" onClick={() => setView(v.id)}>
+                <span className="psh-fc__label">{v.label}</span>
+                <span className="psh-fc__count">
+                  {v.id === 'requests' && counts.requests > 0 ? (
+                    <span className="psh-fc__badge" aria-label={`${counts.requests} mapya`}>{counts.requests}</span>
+                  ) : (
+                    <strong>{counts[v.id]}</strong>
+                  )}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="psh-fc__panel">
+          <button type="button" className="psh-fc__back" onClick={() => setView(null)}>← Rudi</button>
+          <h5 className="psh-fc__ptitle">{active.label} <span>({counts[active.id]})</span></h5>
+          {lists[active.id].length === 0 ? (
+            <p className="psh-fc__empty">Hakuna kitu hapa kwa sasa.</p>
+          ) : (
+            <ul className="psh-fc__list">
+              {lists[active.id].map((p) => (
+                <li key={p.id} className="psh-fc__row">
+                  <Avatar user={p} size={40} />
+                  <div className="psh-fc__who">
+                    <strong>{p.name}</strong>
+                    {p.discoverReason ? <span>{p.discoverReason}</span> : null}
+                  </div>
+                  {rowActions(active.id, p)}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </section>
+  )
+}
+
 export function ProfilePanel({ userId = 'me', onToast, onInteract, onOpenItem, onOpenSpace }) {
   // Wasifu unatoka kwa account service (service inajua 'me' vs entity nyingine).
   // Hooks zote ziko mbele ya early-return — mpangilio wa hooks hauvunjiki.
@@ -258,6 +379,8 @@ export function ProfilePanel({ userId = 'me', onToast, onInteract, onOpenItem, o
           </li>
         ))}
       </ul>
+
+      {isMe ? <FriendsConnections onToast={onToast} /> : null}
 
       {/* Kumbuka: mtumiaji wa kawaida anaweza kuwa na followers 0.
           UI haionyeshi hii kama tatizo — inaonyesha aina mbalimbali za uhusiano. */}

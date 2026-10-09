@@ -12,7 +12,7 @@
 //   getEntity(type, id)                       → detail ya umma
 //   getOffers() · getSearchIdeas()
 //   search(query, filters)                    → matokeo mseto (public pekee)
-//   addFriend(id) · respondFriend(id, action) · getFriendRequests()
+//   addFriend(id) · respondFriend(id, action) · cancelFriend(id) · getFriendRequests()
 //   followChannel(id) · unfollowChannel(id) · join(type, id) · recordJoin(type, id)
 //
 // KANUNI ZA MSINGI:
@@ -466,6 +466,13 @@ export const mockGunduaRepository = {
     if (!users[id] || store.friendStates[id] === 'blocked') return { id, state: store.friendStates[id] || 'blocked', changed: false }
     store.friendStates[id] = 'sent'
     return { id, state: 'sent', changed: true }
+  },
+
+  /* Ghairi ombi lililotumwa (sent → not_friend). Ombi la mtu mwingine halibadilishwi. */
+  async cancelFriend(id) {
+    if (store.friendStates[id] !== 'sent') return { id, state: store.friendStates[id] || 'not_friend', changed: false }
+    store.friendStates[id] = 'not_friend'
+    return { id, state: 'not_friend', changed: true }
   },
 
   async respondFriend(id, action) {

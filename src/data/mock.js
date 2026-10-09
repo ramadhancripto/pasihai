@@ -619,7 +619,7 @@ export const statuses = [
 export const homeTabs = [
   {
     id: 'mchanganyiko',
-    label: 'Mchanganyiko',
+    label: 'Kwa ajili yako',
     prompt: 'Nini kinaendelea?',
     meaning: 'Marafiki, Channels, Spaces na biashara — vyote mahali pamoja.',
   },

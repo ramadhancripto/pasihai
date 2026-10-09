@@ -36,6 +36,9 @@ import {
   IconInfo,
   IconMoreVertical,
   IconPlus,
+  IconPhone,
+  IconVideo,
+  IconComment,
   IconRadar,
   IconSearchSmall,
   IconShield,
@@ -334,6 +337,12 @@ export default function Chat({ onToast }) {
               ) : null}
             </div>
             <div className="psh-chat__headactions">
+              <button type="button" className="psh-icobtn psh-icobtn--off" disabled aria-label="Simu ya sauti (inakuja)" title="Simu ya sauti — inakuja">
+                <IconPhone size={20} />
+              </button>
+              <button type="button" className="psh-icobtn psh-icobtn--off" disabled aria-label="Video call (inakuja)" title="Video call — inakuja">
+                <IconVideo size={20} />
+              </button>
               <button type="button" className="psh-icobtn" aria-label="Tafuta kwenye Chat" onClick={() => go('search')}>
                 <IconSearchSmall size={20} />
               </button>
@@ -429,7 +438,7 @@ export default function Chat({ onToast }) {
           </div>
 
           <button type="button" className="psh-chat__fab" onClick={() => go('newchat')}>
-            <IconPlus size={18} /> New Chat
+            <IconComment size={18} /> New Chat
           </button>
 
         </section>

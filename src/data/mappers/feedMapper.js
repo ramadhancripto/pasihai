@@ -124,6 +124,8 @@ function mapLiveSession(session) {
       waveform: session.waveform,
     },
     source: 'liveSession',
+    // Visibility inapitishwa ili feedService iamue access (public/followers/private).
+    visibility: session.visibility ?? 'public',
     filters: ['live'],
     stats: { reactions: 0, comments: 0 },
   }

@@ -28,6 +28,7 @@ import {
   IconInfo,
   IconMapPin,
   IconMic,
+  IconPhone,
   IconMoreVertical,
   IconPaperclip,
   IconPhoto,
@@ -413,8 +414,12 @@ export default function Thread({
             </span>
           ) : null}
         </span>
-        <button type="button" className="psh-icobtn" aria-label="Sauti na mwito" onClick={() => onCall?.()}>
-          <IconMic size={19} />
+        {/* Simu bado hazijaunganishwa kwenye mfumo: vitufe vimezimwa kwa uaminifu */}
+        <button type="button" className="psh-icobtn psh-icobtn--off" disabled aria-label="Simu ya sauti (inakuja)" title="Simu ya sauti — inakuja">
+          <IconPhone size={19} />
+        </button>
+        <button type="button" className="psh-icobtn psh-icobtn--off" disabled aria-label="Video call (inakuja)" title="Video call — inakuja">
+          <IconVideo size={19} />
         </button>
         <button type="button" className="psh-icobtn" aria-label="Menyu zaidi za mazungumzo" onClick={onMore}>
           <IconMoreVertical size={19} />

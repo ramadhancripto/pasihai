@@ -59,11 +59,53 @@ function scoreOf(item, entity) {
    Live         : vikao vya Live (live sessions)
    ─────────────────────────────────────────────────────────── */
 const TAB_RULES = {
-  mchanganyiko: (item) => item.source !== 'liveSession',
-  reels: (item) => item.source === 'reel',
-  friends: (item) => item.source !== 'liveSession' && item.entity?.type === 'friend',
-  channels: (item) => item.source !== 'liveSession' && item.entity?.type === 'channel',
-  live: (item) => item.source === 'liveSession',
+  // Kwa ajili yako: mchanganyiko wa posts/reels/friends/hubs; channels zinaingia zikifuatwa tu.
+  mchanganyiko: (item, ctx) => item.source !== 'liveSession' && passesChannelGate(item, ctx) && isVisible(item, ctx),
+  // Reels: video fupi kutoka vyanzo vilivyoruhusiwa na Home.
+  reels: (item, ctx) => item.source === 'reel' && passesChannelGate(item, ctx) && isVisible(item, ctx),
+  // Friends: marafiki pekee.
+  friends: (item, ctx) => item.source !== 'liveSession' && item.entity?.type === 'friend' && isVisible(item, ctx),
+  // Channels: channels zinazofuatwa pekee (channels mpya zinagunduliwa kupitia Gundua).
+  channels: (item, ctx) =>
+    item.source !== 'liveSession' && item.entity?.type === 'channel' && ctx.followed.has(item.entity.id) && isVisible(item, ctx),
+  // Live: live sessions zinazoruhusiwa kwa mtumiaji (public, hata kutoka channels ambazo hazijafuatwa).
+  live: (item, ctx) => item.source === 'liveSession' && isVisible(item, ctx),
+}
+
+/* Channel ambayo haijafuatwa haionekani kwenye tabs za feed (ugunduzi uko Gundua). Live haitumii kizuizi hiki. */
+function passesChannelGate(item, ctx) {
+  return item.entity?.type !== 'channel' || ctx.followed.has(item.entity.id)
+}
+
+/* Visibility: public = wote · followers = friends/channels zinazofuatwa · private = mimi.
+   Thamani nyingine yoyote (k.m. 'restricted') imefichwa (fail-closed).
+   Kichujio cha frontend (mock); si usalama wa backend. */
+function isVisible(item, ctx) {
+  const v = item.visibility ?? 'public'
+  if (v === 'public') return true
+  if (v === 'private') return !!item.mine
+  if (v === 'followers') return item.entity?.type === 'friend' || ctx.followed.has(item.entity?.id)
+  return false
+}
+
+/* ── Mpangilio kwa Home tab ────────────────────────────────
+   Live     : live → upcoming → replay, kisha mpya kwanza.
+   Friends/Reels/Channels : mpya kwanza.
+   Kwa ajili yako: score iliyopo. Posts zangu hazibandikwi juu. */
+const LIVE_ORDER = { live: 0, upcoming: 1, replay: 2 }
+
+function orderFor(tab, items) {
+  const byId = (a, b) => String(a.id).localeCompare(String(b.id))
+  const byAge = (a, b) => (a.ageMinutes ?? 0) - (b.ageMinutes ?? 0)
+  if (tab === 'live') {
+    return [...items].sort(
+      (a, b) => (LIVE_ORDER[a.live?.state] ?? 9) - (LIVE_ORDER[b.live?.state] ?? 9) || byAge(a, b) || byId(a, b),
+    )
+  }
+  if (tab === 'mchanganyiko') {
+    return [...items].sort((a, b) => scoreOf(b, b.entity) - scoreOf(a, a.entity) || byAge(a, b) || byId(a, b))
+  }
+  return [...items].sort((a, b) => byAge(a, b) || byId(a, b))
 }
 
 /* ── Mpangilio ────────────────────────────────────────────── */
@@ -87,7 +129,7 @@ export const feedService = {
      Chanzo kimoja: likes · saved · votes · hidden · vocabulary ·
      orodha ya entities. getFeed na getSpaceFeed wanashiriki hii. */
   async loadFeedState() {
-    const [hidden, likes, saved, votes, currentUser, vocabulary, directory] = await Promise.all([
+    const [hidden, likes, saved, votes, currentUser, vocabulary, directory, followedIds] = await Promise.all([
       contentRepository.listHidden(),
       contentRepository.listLikes(),
       contentRepository.listSaved(),
@@ -95,6 +137,7 @@ export const feedService = {
       identityRepository.getCurrentUser(),
       catalogRepository.getEntityVocabulary(),
       identityRepository.listUsers(),
+      identityRepository.listFollowed(),
     ])
     const entities = new Map(directory.map((entity) => [entity.id, entity]))
     if (currentUser) entities.set(currentUser.id, currentUser)
@@ -105,6 +148,7 @@ export const feedService = {
       votes,
       vocabulary,
       entities,
+      followed: new Set(followedIds),
     }
   },
 
@@ -140,9 +184,9 @@ export const feedService = {
       contentRepository.listMyPosts(),
       this.loadFeedState(),
     ])
-    // Chapisho langu linaonekana juu ya mkondo (Mchanganyiko/Friends) — halisi
+    // Posts zangu zinafuata sheria za feed (si pinned).
     const all = [...myPosts, ...feed].filter((i) => !state.hidden.includes(i.id))
-    const { entities } = state
+    const { entities, followed } = state
 
     // 1) unganisha entity kwanza, kisha 2) hesabu uanachama wa tab kwa sheria
     // ROLE (aina ya entity) na RELATIONSHIP (uhusiano wangu) ni tabaka mbili
@@ -150,11 +194,11 @@ export const feedService = {
     // yenyewe (mock). Action inahesabiwa na UI kwa vocabulary hii.
     const joined = this.enrichFeedItems(all, state)
     const rule = TAB_RULES[tab] ?? TAB_RULES.mchanganyiko
-    const byTab = joined.filter((item) => item.entity && rule(item))
+    const byTab = joined.filter((item) => item.entity && rule(item, { followed }))
     const selected = filter === 'all' ? byTab : byTab.filter((item) => item.filters.includes(filter))
 
     return {
-      items: orderBy(selected, entities),
+      items: orderFor(tab, selected),
       total: byTab.length,
       shown: selected.length,
       tab,

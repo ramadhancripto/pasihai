@@ -25,6 +25,7 @@ import './styles/visual-v6-paper.css'
 import './styles/visual-v7-mobile.css'
 import './styles/visual-v8-cleanup.css'
 import './styles/visual-v9-topbar.css'
+import './styles/visual-v10-chat-nav.css'
 
 import App from './App.jsx'
 import Splash from './components/Splash.jsx'

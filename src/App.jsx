@@ -429,6 +429,7 @@ export default function App() {
 
   return (
     <div className="psh-app">
+      {route === 'home' ? (
       <Header
         unread={seenNotifs ? 0 : 3}
         onNotifications={() => {
@@ -440,8 +441,9 @@ export default function App() {
         onDataSaved={() => openTop({ type: 'datasaved' })}
         onSystem={() => openTop({ type: 'system' })}
       />
+      ) : null}
 
-      <main className={`psh-main ${route === 'chat' ? 'psh-main--wide' : ''}`} id="main">
+      <main className={`psh-main ${route === 'chat' ? 'psh-main--wide' : ''} ${route !== 'home' ? 'psh-main--nohead' : ''}`} id="main">
         {route === 'spaces' ? (
           <Spaces
             onToast={toastIt}
