@@ -19,7 +19,22 @@ import {
   IconGlobe,
   IconShield,
   IconMegaphone,
+  IconStorefront,
+  IconPeople,
+  IconFile,
+  IconGauge,
 } from '../components/icons.jsx'
+
+/* Business: kipengele kimoja, icon moja na tone moja (kijani/bluu/dhahabu).
+   Majina pekee — hakuna maelezo ya ziada. */
+const BUSINESS_ITEM_ICON = {
+  'Bidhaa na huduma': { Icon: IconStorefront, tone: 'green' },
+  Wateja: { Icon: IconPeople, tone: 'blue' },
+  'Oda na maombi': { Icon: IconFile, tone: 'gold' },
+  Matangazo: { Icon: IconMegaphone, tone: 'blue' },
+  'Ufuatiliaji wa kazi': { Icon: IconGauge, tone: 'green' },
+  'Channel ya biashara': { Icon: IconBusiness, tone: 'gold' },
+}
 
 const PAGE_ICON = {
   gundua: IconGundua,
@@ -59,25 +74,20 @@ export default function PlaceholderPage({ pageKey }) {
         </span>
         <div>
           <h1 className="psh-pagehead__title">{page.title}</h1>
-          <p className="psh-pagehead__tag">
-            <Chip tone="soft">{page.concept}</Chip>
-            <span>{page.tagline}</span>
-          </p>
         </div>
       </header>
 
-      <p className="psh-pagelead">{page.note}</p>
-
       <section className="psh-pagesection">
-        <h2 className="psh-pagesection__h">Kile kitakachokuwemo</h2>
         <ul className="psh-pageitems">
           {page.items.map((it) => {
             const label = typeof it === 'string' ? it : it.label
-            const ItemIcon = typeof it === 'string' ? null : ITEM_ICON[it.icon]
+            const biz = typeof it === 'string' ? BUSINESS_ITEM_ICON[it] : null
+            const ItemIcon = typeof it === 'string' ? biz?.Icon : ITEM_ICON[it.icon]
+            const tone = biz ? biz.tone : it.icon
             return (
               <li key={label}>
                 {ItemIcon ? (
-                  <span className={`psh-pageitems__icon psh-pageitems__icon--${it.icon}`} aria-hidden="true">
+                  <span className={`psh-pageitems__icon psh-pageitems__icon--${tone}`} aria-hidden="true">
                     <ItemIcon size={15} />
                   </span>
                 ) : (
@@ -94,7 +104,7 @@ export default function PlaceholderPage({ pageKey }) {
 
       {page.types ? (
         <section className="psh-pagesection">
-          <h2 className="psh-pagesection__h">Aina za Spaces (hazichanganywi)</h2>
+          
           <ul className="psh-typecards">
             {page.types.map((t) => {
               const TypeIcon = ITEM_ICON[t.icon] ?? IconSpaces
@@ -109,35 +119,12 @@ export default function PlaceholderPage({ pageKey }) {
                     </span>
                     <h3>{t.name}</h3>
                   </div>
-                  <p>{t.desc}</p>
                 </li>
               )
             })}
           </ul>
         </section>
       ) : null}
-
-      <section className="psh-pagesection">
-        <h2 className="psh-pagesection__h">Mipaka ya urambazaji</h2>
-        <ul className="psh-boundary">
-          {BOUNDARIES.map((b) => {
-            const here = b.key === pageKey
-            return (
-              <li key={b.key} className={here ? 'is-current' : ''}>
-                <strong>{b.name}</strong>
-                <span>{b.role}</span>
-                {here ? <em>upo hapa</em> : null}
-              </li>
-            )
-          })}
-        </ul>
-      </section>
-
-      <p className="psh-note">
-        <IconInfo size={16} />
-        Ukurasa huu ni wa hatua ya ujenzi: unathibitisha kwamba {page.title} ina mahali pake
-        kwenye urambazaji mkuu. UI kamili haijajengwa bado.
-      </p>
     </div>
   )
 }

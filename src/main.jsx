@@ -15,11 +15,24 @@ import './styles/chat.css'
 import './styles/gundua.css'
 import './styles/spaces.css'
 import './styles/guide.css'
+import './styles/brand.css'
+import './styles/visual-v2.css'
+import './styles/visual-v3.css'
+import './styles/visual-v4.css'
+import './styles/visual-v5.css'
+import './styles/visual-v5-spaces.css'
+import './styles/visual-v6-paper.css'
+import './styles/visual-v7-mobile.css'
+import './styles/visual-v8-cleanup.css'
+import './styles/visual-v9-topbar.css'
 
 import App from './App.jsx'
+import Splash from './components/Splash.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <Splash>
+      <App />
+    </Splash>
   </StrictMode>,
 )

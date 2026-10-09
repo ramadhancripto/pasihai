@@ -24,7 +24,6 @@ import {
   MapPreview,
   OfferCard,
   PersonCard,
-  PrivacyNote,
   Rail,
   SectionHead,
   SpaceCard,
@@ -47,7 +46,6 @@ export default function Gundua({ onToast, onOpenChat }) {
   const [page, setPage] = useState(null)
   const [local, setLocal] = useState(null)
   const [tick, setTick] = useState(0)
-  const [showPrivacy, setShowPrivacy] = useState(true)
   const [stack, setStack] = useState([])
 
   const top = stack[stack.length - 1] || null
@@ -290,9 +288,6 @@ export default function Gundua({ onToast, onOpenChat }) {
       <header className="psh-gu-head">
         <div className="psh-gu-head__text">
           <h1 className="psh-gu-head__title">Gundua</h1>
-          <p className="psh-gu-head__sub">
-            Biashara · watu · vikundi · channels · live — <b>{page?.scope?.label || 'wazi'}</b>
-          </p>
         </div>
       </header>
 
@@ -342,7 +337,7 @@ export default function Gundua({ onToast, onOpenChat }) {
 
       {/* ── Kategoria ──────────────────────────────────────── */}
       <section className="psh-gu-cats" aria-label="Kategoria za ugunduzi">
-        <SectionHead title="Kategoria" hint="Chagua aina ya kitu unachotaka kugundua" />
+        <SectionHead title="Kategoria" />
         <div className="psh-gu-cats__grid">
           {(page?.categories || []).map((c) => (
             <CategoryModule
@@ -357,13 +352,6 @@ export default function Gundua({ onToast, onOpenChat }) {
           ))}
         </div>
       </section>
-
-      {showPrivacy ? (
-        <PrivacyNote
-          text="Gundua inaonyesha vitu vya umma na vilivyoruhusiwa pekee. Eneo linaboresha umuhimu — si ruhusa."
-          onClose={() => setShowPrivacy(false)}
-        />
-      ) : null}
 
       {/* ── Matokeo / Ugunduzi wa karibu ───────────────────── */}
       <div ref={resultsRef} className="psh-gu-results" tabIndex={-1}>
@@ -458,7 +446,7 @@ function SearchResults({ query, page, cardFor, onClear }) {
   if (!total) {
     return (
       <section className="psh-gu-sec">
-        <SectionHead title={`Matokeo: "${query}"`} hint="Hakuna kilicholingana" onAction={onClear} actionLabel="Safisha" />
+        <SectionHead title={`Matokeo: "${query}"`} hint="Hakuna kilicholingana" showHint onAction={onClear} actionLabel="Safisha" />
         <div className="psh-gu-empties">
           <p className="psh-gu-empty"><IconInfo size={16} /> Hakuna kitu cha umma kinacholingana na "{query}".</p>
           <p className="psh-gu-hintline">Jaribu: {(page?.ideas || []).slice(0, 4).map((i) => i.label || i).join(' · ')}</p>

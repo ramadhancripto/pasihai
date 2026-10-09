@@ -1,0 +1,204 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — USAFI WA SKRINI (v8)
+   · Padding ya simu: hakuna heading wala kitufe kinachogusa ukingo
+   · Chat: kitufe cha New Chat hakifuniki kadi ya mwisho
+   · Banner ya Local Mesh: fupi, haifuniki ujumbe
+   · Desktop Chat: uwiano wa paneli na hali tupu fupi
+   · Karatasi: palette moja (karatasi + kijani kilichofifia)
+   · Business: icons zenye rangi chache
+   Hakuna kipengele kilichoondolewa kwenye CSS nyingine — hii ni
+   safu ya juu tu.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Padding ya simu: Gundua, Spaces ───────────────────── */
+@media (max-width: 1023px) {
+  .psh-gu,
+  .psh-spaces {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+  .psh-gu-cats,
+  .psh-gu-search,
+  .psh-gu-head,
+  .psh-spaces__head,
+  .psh-spaces__search,
+  .psh-spaces__tabs,
+  .psh-spaces__filters {
+    max-width: 100%;
+  }
+  .psh-spaces__filters {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .psh-spaces__head {
+    gap: 12px;
+  }
+}
+
+/* ── 2. Chat: nafasi chini ili New Chat isifunike kadi ya mwisho ── */
+@media (max-width: 1023px) {
+  .psh-chat__list {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ── 3. Banner fupi ya hali (Local Mesh, Relay, Offline) ──── */
+.psh-chat__banner--compact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: max-content;
+  max-width: calc(100% - 20px);
+  margin: 6px 10px 0;
+  padding: 4px 10px;
+  min-height: 0;
+  border-radius: 999px;
+  font-size: 11.5px;
+  line-height: 1.3;
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+.psh-chat__banner--compact b {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.psh-chat__banner--compact svg {
+  margin-top: 0;
+}
+.psh-chat__banner--compact.psh-chat__banner--mesh {
+  background: var(--c-blue-soft);
+}
+.psh-chat__thread > .psh-chat__banner--compact + .psh-chat__messages {
+  position: relative;
+  z-index: 0;
+}
+
+/* Maandishi kwa screen reader pekee */
+.psh-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── 4. Desktop Chat: uwiano thabiti ─────────────────────── */
+@media (min-width: 1024px) {
+  .psh-chat {
+    height: clamp(520px, calc(100vh - 230px), 680px);
+    min-height: 0;
+    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  }
+  .psh-chat__pane--list,
+  .psh-chat__pane--thread {
+    max-height: none;
+    height: 100%;
+    min-height: 0;
+  }
+  .psh-chat__pane--list .psh-chat__list {
+    overflow-y: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+  .psh-chat__thread {
+    min-height: 0;
+  }
+  /* Hali tupu: fupi, katikati, bila mstari wa kunyoosha */
+  .psh-chat__thread > .psh-empty {
+    margin: auto;
+    padding: 16px;
+    gap: 6px;
+    border: 0;
+    background: transparent;
+    color: var(--t-3);
+    font-size: var(--fs-13);
+  }
+  .psh-chat__thread > .psh-empty svg {
+    color: var(--c-green-700);
+  }
+  .psh-chat__thread > .psh-empty p {
+    margin: 0;
+  }
+}
+
+/* ── 5. Karatasi: palette moja ───────────────────────────── */
+.psh-chat--paper {
+  --pp-ink: #2a2418;
+  --pp-mute: #6e6248;
+  /* Kijani kilichofifia: mandharinyuma ya thread na orodha */
+  --pp-green-bg: #d3e4d7;
+  /* Karatasi: receiver = ivory safi, sender = parchment yenye rangi ya kina zaidi */
+  --pp-ivory: #fcf8ee;
+  --pp-parch: #efdcb0;
+  --pp-back: #e2d2aa;
+  /* Ukanda wa juu/chini (header, composer): parchment nyepesi */
+  --pp-strip: #f5edd9;
+  --pp-edge: rgba(92, 72, 34, 0.16);
+}
+
+.psh-chat--paper .psh-chat__thead,
+.psh-chat--paper .psh-chat__composer,
+.psh-chat--paper .psh-chat__footnotes {
+  background-color: var(--pp-strip);
+  background-image: var(--pp-grain);
+  border-color: var(--pp-edge);
+}
+.psh-chat--paper .psh-chat__head {
+  background-color: var(--pp-green-bg);
+}
+.psh-chat--paper .psh-chat__banner {
+  background: var(--pp-ivory);
+  border-color: var(--pp-edge);
+  color: var(--pp-mute);
+  box-shadow: 0 1px 2px rgba(60, 45, 15, 0.12);
+}
+.psh-chat--paper .psh-chat__banner--mesh {
+  background: #e5eefb;
+  color: #2b5fb8;
+}
+
+/* Mpokeaji: ivory, kadi nyuma yake ina kivuli cha kijivu-kahawia */
+.psh-chat--paper .psh-msg--them .psh-msg__bubble {
+  background-color: var(--pp-ivory);
+  border: 1px solid var(--pp-edge);
+}
+/* Mtumaji: parchment, rangi ya kina zaidi ili atofautiane */
+.psh-chat--paper .psh-msg--me .psh-msg__bubble {
+  background-color: var(--pp-parch);
+  border: 1px solid rgba(120, 90, 30, 0.22);
+}
+/* Kona iliyokunjwa ya mtumaji: rangi ya kukata inalingana na mandharinyuma */
+.psh-chat--paper .psh-msg--me .psh-msg__bubble::before {
+  background: linear-gradient(315deg, var(--pp-green-bg) 50%, transparent 50%);
+}
+
+/* Maandishi ya ujumbe: wino mweusi kwa wote, meta ya kijivu-kahawia */
+.psh-chat--paper .psh-msg__text {
+  color: var(--pp-ink);
+}
+.psh-chat--paper .psh-msg__meta,
+.psh-chat--paper .psh-msg__state {
+  color: var(--pp-mute);
+}
+
+/* ── 6. Business: icons, rangi chache ───────────────────── */
+.psh-pageitems__icon--green {
+  background: #e4f2ea;
+  color: #1d6444;
+}
+.psh-pageitems__icon--blue {
+  background: #e7effc;
+  color: #2456b8;
+}
+.psh-pageitems__icon--gold {
+  background: #fbf0d4;
+  color: #8a6410;
+}

@@ -1,0 +1,440 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — UNIFIED COMPONENT LAYER (v5)
+   Muonekano mmoja kwa vipengele vya ndani kote kwenye app:
+   comments, panels, menus, fomu, switches, feed, dropdowns,
+   empty states na badges. Ni mtindo tu — hakuna kazi iliyoondolewa.
+   Rangi kutoka kwenye mfumo wa --pg-* (visual-v4).
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Panels (sheets) ─────────────────────────────────────── */
+.psh-panelstack__h {
+  color: var(--pg-ink);
+  letter-spacing: -0.02em;
+}
+.psh-panelstack__lead {
+  color: var(--pg-ink-2);
+}
+.psh-panelstack__count {
+  background: var(--pg-pale-2);
+  color: var(--pg-dark-ink);
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-weight: 700;
+}
+.psh-panelstack__foot {
+  background: var(--pg-canvas);
+  border-top: 1px solid var(--pg-line);
+}
+
+/* ── Fomu (inputs) ───────────────────────────────────────── */
+.psh-field__input,
+.psh-field input,
+.psh-field textarea,
+.psh-field select {
+  background: #ffffff;
+  border: 1px solid #c9dccf;
+  border-radius: 14px;
+  color: var(--pg-ink);
+  transition: border-color 160ms var(--pg-ease), box-shadow 160ms var(--pg-ease);
+}
+.psh-field__input:hover,
+.psh-field input:hover,
+.psh-field textarea:hover {
+  border-color: var(--pg-semi);
+}
+.psh-field__input:focus,
+.psh-field input:focus,
+.psh-field textarea:focus,
+.psh-field select:focus {
+  outline: none;
+  border-color: var(--pg-dark);
+  box-shadow: 0 0 0 3px rgba(42, 138, 87, 0.18);
+}
+
+/* ── Switches & segments ─────────────────────────────────── */
+.psh-switch[aria-checked="true"],
+.psh-switch.is-on {
+  background: var(--pg-dark);
+}
+.psh-switch__knob {
+  box-shadow: 0 1px 3px rgba(20, 50, 30, 0.25);
+}
+.psh-seg {
+  background: var(--pg-pale);
+  border: 1px solid #d3e6db;
+  border-radius: 14px;
+  padding: 3px;
+}
+.psh-seg__item {
+  color: var(--pg-ink-2);
+  border-radius: 11px;
+  transition: background-color 160ms var(--pg-ease), color 160ms var(--pg-ease);
+}
+.psh-seg__item[aria-selected="true"],
+.psh-seg__item[aria-checked="true"],
+.psh-seg__item.is-active {
+  background: var(--pg-dark);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(29, 100, 68, 0.22);
+}
+.psh-seg__item:active {
+  background: #ffffff;
+  color: var(--pg-dark);
+}
+
+/* ── Menus & rows ────────────────────────────────────────── */
+.psh-menu__row,
+.psh-profile__row,
+.psh-checkrow {
+  border-radius: 14px;
+  transition: background-color 160ms var(--pg-ease), color 160ms var(--pg-ease);
+}
+.psh-menu__row:hover,
+.psh-profile__row:hover,
+.psh-checkrow:hover {
+  background: var(--pg-pale);
+}
+.psh-menu__row:active,
+.psh-checkrow:active {
+  background: var(--pg-dark);
+  color: #ffffff;
+}
+.psh-menu__row:active .psh-menu__icon {
+  background: #ffffff;
+  color: var(--pg-dark);
+}
+.psh-menu__icon,
+.psh-create__icon {
+  background: var(--pg-pale);
+  color: var(--pg-dark);
+  border-radius: 12px;
+}
+.psh-menu__sep {
+  background: var(--pg-line);
+}
+.psh-menu__hint,
+.psh-menu__note {
+  color: var(--pg-mute);
+}
+.psh-checkrow__mark {
+  border-color: var(--pg-semi);
+}
+.psh-checkrow[aria-checked="true"] .psh-checkrow__mark,
+.psh-checkrow.is-checked .psh-checkrow__mark {
+  background: var(--pg-dark);
+  border-color: var(--pg-dark);
+  color: #ffffff;
+}
+
+/* ── Create (menyu ya kuunda) ────────────────────────────── */
+.psh-create__item {
+  background: #ffffff;
+  border: 1px solid #dbe9e1;
+  border-radius: 18px;
+  transition: transform 160ms var(--pg-ease), box-shadow 160ms var(--pg-ease), background-color 160ms var(--pg-ease);
+}
+.psh-create__item:hover {
+  background: #f6fbf8;
+  box-shadow: 0 6px 16px rgba(20, 60, 40, 0.08);
+  transform: translateY(-1px);
+}
+.psh-create__item:active {
+  background: var(--pg-dark);
+  color: #ffffff;
+  transform: scale(0.98);
+}
+.psh-create__item:active .psh-create__icon {
+  background: #ffffff;
+  color: var(--pg-dark);
+}
+.psh-create__groupTitle {
+  color: var(--pg-dark-ink);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.psh-create__groupHint,
+.psh-create__hint {
+  color: var(--pg-mute);
+}
+
+/* ── Notifications ───────────────────────────────────────── */
+.psh-notif {
+  background: #ffffff;
+  border: 1px solid #e0ece5;
+  border-radius: 18px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 2px rgba(20, 60, 40, 0.04);
+}
+.psh-notif:hover {
+  background: #f6fbf8;
+}
+.psh-notif__dot {
+  background: var(--pg-brand);
+  box-shadow: 0 0 0 3px var(--pg-pale-2);
+}
+.psh-notif__kind--comment { background: var(--pg-blue-soft); color: var(--pg-blue-dark); }
+.psh-notif__kind--heart   { background: var(--pg-red-soft);  color: var(--pg-red); }
+.psh-notif__kind--hub     { background: var(--pg-pale-2);    color: var(--pg-dark-ink); }
+.psh-notif__kind--live    { background: var(--pg-red-soft);  color: var(--pg-red); }
+.psh-notif__kind--store   { background: var(--pg-gold-soft); color: var(--pg-gold-ink); }
+.psh-notif__open {
+  color: var(--pg-dark);
+  font-weight: 700;
+}
+
+/* ── Comments (maoni) ────────────────────────────────────── */
+.psh-cmts__lead {
+  color: var(--pg-ink);
+  font-weight: 700;
+}
+.psh-cmts__list {
+  display: grid;
+  gap: 10px;
+}
+.psh-cmts__body {
+  background: #ffffff;
+  border: 1px solid #e0ece5;
+  border-radius: 16px 16px 16px 6px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 2px rgba(20, 60, 40, 0.04);
+}
+.psh-cmts__you .psh-cmts__body {
+  background: var(--pg-pale-2);
+  border-color: #b4dcc5;
+  border-radius: 16px 16px 6px 16px;
+}
+.psh-cmts__name {
+  color: var(--pg-ink);
+  font-weight: 700;
+}
+.psh-cmts__at {
+  color: var(--pg-mute);
+  font-size: 12px;
+}
+.psh-cmts__text {
+  color: var(--pg-ink-2);
+}
+.psh-cmts__form {
+  background: var(--pg-canvas);
+  border: 1px solid var(--pg-line);
+  border-radius: 18px;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.psh-cmts__form input,
+.psh-cmts__form textarea {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #c9dccf;
+  border-radius: 999px;
+  padding: 9px 14px;
+  color: var(--pg-ink);
+}
+.psh-cmts__form input:focus,
+.psh-cmts__form textarea:focus {
+  outline: none;
+  border-color: var(--pg-dark);
+  box-shadow: 0 0 0 3px rgba(42, 138, 87, 0.18);
+}
+.psh-cmts__form button {
+  background: var(--pg-dark);
+  color: #ffffff;
+  border: 1px solid var(--pg-dark);
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-weight: 700;
+  transition: background-color 160ms var(--pg-ease), color 160ms var(--pg-ease);
+}
+.psh-cmts__form button:hover {
+  background: var(--pg-hover);
+}
+.psh-cmts__form button:active {
+  background: #ffffff;
+  color: var(--pg-dark);
+  box-shadow: inset 0 0 0 1px var(--pg-dark);
+}
+.psh-cmts__empty {
+  color: var(--pg-mute);
+  text-align: center;
+  padding: 18px 0;
+}
+
+/* ── Feed: kadi, vitendo, poll, media ────────────────────── */
+.psh-feeditem {
+  background: #ffffff;
+  border: 1px solid #dbe9e1;
+  border-radius: 22px;
+  box-shadow: 0 2px 8px rgba(20, 60, 40, 0.05);
+}
+.psh-feeditem__label {
+  color: var(--pg-mute);
+}
+.psh-feedtext {
+  color: var(--pg-ink);
+}
+.psh-feedactions {
+  border-top: 1px solid var(--pg-line-soft, #eef4f1);
+}
+.psh-feedaction {
+  color: var(--pg-dark);
+  border-radius: 12px;
+  transition: background-color 160ms var(--pg-ease), color 160ms var(--pg-ease), transform 120ms var(--pg-ease);
+}
+.psh-feedaction:hover {
+  background: var(--pg-pale);
+}
+.psh-feedaction:active {
+  background: var(--pg-dark);
+  color: #ffffff;
+  transform: scale(0.96);
+}
+.psh-feedaction--save[aria-pressed="true"],
+.psh-feedaction.is-active {
+  color: var(--pg-dark);
+}
+.psh-pollopt {
+  background: #f4faf6;
+  border: 1px solid #cfe5d7;
+  border-radius: 14px;
+  transition: background-color 160ms var(--pg-ease), border-color 160ms var(--pg-ease);
+}
+.psh-pollopt:hover {
+  border-color: var(--pg-semi);
+}
+.psh-pollopt__bar {
+  background: var(--pg-pale-2);
+}
+.psh-pollopt[aria-pressed="true"],
+.psh-pollopt.is-chosen {
+  background: var(--pg-pale-2);
+  border-color: var(--pg-dark);
+}
+.psh-discover__item {
+  background: #ffffff;
+  border: 1px solid #dbe9e1;
+  border-radius: 18px;
+}
+.psh-discover__btn {
+  background: var(--pg-dark);
+  color: #ffffff;
+  border-radius: 999px;
+}
+.psh-discover__btn:hover {
+  background: var(--pg-hover);
+}
+.psh-discover__btn:active {
+  background: #ffffff;
+  color: var(--pg-dark);
+  box-shadow: inset 0 0 0 1px var(--pg-dark);
+}
+
+/* ── Dropdowns ───────────────────────────────────────────── */
+.psh-dd__panel {
+  background: #ffffff;
+  border: 1px solid #dbe9e1;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(20, 50, 30, 0.14);
+}
+.psh-dd__head {
+  color: var(--pg-dark-ink);
+  font-weight: 700;
+}
+
+/* ── Chips & badges (rangi kwa maana) ────────────────────── */
+.psh-chip--green,
+.psh-chip--ent-friend {
+  background: var(--pg-pale-2);
+  color: var(--pg-dark-ink);
+}
+.psh-chip--blue,
+.psh-chip--ent-channel {
+  background: var(--pg-blue-soft);
+  color: var(--pg-blue-dark);
+}
+.psh-chip--gold,
+.psh-chip--ent-business {
+  background: var(--pg-gold-soft);
+  color: var(--pg-gold-ink);
+}
+.psh-chip--ent-hub {
+  background: var(--pg-pale-2);
+  color: var(--pg-dark);
+}
+.psh-chip--ent-creator {
+  background: var(--pg-gold-soft);
+  color: var(--pg-gold-ink);
+}
+.psh-chip--ent-you {
+  background: var(--pg-dark);
+  color: #ffffff;
+}
+.psh-badge--channel {
+  color: var(--pg-blue-dark);
+}
+.psh-badge--hub {
+  color: var(--pg-dark-ink);
+}
+.psh-badge--business,
+.psh-badge--creator {
+  color: var(--pg-gold-ink);
+}
+
+/* ── Empty states ────────────────────────────────────────── */
+.psh-empty,
+.psh-feed__empty {
+  background: #ffffff;
+  border: 1px dashed #bfd9c9;
+  border-radius: 22px;
+  padding: 26px 18px;
+  color: var(--pg-ink-2);
+  text-align: center;
+}
+.psh-feed__emptyTitle {
+  color: var(--pg-ink);
+  font-weight: 700;
+}
+.psh-feed__emptyText {
+  color: var(--pg-mute);
+}
+
+/* ── Profile ─────────────────────────────────────────────── */
+.psh-profile__name {
+  color: var(--pg-ink);
+  letter-spacing: -0.02em;
+}
+.psh-profile__role {
+  color: var(--pg-dark-ink);
+}
+.psh-profile__stats {
+  background: var(--pg-canvas);
+  border-radius: 18px;
+}
+.psh-profile__edit {
+  background: var(--pg-dark);
+  color: #ffffff;
+  border-radius: 999px;
+}
+.psh-profile__edit:hover {
+  background: var(--pg-hover);
+}
+
+/* ── Saved ───────────────────────────────────────────────── */
+.psh-saved__icon {
+  background: var(--pg-gold-soft);
+  color: var(--pg-gold-ink);
+  border-radius: 14px;
+}
+
+/* ── Maandishi & tabs ndogo ──────────────────────────────── */
+.psh-note {
+  color: var(--pg-mute);
+}
+.psh-kv {
+  color: var(--pg-ink-2);
+}
+.psh-wave__bar {
+  background: var(--pg-semi);
+}

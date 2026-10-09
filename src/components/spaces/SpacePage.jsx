@@ -117,7 +117,7 @@ export default function SpacePage({
     onOpenPanel?.({ type: 'compose', payload: { kind: 'text', spaceId: id, spaceName: space.name } })
 
   return (
-    <div className="psh-sp" data-space={id} data-type={type}>
+    <div className="psh-sp psh-sp--detail" data-space={id} data-type={type}>
       <SpaceHeader s={space} onBack={onBack} onJoin={join} onLeave={leave} busy={busy} />
 
       <SpaceTabs tabs={space.tabs} active={tab} onChange={setTab} label={`Sehemu za ${space.name}`} />
@@ -125,18 +125,6 @@ export default function SpacePage({
       {/* ── Muhtasari ─────────────────────────────────────── */}
       {tab === 'muhtasari' ? (
         <div className="psh-sp__pane">
-          <section className="psh-sp__card" aria-label="Kusudi la nafasi">
-            <h2 className="psh-sp__h">Kusudi</h2>
-            <p className="psh-sp__text">{space.purpose}</p>
-            {space.rules?.length ? (
-              <ul className="psh-sp__rules">
-                {space.overview.rulesPreview.map((r) => (
-                  <li key={r}>{r}</li>
-                ))}
-              </ul>
-            ) : null}
-          </section>
-
           <StatGrid stats={space.stats} />
 
           {space.overview.nextEvent ? (
@@ -162,21 +150,12 @@ export default function SpacePage({
           {space.relatedGroups?.length ? (
             <section className="psh-sp__card" aria-label="Vikundi vinavyohusiana">
               <h2 className="psh-sp__h">Vikundi vinavyohusiana</h2>
-              <p className="psh-sp__hint">
-                Vikundi ni vya Chat — hukutana kwenye mazungumzo, si hapa. Hii ni kiungo pekee.
-              </p>
               {space.relatedGroups.map((g) => (
                 <GroupLinkRow key={g.id} g={g} onOpen={openGroup} busy={busy} />
               ))}
             </section>
           ) : null}
 
-          {space.relatedChannels?.length ? (
-            <p className="psh-sp__note">
-              Channels zinazohusiana: {space.relatedChannels.join(' · ')} — zinaonekana kwenye tab ya
-              Channels.
-            </p>
-          ) : null}
 
           <section className="psh-sp__card" aria-label="Shughuli za hivi karibuni">
             <h2 className="psh-sp__h">Shughuli za hivi karibuni</h2>
@@ -250,10 +229,6 @@ export default function SpacePage({
             onOpenProfile={onOpenProfile}
             title={`Watu wa ${space.name}`}
           />
-          <p className="psh-sp__note">
-            <IconShield size={14} /> Roles ni kazi ndani ya nafasi (Owner · Admin · Editor · Moderator) —
-            si uhusiano wangu na mtu.
-          </p>
         </div>
       ) : null}
 
@@ -300,9 +275,6 @@ export default function SpacePage({
               text="Rasilimali ni hati, video au sauti ambazo zinaweza kuhifadhiwa bila mtandao."
             />
           )}
-          <p className="psh-sp__note">
-            Kuhifadhi huhifadhi kwenye kifaa chako — hakuongezi Data Saved hadi utumie bila internet.
-          </p>
         </div>
       ) : null}
 
@@ -337,10 +309,6 @@ export default function SpacePage({
                 <dd>{space.membership.relation}</dd>
               </div>
             </dl>
-            <p className="psh-sp__note">
-              Eneo linatumika kwa umuhimu pekee — si ruhusa. Ufikivu ni hali: Wazi · Binafsi-Iliyoorodheshwa
-              · Binafsi-Fichwa.
-            </p>
           </section>
 
           <section className="psh-sp__card" aria-label="Kanuni">

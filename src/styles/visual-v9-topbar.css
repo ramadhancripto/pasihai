@@ -1,0 +1,182 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — TOP BAR, CREATE DOCK, TABS (v9)
+   · Header pana zaidi, logo kubwa kama apps kubwa za simu
+   · Icons za juu kubwa, vitufe vya kugusa 44px
+   · Composer: media moja, plus imezungukwa na block
+   · Tabs zina icons (Mchanganyiko · Reels · Friends · Channels · Live)
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  --header-h: 68px;
+}
+@media (max-width: 1023px) {
+  :root {
+    --header-h: 72px;
+  }
+}
+/* Logo kubwa kama apps kubwa za simu (WhatsApp, Facebook, YouTube) */
+.psh-header__left,
+.psh-header__brand {
+  flex: 0 0 auto;
+  min-width: max-content;
+}
+.psh-header__brand img.psh-logo {
+  height: 58px !important;
+  width: auto !important;
+  max-width: none;
+  flex: 0 0 auto;
+}
+
+/* ── 1. Top bar ─────────────────────────────────────────── */
+.psh-header {
+  box-shadow: 0 1px 0 rgba(20, 40, 30, 0.04);
+}
+.psh-header__inner {
+  height: var(--header-h);
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  gap: 12px;
+}
+.psh-header__brand .psh-logo {
+  display: block;
+}
+.psh-header__right {
+  gap: 6px;
+}
+.psh-header .psh-icobtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  color: var(--c-green-700, #1f7a52);
+}
+.psh-header .psh-icobtn:hover {
+  background: var(--c-green-soft, #eef8f2);
+}
+.psh-header .psh-icobtn .psh-icobtn__dot {
+  top: 9px;
+  right: 9px;
+}
+.psh-header__sep {
+  width: 1px;
+  height: 26px;
+  margin: 0 4px;
+}
+@media (max-width: 380px) {
+  .psh-header__inner {
+    gap: 6px;
+  }
+  .psh-header__right {
+    gap: 2px;
+  }
+  .psh-header .psh-icobtn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ── 2. Tabs na icons ───────────────────────────────────── */
+.psh-htab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 12px 11px;
+}
+.psh-htab__ic {
+  display: inline-grid;
+  place-items: center;
+  color: var(--t-3);
+  transition: color var(--dur-1, 150ms) var(--ease, ease);
+}
+.psh-htab:hover .psh-htab__ic {
+  color: var(--t-1);
+}
+.psh-htab.is-active .psh-htab__ic {
+  color: var(--c-green-700, #1f7a52);
+}
+
+/* ── 3. Composer: plus imezungukwa na block ─────────────── */
+.psh-createbar {
+  position: relative;
+}
+.psh-createbar__dock {
+  position: relative;
+  margin-top: 14px;
+  padding: 26px 8px 10px;
+  border-top: 1px solid var(--line, #e3ebe7);
+}
+/* Plus inakaa juu ya mstari wa block; halo ya rangi ya kadi
+   inakata mstari, hivyo block inaonekana imezunguka plus. */
+.psh-createbar .psh-createbar__plus {
+  position: absolute;
+  top: -23px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: 46px;
+  height: 46px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--c-green-700, #1f7a52);
+  color: #fff;
+  box-shadow: 0 0 0 6px var(--bg, #fff), 0 6px 14px -6px rgba(20, 90, 60, 0.5);
+  cursor: pointer;
+  z-index: 2;
+}
+.psh-createbar .psh-createbar__plus:hover {
+  background: var(--c-green-600, #22875f);
+}
+.psh-createbar .psh-createbar__quick {
+  border-top: 0;
+  padding-top: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.psh-createbar__quick li {
+  min-width: 0;
+}
+.psh-createbar .psh-createbar__act {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ── 4. Simu ndogo (≤420px): logo kubwa bado inatoshea na icons zote ── */
+@media (max-width: 420px) {
+  .psh-header__inner {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    gap: 6px;
+  }
+  .psh-header__brand img.psh-logo {
+    height: 40px !important;
+  }
+  .psh-header__right {
+    gap: 2px;
+  }
+  .psh-header__sep {
+    display: none;
+  }
+  .psh-header .psh-icobtn {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+  }
+  .psh-header .psh-ctl--saved,
+  .psh-header .psh-ctl--system {
+    padding: 6px 7px;
+    gap: 3px;
+    font-size: 12px;
+  }
+}
+/* Simu nyembamba sana (≤370px) */
+@media (max-width: 370px) {
+  .psh-header__brand img.psh-logo {
+    height: 34px !important;
+  }
+}

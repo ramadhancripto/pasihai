@@ -86,12 +86,14 @@ export function CategoryModule({ cat, onSelect }) {
 
 /* ── Kichwa cha sehemu ─────────────────────────────────────── */
 
-export function SectionHead({ title, hint, actionLabel = 'Zote', onAction }) {
+/* Maelezo ya sehemu (hint) hayaonyeshwi kwa default — majina tu.
+   Weka showHint kwa hali ya kutokuwa na matokeo (kazi ya kiutendaji). */
+export function SectionHead({ title, hint, showHint = false, actionLabel = 'Zote', onAction }) {
   return (
     <header className="psh-gu-sechead">
       <div className="psh-gu-sechead__text">
         <h2 className="psh-gu-sechead__title">{title}</h2>
-        {hint ? <p className="psh-gu-sechead__hint">{hint}</p> : null}
+        {hint && showHint ? <p className="psh-gu-sechead__hint">{hint}</p> : null}
       </div>
       {onAction ? (
         <button type="button" className="psh-gu-sechead__action" onClick={onAction}>
@@ -218,7 +220,7 @@ export function BusinessCard({ b, onOpen, onMore, onChat }) {
           {b.name}
           {b.verified ? <IconCheck size={13} strokeWidth={2.2} className="psh-gu-verified" /> : null}
         </span>
-        <span className="psh-gu-card__sub">{b.subtitle || b.category} · {b.bio}</span>
+        <span className="psh-gu-card__sub">{b.subtitle || b.category}</span>
         {typeof b.distanceKm === 'number' ? (
           <span className="psh-gu-meta">
             <IconMapPin size={12} /> {b.distanceKm} km kutoka hapa
@@ -273,7 +275,6 @@ export function ChannelCard({ c, onOpen, onMore, onFollow }) {
           {c.name}
           {c.verified ? <IconCheck size={13} strokeWidth={2.2} className="psh-gu-verified" /> : null}
         </span>
-        <span className="psh-gu-card__sub">{c.bio}</span>
         <span className="psh-gu-meta">
           {formatCount(c.followers)} wafuatiliaji · {c.language || 'Kiswahili'}
         </span>
@@ -316,7 +317,6 @@ export function SpaceCard({ s, variant, onOpen, onMore, onJoin }) {
 
       <button type="button" className="psh-gu-card__main" onClick={() => onOpen(s)} aria-label={`${s.name} — ${variant}`}>
         <span className="psh-gu-card__name">{s.name}</span>
-        <span className="psh-gu-card__sub">{s.bio || s.purpose}</span>
         <span className="psh-gu-meta">
           <IconMapPin size={12} />
           {s.place ? `${s.place.mji}${s.place.mkoa && s.place.mkoa !== s.place.mji ? `, ${s.place.mkoa}` : ''}` : 'Tanzania'}
@@ -355,7 +355,6 @@ export function GroupCard({ g, onOpen, onMore, onJoin }) {
 
       <button type="button" className="psh-gu-card__main" onClick={() => onOpen(g)} aria-label={`${g.name} — kikundi`}>
         <span className="psh-gu-card__name">{g.name}</span>
-        <span className="psh-gu-card__sub">{g.purpose}</span>
         <span className="psh-gu-meta">
           {formatCount(g.members)} wanachama
           {g.nextSession ? <span className="psh-gu-meta__sep">· Safari ijayo: {g.nextSession}</span> : null}

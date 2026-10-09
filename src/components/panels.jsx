@@ -539,9 +539,9 @@ export const CREATE_ITEMS = [
 /* Aina za Space — kitu kimoja kinachoundwa kutoka Home au Spaces (§40).
    Groups HAZIPO hapa: vikundi ni vya Chat. */
 export const CREATE_SPACE_ITEMS = [
-  { id: 'hub', label: 'Hub', Icon: IconHub, hint: 'Mahali pa kukutana' },
-  { id: 'community', label: 'Jumuiya', Icon: IconGlobe, hint: 'Watu wa lengo moja' },
-  { id: 'channel', label: 'Channel', Icon: IconMegaphone, hint: 'Kuchapisha kwa hadhira' },
+  { id: 'hub', label: 'Hub', Icon: IconHub },
+  { id: 'community', label: 'Jumuiya', Icon: IconGlobe },
+  { id: 'channel', label: 'Channel', Icon: IconMegaphone },
 ]
 
 export function CreatePanel({ onToast, onCompose, onStatus, onLive, onCreateSpace }) {
@@ -576,9 +576,6 @@ export function CreatePanel({ onToast, onCompose, onStatus, onLive, onCreateSpac
       {/* Spaces: Hub · Jumuiya · Channel — mchakato ule ule wa hatua 3 */}
       <div className="psh-create__group" aria-label="Anza Space">
         <h3 className="psh-create__groupTitle">Anza Space</h3>
-        <p className="psh-create__groupHint">
-          Hub na Jumuiya ni mahali pa kukutana; Channel ni kuchapisha kwa hadhira. Vikundi ni vya Chat.
-        </p>
         <ul className="psh-create__grid psh-create__grid--spaces">
           {CREATE_SPACE_ITEMS.map(({ id, label, Icon, hint }) => (
             <li key={id}>

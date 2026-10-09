@@ -76,10 +76,6 @@ export function CreateSpacePanel({ type, onToast, onClose, onCreated }) {
       {/* ── Hatua 1: aina ─────────────────────────────────── */}
       {step === 1 ? (
         <div className="psh-csp__pane">
-          <p className="psh-csp__lead">
-            Chagua aina moja. Hub na Jumuiya ni familia moja (mahali na watu); Channel ni tawi la
-            kuchapisha kwa hadhira.
-          </p>
           <ul className="psh-csp__types">
             {model.types.map((t) => {
               const Icon = TYPE_ICON[t.id] || IconHub

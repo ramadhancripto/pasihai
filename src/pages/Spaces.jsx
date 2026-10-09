@@ -27,7 +27,20 @@ import {
   SpaceCard,
   SpaceEmpty,
 } from '../components/spaces/SpacesBits.jsx'
-import { IconPlus, IconSearchSmall, IconSliders } from '../components/icons.jsx'
+import {
+  IconChat,
+  IconGlobe,
+  IconHub,
+  IconMapPin,
+  IconMegaphone,
+  IconPlus,
+  IconSearchSmall,
+  IconSliders,
+  IconStar,
+} from '../components/icons.jsx'
+
+const TAB_ICON = { places: IconHub, channels: IconMegaphone }
+const FILTER_ICON = { all: IconGlobe, mine: IconStar, nearby: IconMapPin, new: IconChat }
 
 export default function Spaces({
   onToast,
@@ -166,9 +179,6 @@ export default function Spaces({
       <header className="psh-spaces__head">
         <div className="psh-spaces__headText">
           <h1 className="psh-pagehead__title">Spaces</h1>
-          <p className="psh-spaces__sub">
-            Hubs na Jumuiya ni mahali pa kukutana; Channels ni vyanzo vya kuchapisha.
-          </p>
         </div>
         <button
           type="button"
@@ -190,6 +200,7 @@ export default function Spaces({
           aria-label="Tafuta Spaces"
         />
         <button type="submit" className="psh-spaces__searchBtn">
+          <IconSearchSmall size={16} />
           Tafuta
         </button>
       </form>
@@ -209,8 +220,13 @@ export default function Spaces({
                 setFilter('all')
               }}
             >
+              <span className="psh-spaces__tabIc" aria-hidden="true">
+                {(() => {
+                  const TI = TAB_ICON[t.id] || IconHub
+                  return <TI size={17} />
+                })()}
+              </span>
               <span className="psh-spaces__tabLabel">{t.label}</span>
-              <span className="psh-spaces__tabHint">{t.hint}</span>
             </button>
           )
         })}
@@ -234,6 +250,10 @@ export default function Spaces({
               aria-pressed={on}
               onClick={() => setFilter(f.id)}
             >
+              {(() => {
+                const FI = FILTER_ICON[f.id] || IconGlobe
+                return <FI size={14} />
+              })()}
               {f.label}
               {count != null ? <span className="psh-spaces__chipCount">{count}</span> : null}
             </button>

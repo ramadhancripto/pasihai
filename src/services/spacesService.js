@@ -19,8 +19,8 @@
 import { spacesRepository } from '../data/repositories/index.js'
 
 const TABS = [
-  { id: 'places', label: 'Hubs & Jumuiya', hint: 'Mahali na watu wa lengo moja' },
-  { id: 'channels', label: 'Channels', hint: 'Vyanzo vya kuchapisha' },
+  { id: 'places', label: 'Hubs & Jumuiya', },
+  { id: 'channels', label: 'Channels', },
 ]
 
 const FILTERS = [
@@ -174,7 +174,7 @@ export const spacesService = {
           ? filter === 'mine'
             ? {
                 title: 'Bado hujaunga na nafasi yoyote',
-                text: 'Nafasi ulizojiunga zitaonekana hapa. Anza kwa kutazama zinazopendekezwa.',
+                text: 'Hakuna bado',
               }
             : {
                 title: 'Hakuna nafasi inayolingana',
@@ -328,9 +328,9 @@ export const spacesService = {
   async getCreateModel() {
     const [types, visibility] = await Promise.all([
       Promise.resolve([
-        { id: 'hub', label: 'Hub', hint: 'Mahali pa kukutana — watu, matukio, rasilimali' },
-        { id: 'community', label: 'Jumuiya', hint: 'Watu wa lengo moja — hukutana na kushirikiana' },
-        { id: 'channel', label: 'Channel', hint: 'Kuchapisha kwa hadhira — video, makala, matukio' },
+        { id: 'hub', label: 'Hub' },
+        { id: 'community', label: 'Jumuiya' },
+        { id: 'channel', label: 'Channel' },
       ]),
       spacesRepository.getVisibilityModel(),
     ])

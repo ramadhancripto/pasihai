@@ -1,0 +1,219 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — BRAND POLISH (muundo wa PASIHAI-PREVIEW)
+   Faili hili linapakiwa mwisho, kwa hiyo linashinda sheria za awali
+   bila kubadilisha vipengele vingine. Linagusa: logo ya header,
+   Stories (kadi za mviringo), tabs za pill, na composer ya Home.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Logo kamili kwenye header ───────────────────────────── */
+.psh-header {
+  background: var(--bg);
+}
+.psh-header__inner {
+  height: 64px;
+}
+.psh-header__brand {
+  padding: 4px 0;
+}
+.psh-header__brand .psh-logo {
+  height: 38px;
+  width: auto;
+  display: block;
+}
+.psh-logo {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.psh-header__right {
+  gap: 6px;
+}
+
+/* ── 2. Stories: kadi za mviringo ──────────────────────────── */
+.psh-status {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.psh-status__row {
+  gap: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+.psh-status__item {
+  flex: 0 0 96px;
+  width: 96px;
+  min-width: 96px;
+}
+.psh-status__btn {
+  width: 96px;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+.psh-status__ring {
+  width: 96px;
+  height: 118px;
+  border-radius: 18px;
+  padding: 3px;
+  display: block;
+  background: var(--c-green);
+}
+.psh-status__ring--viewed,
+.psh-status__ring--seen {
+  background: var(--line);
+}
+.psh-status__ring--more {
+  background: transparent;
+  border: 2px dashed var(--c-green);
+}
+.psh-status__inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.psh-status__name {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  max-width: 96px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 3. Tabs: pill segmented ───────────────────────────────── */
+.psh-htabs {
+  padding: 8px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.psh-htabs__scroll {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--bg-hover, #f3f6f5);
+  overflow-x: auto;
+}
+.psh-htab {
+  flex: 1 0 auto;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--t-2);
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.psh-htab.is-active {
+  background: var(--bg);
+  color: var(--c-green);
+  box-shadow: 0 1px 2px rgba(20, 40, 30, 0.08), 0 0 0 1px var(--line);
+}
+.psh-htabs__tools {
+  display: none;
+}
+
+/* ── 4. Composer: vitufe vya rangi ─────────────────────────── */
+.psh-createbar {
+  margin: 12px 14px 0;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  box-shadow: 0 2px 10px rgba(20, 40, 30, 0.05);
+}
+.psh-createbar__top {
+  gap: 10px;
+}
+.psh-createbar__prompt {
+  height: 46px;
+  border-radius: 999px;
+  background: var(--bg-hover, #f3f6f5);
+  color: var(--t-3);
+  font-size: 15px;
+}
+.psh-createbar__plus {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--c-green);
+  color: #fff;
+  border: 0;
+  box-shadow: 0 4px 12px rgba(24, 169, 130, 0.3);
+}
+.psh-createbar__quick {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.psh-createbar__act {
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--t-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+.psh-createbar__act svg {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--bg-hover, #f3f6f5);
+}
+.psh-createbar__act:nth-child(1) svg { color: #18a982; background: #e7f7f1; }
+.psh-createbar__act:nth-child(2) svg { color: #2f6fe0; background: #e9f0fd; }
+.psh-createbar__act:nth-child(3) svg { color: #7a7f7c; background: #f1f2f1; }
+.psh-createbar__act:nth-child(4) svg { color: #b08a1a; background: #fbf4e0; }
+.psh-createbar__act:nth-child(5) svg { color: #d6322c; background: #fde9e8; }
+
+/* ── 5. Mobile fine-tuning ─────────────────────────────────── */
+@media (max-width: 480px) {
+  .psh-header__inner { padding: 0 12px; }
+  .psh-header__brand .psh-logo { height: 34px; }
+}
+
+/* ── 6. Splash: logo yenye "Stay Connected" ─────────────────── */
+.psh-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: var(--bg, #ffffff);
+  transition: opacity 400ms ease;
+}
+.psh-splash.is-fading {
+  opacity: 0;
+  pointer-events: none;
+}
+.psh-splash__logo {
+  width: min(70vw, 340px);
+  height: auto;
+  animation: psh-splash-in 600ms ease-out both;
+}
+@keyframes psh-splash-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .psh-splash__logo { animation: none; }
+  .psh-splash { transition: none; }
+}

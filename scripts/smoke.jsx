@@ -297,11 +297,16 @@ assert(nav.tabs.length === 5 && nav.filters.length === 9, 'homeService.getNaviga
 
 const strip = await homeService.getStatusStrip()
 assert(
-  strip.length === 13 && strip.every((s) => s.user && s.user.name),
+  strip.length >= 2 && strip.every((s) => s.user && s.user.name),
   'homeService.getStatusStrip — kila status ina entity yake',
   `${strip.length}/${strip.length} zimeunganishwa`,
 )
-assert(strip[0].user.id === 'me' && strip[1].user.name === 'Amina Said', 'getStatusStrip — mpangilio umehifadhiwa', `${strip[0].user.name} → ${strip[1].user.name}`)
+assert(
+  strip.every((s) => s.own || s.saved),
+  'getStatusStrip — akaunti ambazo hazijahifadhiwa hazionekani',
+  `${strip.filter((s) => s.saved || s.own).length}/${strip.length} ni zilizohifadhiwa au zako`,
+)
+assert(strip[0].user.id === 'me' && strip.slice(1).every((s) => s.saved), 'getStatusStrip — wewe kwanza, kisha waliohifadhiwa', `${strip[0].user.name} → ${strip[1].user.name}`)
 
 /* ── Account service ─────────────────────────────────────── */
 assert((await accountService.getCurrentUser()).id === 'me', 'accountService.getCurrentUser')

@@ -1,16 +1,6 @@
-// PASIHAI — Wordmark
-// Brand treatment: "Pasi" green, "hai" blue. Ukubwa ~20–22px, Semi Bold.
-// HAITUMIKI kama wordmark kubwa inayochukua Home.
+// PASIHAI — Wordmark: logo halisi (lockup). Ukubwa = urefu kwa px.
+import Logo from './Logo.jsx'
 
-export default function Wordmark({ size = 22, className = '', as: Tag = 'span' }) {
-  return (
-    <Tag
-      className={`psh-wordmark ${className}`}
-      style={{ fontSize: size }}
-      aria-label="Pasihai"
-    >
-      <span className="psh-wordmark__p">Pasi</span>
-      <span className="psh-wordmark__h">hai</span>
-    </Tag>
-  )
+export default function Wordmark({ size = 34, className = '', variant = 'lockup' }) {
+  return <Logo variant={variant} height={size} className={`psh-wordmark ${className}`} />
 }

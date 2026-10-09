@@ -362,7 +362,7 @@ export default function Thread({
       <div className="psh-chat__thread">
         <div className="psh-empty">
           <IconComment size={26} />
-          <p>Chagua mazungumzo kuanza. Mazungumzo yote ni sehemu ya mfumo mmoja wa Chat.</p>
+          <p>Chagua mazungumzo</p>
         </div>
       </div>
     )
@@ -407,12 +407,11 @@ export default function Thread({
         <ChatAvatar tone={conv.tone} name={conv.title} icon={group ? conv.groupIcon : null} online={group ? undefined : true} />
         <span className="psh-chat__theadtext">
           <span className="psh-chat__theadname">{conv.title}</span>
-          <span className="psh-chat__theadsub">
-            <IconShield size={12} />
-            {group
-              ? `Encrypted channel · wanachama ${conv.members || (conv.memberIds || []).length}`
-              : 'Encrypted channel'}
-          </span>
+          {group ? (
+            <span className="psh-chat__theadsub">
+              {`wanachama ${conv.members || (conv.memberIds || []).length}`}
+            </span>
+          ) : null}
         </span>
         <button type="button" className="psh-icobtn" aria-label="Sauti na mwito" onClick={() => onCall?.()}>
           <IconMic size={19} />
@@ -423,13 +422,14 @@ export default function Thread({
       </header>
 
       {systemBanner ? (
-        <div className={`psh-chat__banner ${systemBanner.tone === 'mesh' ? 'psh-chat__banner--mesh' : ''}`}>
-          <systemBanner.icon size={15} />
-          <span>
-            <b>{systemBanner.title}</b>
-            <br />
-            {systemBanner.text}
-          </span>
+        <div
+          className={`psh-chat__banner psh-chat__banner--compact ${systemBanner.tone === 'mesh' ? 'psh-chat__banner--mesh' : ''}`}
+          title={systemBanner.text}
+          role="status"
+        >
+          <systemBanner.icon size={14} />
+          <b>{systemBanner.title}</b>
+          <span className="psh-sr-only">{systemBanner.text}</span>
         </div>
       ) : null}
 
@@ -525,9 +525,6 @@ export default function Thread({
       </div>
 
       <div className="psh-chat__footnotes">
-        <span>
-          <IconShield size={12} /> E2E iliyolindwa
-        </span>
         <span>
           <IconRadar size={12} /> Local Mesh {view.system.localMeshUp ? 'inapatikana' : 'haipo'}
         </span>

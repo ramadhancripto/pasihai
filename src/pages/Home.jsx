@@ -81,7 +81,6 @@ export default function Home({
         tab={homeTab}
         filter={filter}
         filterLabel={activeFilter?.label}
-        tabMeaning={activeTab?.meaning}
         onOpenProfile={onOpenProfile}
         onToast={onToast}
         onOpenPanel={onOpenPanel}

@@ -8,7 +8,25 @@
 import { homeService } from '../../services/homeService.js'
 import useAsyncData from '../../hooks/useAsyncData.js'
 import { Dropdown, Chip } from '../ui.jsx'
-import { IconSliders, IconChevronDown, IconEye } from '../icons.jsx'
+import {
+  IconSliders,
+  IconChevronDown,
+  IconEye,
+  IconSpark,
+  IconReel,
+  IconPeople,
+  IconMegaphone,
+  IconLive,
+} from '../icons.jsx'
+
+// Icon moja kwa kila tab — rangi inafuata hali ya active kupitia CSS.
+const TAB_ICON = {
+  mchanganyiko: IconSpark,
+  reels: IconReel,
+  friends: IconPeople,
+  channels: IconMegaphone,
+  live: IconLive,
+}
 import { FilterMenu } from '../panels.jsx'
 
 export default function HomeTabs({
@@ -41,7 +59,15 @@ export default function HomeTabs({
               className={`psh-htab ${isActive ? 'is-active' : ''}`}
               onClick={() => onChange(t.id)}
             >
-              {t.label}
+              {TAB_ICON[t.id] ? (() => {
+                const TabIcon = TAB_ICON[t.id]
+                return (
+                  <span className="psh-htab__ic" aria-hidden="true">
+                    <TabIcon size={16} />
+                  </span>
+                )
+              })() : null}
+              <span>{t.label}</span>
             </button>
           )
         })}

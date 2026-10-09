@@ -464,14 +464,6 @@ export function RequestsBody({ view, onRespond, onToast }) {
 
   return (
     <div className="psh-panelstack">
-      <div className="psh-sys-alert">
-        <IconShield size={16} />
-        <span>
-          <b>ULINZI WA FARAGHA.</b> Watu ambao si marafiki zako wa PASIHAI wanapotaka kuanza mazungumzo
-          ya faragha, ujumbe wao unaingia hapa kwanza ili kulinda faragha yako.
-        </span>
-      </div>
-
       <ul className="psh-checkrows psh-checkrows--tight">
         <li>
           <button
@@ -775,13 +767,11 @@ export function SettingsBody({ view, onToast }) {
   return (
     <div className="psh-panelstack">
       <h3 className="psh-panelstack__h">Chat settings</h3>
+      <h3 className="psh-panelstack__h">Mwonekano</h3>
+      <ToggleList items={view.settings.appearance} onToast={onToast} overrides={ov} />
       <ToggleList items={view.settings.notifications} onToast={onToast} overrides={ov} />
       <h3 className="psh-panelstack__h">Storage na media</h3>
       <ToggleList items={view.settings.storage} onToast={onToast} overrides={ov} />
-      <p className="psh-note">
-        <IconInfo size={16} />
-        {view.settings.e2e}
-      </p>
     </div>
   )
 }

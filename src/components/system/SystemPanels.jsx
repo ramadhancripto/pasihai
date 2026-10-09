@@ -443,7 +443,8 @@ export function RelayBody({ view, onEnable, onLimit, onChoice, onRelayMessage, o
       </p>
 
       {/* ── Foleni ya relay (ujumbe mfupi) ─────────────────── */}
-      <h3 className="psh-panelstack__h">Foleni ya relay</h3>
+      <h3 className="psh-panelstack__h">Ujumbe wa relay</h3>
+      <p className="psh-sys-foot-note">Relay ikikubali ujumbe bado haimaanishi kwamba umefika kwa mpokeaji.</p>
       <ul className="psh-sys-items">
         {messages.map((m) => {
           const Icon = KIND_ICON[m.kind] || IconGrid
@@ -465,11 +466,11 @@ export function RelayBody({ view, onEnable, onLimit, onChoice, onRelayMessage, o
                   className="psh-btn psh-btn--sm"
                   onClick={() => onRelayMessage(m)}
                 >
-                  Tuma
+                  Peleka relay
                 </button>
               ) : (
                 <span className={`psh-sys-state psh-sys-state--${m.state === 'relayed' ? 'synced' : 'waiting'}`}>
-                  {m.state === 'relayed' ? 'RELAYED' : 'WAITING'}
+                  {m.state === 'relayed' ? 'RELAY IMEKUBALI' : 'INASUBIRI RELAY'}
                 </span>
               )}
             </li>

@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import Header from './components/Header.jsx'
+import useChromeHide from './hooks/useChromeHide.js'
 import BottomNav, { NAV_ITEMS } from './components/BottomNav.jsx'
 import Sheet from './components/Sheet.jsx'
 import Home from './pages/Home.jsx'
@@ -417,6 +418,9 @@ export default function App() {
   ])
 
   /* ── Style guide (?guide=1) ───────────────────────────── */
+  // Chat ina header yake fupi (mazungumzo ni skrini nzima) — hook haitumiki hapo
+  useChromeHide(route !== 'chat' && !guide)
+
   if (guide) {
     return <StyleGuide onHome={() => goGuide(false)} />
   }
@@ -487,11 +491,6 @@ export default function App() {
           <PlaceholderPage pageKey={route} />
         )}
       </main>
-
-      {/* Kibonyezo cha maendeleo: kuona design system */}
-      <button type="button" className="psh-devlink" onClick={() => goGuide(true)}>
-        Msingi wa muonekano (design system)
-      </button>
 
       <BottomNav
         active={route}

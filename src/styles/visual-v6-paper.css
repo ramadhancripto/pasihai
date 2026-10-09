@@ -1,0 +1,153 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — MWONEKANO WA KARATASI (Chat)
+   Inaonekana tu ukiwasha "Mwonekano wa karatasi" kwenye mipangilio
+   ya Chat (default: imezimwa). Ni mwonekano tu — hakuna mabadiliko
+   ya tabia, data, au usalama.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-chat--paper {
+  --pp-ink: #2a2418;
+  --pp-mute: #6b5f48;
+  --pp-paper: #fbf6ea;
+  --pp-ivory: #fffaf0;
+  --pp-parch: #f1e4c4;
+  --pp-back: #eadfc4;
+  --pp-green-bg: #cfe1d5;
+  --pp-green-deep: #1d6444;
+  --pp-blue: #2b6fe0;
+  --pp-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .36  0 0 0 0 .2  0 0 0 .10 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Mandhari: kijani laini, si beige */
+.psh-chat--paper .psh-chat__pane--list,
+.psh-chat--paper .psh-chat__thread {
+  background-color: var(--pp-green-bg);
+  background-image: var(--pp-grain);
+}
+
+/* ── Inbox: kila mazungumzo ni karatasi ndogo ───────────── */
+.psh-chat--paper .psh-chat__row {
+  position: relative;
+  isolation: isolate;
+  margin: 8px 12px;
+  padding: 12px 14px;
+  background-color: var(--pp-paper);
+  background-image: var(--pp-grain);
+  border: 0;
+  border-radius: 5px 9px 6px 10px / 7px 5px 9px 6px;
+  box-shadow: 0 1px 1px rgba(60, 45, 15, 0.16), 0 6px 14px -5px rgba(45, 35, 10, 0.3);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.psh-chat--paper .psh-chat__row:nth-child(even) {
+  transform: rotate(0.25deg);
+}
+.psh-chat--paper .psh-chat__row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 2px rgba(60, 45, 15, 0.18), 0 10px 18px -6px rgba(45, 35, 10, 0.34);
+}
+/* Mazungumzo yaliyo wazi: karatasi yenye ukingo wa kijani */
+.psh-chat--paper .psh-chat__row.is-active {
+  box-shadow: 0 0 0 2px var(--pp-green-deep), 0 8px 16px -6px rgba(45, 35, 10, 0.34);
+}
+/* Kona iliyokunjwa kwa mazungumzo yasiyosomwa */
+.psh-chat--paper .psh-chat__row:has(.psh-chat__unread)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(45deg, #cdbf9b 0%, #eee3c8 45%, #fffdf6 100%);
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  box-shadow: -2px 2px 3px rgba(40, 30, 10, 0.2);
+  z-index: 3;
+}
+.psh-chat--paper .psh-chat__row:has(.psh-chat__unread)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(225deg, var(--pp-green-bg) 50%, transparent 50%);
+  z-index: 2;
+}
+/* Maandishi ya mazungumzo yanabaki wazi kwenye karatasi */
+.psh-chat--paper .psh-chat__rowname {
+  color: var(--pp-ink);
+  font-weight: 700;
+}
+.psh-chat--paper .psh-chat__rowtext,
+.psh-chat--paper .psh-chat__rowtime,
+.psh-chat--paper .psh-chat__context {
+  color: var(--pp-mute);
+}
+.psh-chat--paper .psh-chat__unread {
+  background: var(--pp-green-deep);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(20, 50, 30, 0.3);
+}
+
+/* ── Mazungumzo wazi: ujumbe ni karatasi ─────────────────── */
+.psh-chat--paper .psh-msg__bubble {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--pp-ivory);
+  background-image: var(--pp-grain);
+  color: var(--pp-ink);
+  border-radius: 9px 5px 8px 6px / 5px 9px 6px 8px;
+  box-shadow: 0 1px 1px rgba(60, 45, 15, 0.16), 0 5px 12px -5px rgba(45, 35, 10, 0.3);
+}
+/* Ujumbe wa kutuma: parchment, tofauti kidogo */
+.psh-chat--paper .psh-msg--me .psh-msg__bubble {
+  background-color: var(--pp-parch);
+  border-radius: 6px 9px 5px 8px / 9px 6px 8px 5px;
+}
+/* Ujumbe wa kupokea: karatasi mbili nyuma (layered) */
+.psh-chat--paper .psh-msg--them .psh-msg__bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--pp-back);
+  transform: translate(3px, 3px) rotate(0.6deg);
+  z-index: -1;
+  box-shadow: 0 2px 6px rgba(40, 30, 10, 0.2);
+}
+/* Ujumbe wa kutuma: ukingo wa chini kulia umepinda kidogo */
+.psh-chat--paper .psh-msg--me .psh-msg__bubble::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(315deg, var(--pp-green-bg) 50%, transparent 50%);
+  z-index: 2;
+}
+.psh-chat--paper .psh-msg--me .psh-msg__bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(315deg, #fffdf6 0%, #e6dac0 40%, #cbbd98 52%, #f4ecd9 60%, #d9ccae 100%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  box-shadow: -2px -2px 4px rgba(40, 30, 10, 0.18);
+  z-index: 3;
+}
+/* Maandishi na tiki zinabaki wazi */
+.psh-chat--paper .psh-msg__text,
+.psh-chat--paper .psh-msg__meta,
+.psh-chat--paper .psh-msg__state {
+  color: var(--pp-ink);
+}
+.psh-chat--paper .psh-msg__meta,
+.psh-chat--paper .psh-msg__state {
+  color: var(--pp-mute);
+}
+.psh-chat--paper .psh-msg__ticks[data-read='true'],
+.psh-chat--paper .psh-msg__ticks.is-read {
+  color: var(--pp-blue);
+}

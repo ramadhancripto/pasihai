@@ -26,7 +26,19 @@ import {
   SpaceTabs,
   StatGrid,
 } from './SpacesBits.jsx'
-import { IconEye, IconInfo, IconPlus, IconVideo } from '../icons.jsx'
+import {
+  IconComment,
+  IconEye,
+  IconGauge,
+  IconGrid,
+  IconGroup,
+  IconInfo,
+  IconPeople,
+  IconPlus,
+  IconShield,
+  IconSliders,
+  IconVideo,
+} from '../icons.jsx'
 
 export default function ChannelPage({
   id,
@@ -103,7 +115,7 @@ export default function ChannelPage({
   }
 
   return (
-    <div className="psh-sp psh-sp--channel" data-space={id} data-type="channel">
+    <div className="psh-sp psh-sp--channel psh-sp--detail" data-space={id} data-type="channel">
       <SpaceHeader s={channel} onBack={onBack} onJoin={follow} onLeave={unfollow} busy={busy} />
 
       <SpaceTabs tabs={channel.tabs} active={tab} onChange={setTab} label={`Sehemu za ${channel.name}`} />
@@ -157,10 +169,6 @@ export default function ChannelPage({
               text="Video, picha na sauti za channel hii zitaonekana hapa — kwa muundo wa aina yao."
             />
           )}
-          <p className="psh-sp__note">
-            <IconVideo size={14} /> Video huonekana kwanza (media-first), makala huanza na maandishi, kura
-            huanza na swali.
-          </p>
         </div>
       ) : null}
 
@@ -169,7 +177,6 @@ export default function ChannelPage({
         <div className="psh-sp__pane">
           <section className="psh-sp__card" aria-label="Kuhusu channel">
             <h2 className="psh-sp__h">Kuhusu</h2>
-            <p className="psh-sp__text">{channel.sections.about.purpose}</p>
             <dl className="psh-sp__dl">
               <div>
                 <dt>Kategoria</dt>
@@ -199,12 +206,14 @@ export default function ChannelPage({
               <ul className="psh-sp__manage">
                 <li>
                   <button type="button" className="psh-sp__manageRow" onClick={compose}>
-                    Yaliyomo — chapisha au teua kipengele
+                    <span className="psh-sp__mgicon" aria-hidden="true"><IconGrid size={18} /></span>
+                    <span>Yaliyomo — chapisha au teua kipengele</span>
                   </button>
                 </li>
                 <li>
                   <button type="button" className="psh-sp__manageRow" onClick={() => setTab('mapya')}>
-                    Hadhira — machapisho na mwingiliano
+                    <span className="psh-sp__mgicon" aria-hidden="true"><IconPeople size={18} /></span>
+                    <span>Hadhira — machapisho na mwingiliano</span>
                   </button>
                 </li>
                 <li>
@@ -213,7 +222,8 @@ export default function ChannelPage({
                     className="psh-sp__manageRow"
                     onClick={() => onToast?.('Maoni yanadhibitiwa kwenye kila chapisho — hakuna mfumo wa pili')}
                   >
-                    Maoni — dhibiti kwenye chapisho husika
+                    <span className="psh-sp__mgicon" aria-hidden="true"><IconComment size={18} /></span>
+                    <span>Maoni — dhibiti kwenye chapisho husika</span>
                   </button>
                 </li>
                 <li>
@@ -226,7 +236,8 @@ export default function ChannelPage({
                       )
                     }
                   >
-                    Muonekano — {channel.appearance.allowed.length} vipengele vinavyoruhusiwa
+                    <span className="psh-sp__mgicon" aria-hidden="true"><IconSliders size={18} /></span>
+                    <span>Muonekano — {channel.appearance.allowed.length} vipengele vinavyoruhusiwa</span>
                   </button>
                 </li>
                 <li>
@@ -241,7 +252,8 @@ export default function ChannelPage({
                       )
                     }
                   >
-                    Timu — roles 4 (Owner · Admin · Editor · Moderator)
+                    <span className="psh-sp__mgicon" aria-hidden="true"><IconGroup size={18} /></span>
+                    <span>Timu — roles 4 (Owner · Admin · Editor · Moderator)</span>
                   </button>
                 </li>
                 <li>
@@ -250,18 +262,17 @@ export default function ChannelPage({
                     className="psh-sp__manageRow"
                     onClick={() => onToast?.(`Ufikivu: ${channel.visibilityLabel} — unaweza kubadilisha`)}
                   >
-                    Faragha — {channel.visibilityLabel}
+                    <span className="psh-sp__mgicon" aria-hidden="true"><IconShield size={18} /></span>
+                    <span>Faragha — {channel.visibilityLabel}</span>
                   </button>
                 </li>
                 <li>
                   <button type="button" className="psh-sp__manageRow" onClick={() => setTab('kuhusu')}>
-                    Takwimu — zinazoonekana hapa chini
+                    <span className="psh-sp__mgicon" aria-hidden="true"><IconGauge size={18} /></span>
+                    <span>Takwimu — zinazoonekana hapa chini</span>
                   </button>
                 </li>
               </ul>
-              <p className="psh-sp__note">
-                <IconInfo size={14} /> {channel.appearance.note}
-              </p>
             </section>
           ) : null}
 
@@ -293,10 +304,6 @@ export default function ChannelPage({
             />
           ) : null}
 
-          <p className="psh-sp__note">
-            <IconEye size={14} /> Takwimu hizi ni za kikao hiki cha prototype: machapisho, reactions, maoni
-            na kushiriki — si makadirio ya mapato.
-          </p>
         </div>
       ) : null}
     </div>

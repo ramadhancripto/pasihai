@@ -87,6 +87,10 @@ export default function Chat({ onToast }) {
     [activeId, key],
   )
   const settings = useAsyncData(() => (panel === 'settings' || panel === 'privacy' || panel === 'notifications' ? chatService.getMore() : Promise.resolve(null)), [panel])
+  /* Mapendeleo ya mwonekano: default kutoka chatSettings, override ya mtumiaji ikishinda */
+  const chatPrefs = useAsyncData(() => chatService.getMore(), [panel])
+  const paperDefault = chatPrefs?.settings?.appearance?.find((a) => a.id === 'paperView')?.on
+  const paperOn = (chatPrefs?.settings?.overrides?.paperView ?? paperDefault) === true
   const dataSaved = useAsyncData(() => systemService.getDataSavedBrief(), [key])
 
   const conversations = inbox?.conversations || []
@@ -314,7 +318,7 @@ export default function Chat({ onToast }) {
   return (
     <div className="psh-col">
       <div
-        className="psh-chat"
+        className={`psh-chat ${paperOn ? 'psh-chat--paper' : ''}`}
         data-mobile-view={activeId ? 'thread' : 'list'}
       >
         {/* ══ PANE 1: Inbox ═══════════════════════════════════ */}
@@ -428,17 +432,6 @@ export default function Chat({ onToast }) {
             <IconPlus size={18} /> New Chat
           </button>
 
-          <p className="psh-chat__footnotes">
-            <span>
-              <IconShield size={12} /> Ujumbe umesimbwa mwanzo-hadi-mwisho (E2E)
-            </span>
-            <span>
-                            Direct na vikundi ni mfumo MMOJA wa Chat
-            </span>
-            <span>
-              <IconRadar size={12} /> Hali: local · offline · sync
-            </span>
-          </p>
         </section>
 
         {/* ══ PANE 2: Thread ══════════════════════════════════ */}

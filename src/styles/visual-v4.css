@@ -1,0 +1,493 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — FULL COLOR SYSTEM (v4)
+   Mfumo wa rangi wenye majukumu. Kila rangi ina maana:
+     DARK GREEN   → vitufe vikuu, vitendo muhimu, icons imara, active
+     BRAND GREEN  → utambulisho wa logo, hali chanya, highlights
+     PALE GREEN   → nyuso laini, Chat, chaguo lililochaguliwa
+     SEMI GREEN   → hover, vipengele vya pili
+     BLUE         → taarifa, Gundua, Channels (publishing), viungo
+     BRIGHT BLUE  → hali hai za taarifa na ugunduzi
+     GOLD         → mambo maalum, Hubs/Business highlights (kwa uchache)
+     RED          → hatari / kufuta
+     NEUTRAL      → nyeupe, kijivu chepesi, charcoal kwa usomaji
+   Ni safu ya rangi tu — hakuna kazi iliyoondolewa.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Kijani */
+  --pg-dark: #1d6444;          /* dark green — vitufe vikuu, icons imara */
+  --pg-dark-ink: #134a31;      /* maandishi ya kijani iliyokolea */
+  --pg-hover: #2a8a57;         /* hover: kijani angavu zaidi ya dark */
+  --pg-brand: #39985e;         /* logo green — utambulisho */
+  --pg-semi: #6cbc8c;          /* semi green — vipengele vya pili */
+  --pg-pale: #e9f6ee;          /* pale green — nyuso laini */
+  --pg-pale-2: #d3ecdd;        /* pale ya kati — selected */
+
+  /* Bluu */
+  --pg-blue: #2b6fe0;          /* blue — taarifa, viungo */
+  --pg-blue-dark: #1f56b5;     /* blue iliyokolea — Channels primary */
+  --pg-blue-bright: #3d8dff;   /* bright blue — hali hai, ugunduzi */
+  --pg-blue-soft: #e7f0ff;     /* blue laini */
+
+  /* Dhahabu, nyekundu, neutral */
+  --pg-gold: #d9a22a;
+  --pg-gold-soft: #fbf1d4;
+  --pg-gold-ink: #7e5d0e;
+  --pg-red: #d23f3f;
+  --pg-red-soft: #fdeaea;
+
+  --pg-canvas: #eef5f1;        /* mandhari ya ukurasa */
+  --pg-surface: #ffffff;
+  --pg-line: #d9e6df;
+  --pg-ink: #13201a;
+  --pg-ink-2: #3e4d46;
+  --pg-mute: #66746e;
+  --pg-disabled-bg: #e3ebe7;
+  --pg-disabled-ink: #8d9b94;
+  --pg-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* ── Ukurasa mzima: mandhari yenye rangi, si nyeupe tupu ──── */
+body {
+  background: var(--pg-canvas);
+}
+
+/* ══ 1. VITUFE — hali zinazoonekana ═════════════════════════ */
+.psh-btn {
+  transition: background-color 160ms var(--pg-ease), color 160ms var(--pg-ease),
+    border-color 160ms var(--pg-ease), box-shadow 160ms var(--pg-ease), transform 120ms var(--pg-ease);
+}
+.psh-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Primary — dark green, icon/maandishi nyeupe */
+.psh-btn--primary,
+.psh-gu-btn--primary {
+  background: var(--pg-dark);
+  color: #ffffff;
+  border: 1px solid var(--pg-dark);
+  box-shadow: 0 2px 8px rgba(29, 100, 68, 0.22);
+}
+.psh-btn--primary svg,
+.psh-gu-btn--primary svg {
+  color: #ffffff;
+  stroke: #ffffff;
+}
+.psh-btn--primary:hover:not(:disabled),
+.psh-gu-btn--primary:hover:not(:disabled) {
+  background: var(--pg-hover);
+  border-color: var(--pg-hover);
+  box-shadow: 0 4px 14px rgba(42, 138, 87, 0.3);
+}
+/* Pressed — inverted: nyeupe + dark green */
+.psh-btn--primary:active:not(:disabled),
+.psh-gu-btn--primary:active:not(:disabled) {
+  background: #ffffff;
+  color: var(--pg-dark-ink);
+  border-color: var(--pg-dark);
+  box-shadow: inset 0 0 0 1px var(--pg-dark);
+}
+.psh-btn--primary:active:not(:disabled) svg,
+.psh-gu-btn--primary:active:not(:disabled) svg {
+  color: var(--pg-dark-ink);
+  stroke: var(--pg-dark-ink);
+}
+.psh-btn--primary:focus-visible,
+.psh-gu-btn--primary:focus-visible {
+  outline: 2px solid var(--pg-blue-bright);
+  outline-offset: 2px;
+}
+
+/* Secondary — pale green, maandishi dark green */
+.psh-btn--secondary,
+.psh-btn:not([class*="--"]) {
+  background: var(--pg-pale);
+  color: var(--pg-dark-ink);
+  border: 1px solid #c9e4d4;
+}
+.psh-btn--secondary:hover:not(:disabled),
+.psh-btn:not([class*="--"]):hover:not(:disabled) {
+  background: var(--pg-pale-2);
+  border-color: var(--pg-semi);
+}
+.psh-btn--secondary:active:not(:disabled),
+.psh-btn:not([class*="--"]):active:not(:disabled) {
+  background: var(--pg-dark);
+  color: #ffffff;
+  border-color: var(--pg-dark);
+}
+.psh-btn--secondary:active:not(:disabled) svg,
+.psh-btn:not([class*="--"]):active:not(:disabled) svg {
+  color: #ffffff;
+  stroke: #ffffff;
+}
+
+/* Ghost / quiet — uwazi, hover pale, active dark */
+.psh-btn--ghost,
+.psh-gu-btn--ghost {
+  background: transparent;
+  color: var(--pg-dark-ink);
+  border: 1px solid transparent;
+}
+.psh-btn--ghost:hover:not(:disabled),
+.psh-gu-btn--ghost:hover:not(:disabled) {
+  background: var(--pg-pale);
+  border-color: #c9e4d4;
+}
+.psh-btn--ghost:active:not(:disabled),
+.psh-gu-btn--ghost:active:not(:disabled) {
+  background: var(--pg-dark);
+  color: #ffffff;
+  border-color: var(--pg-dark);
+}
+.psh-btn--ghost:active:not(:disabled) svg,
+.psh-gu-btn--ghost:active:not(:disabled) svg {
+  color: #ffffff;
+  stroke: #ffffff;
+}
+
+/* Blue — taarifa/ugunduzi/Channels (publishing) */
+.psh-btn--info,
+.psh-sp--channel .psh-btn--primary {
+  background: var(--pg-blue-dark);
+  border-color: var(--pg-blue-dark);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(31, 86, 181, 0.22);
+}
+.psh-btn--info:hover:not(:disabled),
+.psh-sp--channel .psh-btn--primary:hover:not(:disabled) {
+  background: var(--pg-blue);
+  border-color: var(--pg-blue);
+}
+.psh-btn--info:active:not(:disabled),
+.psh-sp--channel .psh-btn--primary:active:not(:disabled) {
+  background: #ffffff;
+  color: var(--pg-blue-dark);
+  border-color: var(--pg-blue-dark);
+}
+.psh-btn--info:active:not(:disabled) svg,
+.psh-sp--channel .psh-btn--primary:active:not(:disabled) svg {
+  color: var(--pg-blue-dark);
+  stroke: var(--pg-blue-dark);
+}
+
+/* Hatari */
+.psh-btn--danger {
+  background: var(--pg-red);
+  color: #ffffff;
+  border: 1px solid var(--pg-red);
+}
+.psh-btn--danger:hover:not(:disabled) {
+  background: #e25252;
+}
+.psh-btn--danger:active:not(:disabled) {
+  background: #ffffff;
+  color: var(--pg-red);
+  border-color: var(--pg-red);
+}
+
+/* Disabled */
+.psh-btn:disabled,
+.psh-gu-btn:disabled {
+  background: var(--pg-disabled-bg);
+  color: var(--pg-disabled-ink);
+  border-color: transparent;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Vitufe vya floating / create — dark green, ikoni nyeupe */
+.psh-createbar__plus,
+.psh-chat__fab {
+  background: var(--pg-dark);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(29, 100, 68, 0.28);
+}
+.psh-createbar__plus:hover,
+.psh-chat__fab:hover {
+  background: var(--pg-hover);
+}
+.psh-createbar__plus:active,
+.psh-chat__fab:active {
+  background: #ffffff;
+  color: var(--pg-dark-ink);
+  box-shadow: inset 0 0 0 2px var(--pg-dark);
+}
+
+/* ══ 2. ICONS — dark green kwa vitendo, blue kwa taarifa ═════ */
+.psh-icobtn {
+  color: var(--pg-dark);
+  transition: background-color 160ms var(--pg-ease), color 160ms var(--pg-ease);
+}
+.psh-icobtn:hover {
+  background: var(--pg-pale);
+}
+.psh-icobtn:active {
+  background: var(--pg-dark);
+  color: #ffffff;
+}
+.psh-nav .psh-nav__icon {
+  color: var(--pg-ink-2);
+}
+.psh-nav [aria-current="page"] .psh-nav__icon,
+.psh-nav .is-active .psh-nav__icon {
+  color: var(--pg-dark);
+  background: var(--pg-pale-2);
+  border-radius: 14px;
+}
+.psh-nav [aria-current="page"] .psh-nav__label,
+.psh-nav .is-active .psh-nav__label {
+  color: var(--pg-dark);
+  font-weight: 650;
+}
+
+/* ══ 3. HOME — tabs na chips ════════════════════════════════ */
+.psh-htabs__scroll {
+  background: var(--pg-pale);
+  border: 1px solid #d3e6db;
+}
+.psh-htab {
+  color: var(--pg-ink-2);
+}
+.psh-htab:hover:not(.is-active) {
+  background: var(--pg-pale-2);
+  color: var(--pg-dark-ink);
+}
+.psh-htab.is-active {
+  background: var(--pg-dark);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(29, 100, 68, 0.25);
+}
+.psh-htab.is-active:active {
+  background: #ffffff;
+  color: var(--pg-dark);
+}
+
+/* ══ 4. CHAT INBOX — tajiri, si nyeupe tupu ═════════════════ */
+.psh-chat__pane--list {
+  background: #eaf4ee;
+}
+.psh-chat__head {
+  background: #eaf4ee;
+  border-bottom: 1px solid #d3e6db;
+}
+.psh-chat__title {
+  color: var(--pg-ink);
+}
+.psh-chat__search {
+  background: #ffffff;
+  border: 1px solid #cfe3d7;
+  color: var(--pg-mute);
+}
+.psh-chat__filter {
+  background: #ffffff;
+  border: 1px solid #cfe3d7;
+  color: var(--pg-ink-2);
+}
+.psh-chat__filter:hover {
+  background: var(--pg-pale-2);
+}
+.psh-chat__filter[aria-checked="true"],
+.psh-chat__filter.is-active {
+  background: var(--pg-dark);
+  border-color: var(--pg-dark);
+  color: #ffffff;
+}
+.psh-chat__list {
+  padding: 6px 10px 12px;
+}
+.psh-chat__row {
+  background: #ffffff;
+  border: 1px solid #e0ece5;
+  border-radius: 18px;
+  margin: 6px 0;
+  box-shadow: 0 1px 2px rgba(20, 60, 40, 0.05);
+  position: relative;
+}
+.psh-chat__row:hover {
+  background: #f6fbf8;
+  border-color: #c5e0d0;
+}
+/* Unread — nyuso ya kijani + kipau cha brand */
+.psh-chat__row:has(.psh-chat__unread) {
+  background: #f1faf5;
+  border-color: #bfe0cd;
+}
+.psh-chat__row:has(.psh-chat__unread)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--pg-brand);
+}
+/* Selected — kijani chenye nguvu zaidi */
+.psh-chat__row.is-active {
+  background: var(--pg-pale-2);
+  border-color: var(--pg-semi);
+  box-shadow: inset 0 0 0 1px var(--pg-semi);
+}
+.psh-chat__rowname {
+  color: var(--pg-ink);
+  font-weight: 650;
+}
+.psh-chat__rowtext {
+  color: var(--pg-ink-2);
+}
+.psh-chat__rowtime {
+  color: var(--pg-mute);
+}
+.psh-chat__row:has(.psh-chat__unread) .psh-chat__rowtime {
+  color: var(--pg-dark);
+  font-weight: 700;
+}
+.psh-chat__unread {
+  background: var(--pg-dark);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(29, 100, 68, 0.3);
+}
+.psh-chat__sync,
+.psh-chat__syschip {
+  color: var(--pg-blue-dark);
+  background: var(--pg-blue-soft);
+  border-color: transparent;
+}
+.psh-chat__syncdot {
+  background: var(--pg-blue-bright);
+}
+
+/* ══ 5. CHAT CONVERSATION — mazingira ya PASIHAI ════════════ */
+.psh-chat__thread {
+  background: #efe6d3;
+  background-image: radial-gradient(rgba(120, 96, 60, 0.07) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+.psh-chat__headactions button,
+.psh-chat__head .psh-icobtn {
+  color: var(--pg-dark);
+}
+.psh-msg--me .psh-msg__bubble {
+  background: var(--pg-pale-2);
+  border: 1px solid #b4dcc5;
+  color: var(--pg-ink);
+}
+.psh-msg--them .psh-msg__bubble {
+  background: #ffffff;
+  border: 1px solid #dbe9e1;
+}
+.psh-chat__composer {
+  background: #eaf4ee;
+  border-top: 1px solid #d3e6db;
+}
+.psh-chat__input {
+  background: #ffffff;
+  border: 1px solid #c9e0d3;
+  color: var(--pg-ink);
+}
+.psh-chat__cbtn {
+  background: var(--pg-dark);
+  color: #ffffff;
+  border-radius: 999px;
+}
+.psh-chat__cbtn:hover {
+  background: var(--pg-hover);
+}
+.psh-chat__cbtn:active {
+  background: #ffffff;
+  color: var(--pg-dark);
+  box-shadow: inset 0 0 0 1px var(--pg-dark);
+}
+.psh-chat__banner {
+  background: var(--pg-blue-soft);
+  color: var(--pg-blue-dark);
+  border: 1px solid #cadbfb;
+}
+
+/* ══ 6. SPACES — Channels (blue) vs Hubs (green+gold) ═══════ */
+.psh-sp--channel .psh-sp__h,
+.psh-sp--channel .psh-sp__barlabel {
+  color: var(--pg-blue-dark);
+}
+.psh-sp--channel .psh-sp__card {
+  border-left: 4px solid var(--pg-blue);
+  background: #fbfdff;
+}
+.psh-sp--channel .psh-sp__mgicon {
+  background: var(--pg-blue-soft);
+  color: var(--pg-blue-dark);
+}
+.psh-sp[data-type="hub"] .psh-sp__h {
+  color: var(--pg-dark-ink);
+}
+.psh-sp[data-type="hub"] .psh-sp__card {
+  border-top: 4px solid var(--pg-gold);
+  background: #fffdf7;
+}
+.psh-sp[data-type="hub"] .psh-sp__mgicon {
+  background: var(--pg-gold-soft);
+  color: var(--pg-gold-ink);
+}
+.psh-sp__manageRow {
+  background: #ffffff;
+  border: 1px solid #dbe9e1;
+  border-radius: 14px;
+  color: var(--pg-ink);
+  transition: background-color 160ms var(--pg-ease), color 160ms var(--pg-ease);
+}
+.psh-sp__manageRow:hover {
+  background: var(--pg-pale);
+}
+.psh-sp__manageRow:active {
+  background: var(--pg-dark);
+  color: #ffffff;
+}
+.psh-sp__manageRow:active .psh-sp__mgicon {
+  background: #ffffff;
+  color: var(--pg-dark);
+}
+
+/* ══ 7. GUNDUA — ugunduzi (blue) + brand ════════════════════ */
+.psh-pagehead--gundua .psh-pagehead__icon {
+  background: var(--pg-blue-soft);
+  color: var(--pg-blue-dark);
+}
+.psh-gu-sub__h {
+  color: var(--pg-blue-dark);
+}
+.psh-gu-card {
+  background: #ffffff;
+  border: 1px solid #dbe9e1;
+}
+.psh-gu-card:hover {
+  border-color: #b9dcca;
+}
+.psh-gu-chip-ok {
+  background: var(--pg-pale-2);
+  color: var(--pg-dark-ink);
+}
+.psh-gu-chip-wait {
+  background: var(--pg-gold-soft);
+  color: var(--pg-gold-ink);
+}
+
+/* ══ 8. BUSINESS — kitaalamu, dhahabu kwa uchache ═══════════ */
+.psh-pagehead--business .psh-pagehead__icon {
+  background: var(--pg-gold-soft);
+  color: var(--pg-gold-ink);
+}
+.psh-pagesection {
+  background: #ffffff;
+  border: 1px solid #dbe9e1;
+}
+.psh-pagesection__h {
+  color: var(--pg-dark-ink);
+}
+
+/* ══ 9. HALI ZA MFUMO — chanya / taarifa / hatari ════════════ */
+.psh-status__livedot,
+.psh-status__live {
+  background: var(--pg-red);
+}

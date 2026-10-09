@@ -1553,6 +1553,8 @@ export const chatMoreMenu = [
 ]
 
 export const chatSettings = {
+  /* Mwonekano: karatasi ni chaguo. Default = imezimwa (kawaida). */
+  appearance: [{ id: 'paperView', label: 'Mwonekano wa karatasi', on: false }],
   privacy: ['Nani anaweza kutuma ombi la mazungumzo', 'Nani anaona namba yangu', 'Uthibitishaji wa marafiki wa pamoja'],
   notifications: [
     { id: 'n1', label: 'Sauti ya ujumbe', on: true },

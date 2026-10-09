@@ -18,7 +18,7 @@ export default function Header({ onNotifications, onAccount, onMore, onDataSaved
       <div className="psh-header__inner">
         <div className="psh-header__left">
           <a className="psh-header__brand" href="#/" aria-label="Pasihai, mwanzo">
-            <Wordmark size={22} />
+            <Wordmark size={60} />
           </a>
         </div>
 
@@ -31,13 +31,13 @@ export default function Header({ onNotifications, onAccount, onMore, onDataSaved
           </div>
           <span className="psh-header__sep" aria-hidden="true" />
           <IconButton label="Taarifa (notifications)" badge={unread > 0} onClick={onNotifications}>
-            <IconBell size={22} />
+            <IconBell size={26} />
           </IconButton>
           <IconButton label="Akaunti yangu" onClick={onAccount}>
-            <IconUser size={22} />
+            <IconUser size={26} />
           </IconButton>
           <IconButton label="Menyu zaidi za Home" onClick={onMore}>
-            <IconMoreVertical size={22} />
+            <IconMoreVertical size={26} />
           </IconButton>
         </div>
       </div>

@@ -1,0 +1,188 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — CHAT, CHANNELS & BRAND COLOR (v3)
+   · Kijani cha logo (#39985E) sasa ni rangi kuu inayoonekana.
+   · Chat: uso laini wa kijani kwenye thread; orodha nyeupe safi.
+   · Icons: kijani iliyokolea kwa vitendo muhimu, stroke nzito kidogo.
+   · Channels = bluu (publishing) · Hubs/Jumuiya = kijani+dhahabu (jamii).
+   Ni safu ya mtindo tu — hakuna kazi iliyoondolewa.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Kijani cha logo — rangi kuu */
+  --c-green: #39985e;
+  --c-green-600: #2e7f4d;
+  --c-green-700: #24683f;
+  --c-green-soft: #eaf5ee;
+  --c-green-soft-2: #d6ecdd;
+  --v3-chat-surface: #e2f0e7;
+  --v3-chat-bubble-me: #d3eadb;
+  --v3-chat-bubble-me-line: #b9dfc8;
+  --v3-icon: #1f5a3c;
+  --v3-blue-ink: #2456b8;
+  --v3-gold-ink: #8a6a12;
+}
+
+/* ── Vitufe vilivyokuwa na kijani cha zamani ──────────────── */
+.psh-createbar__plus {
+  background: var(--c-green);
+  box-shadow: 0 4px 12px rgba(57, 152, 94, 0.28);
+}
+.psh-chat__fab,
+.psh-gu-btn--primary,
+.psh-btn--primary {
+  background: var(--c-green);
+}
+
+/* ── Icons: nzito kidogo, rangi ya kijani iliyokolea ──────── */
+.psh-chat svg,
+.psh-nav svg,
+.psh-htabs svg,
+.psh-createbar svg {
+  stroke-width: 1.9;
+}
+.psh-chat__head .psh-icobtn,
+.psh-chat__headactions button,
+.psh-chat__cbtn {
+  color: var(--v3-icon);
+}
+.psh-chat__head .psh-icobtn:hover,
+.psh-chat__headactions button:hover {
+  background: var(--c-green-soft);
+}
+.psh-nav [aria-current="page"] svg,
+.psh-nav .is-active svg {
+  color: var(--c-green);
+}
+.psh-nav [aria-current="page"] .psh-nav__label,
+.psh-nav .is-active .psh-nav__label {
+  color: var(--c-green-700);
+  font-weight: 600;
+}
+
+/* ── Chat: orodha nyeupe, safi, na ya kitaalamu ──────────── */
+.psh-chat__pane--list {
+  background: #ffffff;
+}
+.psh-chat__list {
+  padding-top: 4px;
+}
+.psh-chat__row {
+  align-items: center;
+  padding: 12px 12px;
+  margin: 2px 8px;
+  border-radius: 18px;
+}
+.psh-chat__rowname {
+  font-weight: 650;
+  color: var(--v3-ink, #15201c);
+}
+.psh-chat__rowtext {
+  color: #5f6b66;
+}
+.psh-chat__rowtime {
+  font-size: 12px;
+  color: #7a8680;
+}
+.psh-chat__row:has(.psh-chat__unread) .psh-chat__rowtime {
+  color: var(--c-green-700);
+  font-weight: 700;
+}
+.psh-chat__unread {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--c-green);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
+}
+.psh-chat__search {
+  background: #ffffff;
+  border: 1px solid #dfe8e3;
+  border-radius: 16px;
+}
+.psh-chat__filter {
+  border-radius: 999px;
+}
+.psh-chat__filter[aria-checked="true"],
+.psh-chat__filter.is-active {
+  background: var(--c-green);
+  color: #ffffff;
+  border-color: var(--c-green);
+}
+
+/* ── Chat thread: uso laini wa kijani chote ───────────────── */
+.psh-chat__thread {
+  background: var(--v3-chat-surface);
+}
+.psh-chat__messages {
+  background: transparent;
+}
+.psh-chat__day {
+  color: #3f5a4b;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+.psh-msg--me .psh-msg__bubble {
+  background: var(--v3-chat-bubble-me);
+  border-color: var(--v3-chat-bubble-me-line);
+}
+.psh-msg--them .psh-msg__bubble {
+  background: #ffffff;
+  border-color: #e6eee9;
+}
+.psh-chat__composer {
+  background: #ffffff;
+  border-top: 1px solid #e3ebe7;
+}
+.psh-chat__input {
+  background: var(--c-green-soft);
+  border: 1px solid #d3e6db;
+}
+
+/* ── Channels = publishing (bluu) ─────────────────────────── */
+.psh-sp--channel .psh-btn--primary {
+  background: #3b82f6;
+}
+.psh-sp--channel .psh-sp__mgicon {
+  background: #eaf1ff;
+  color: var(--v3-blue-ink);
+}
+
+/* ── Hubs/Jumuiya = jamii (kijani + dhahabu) ──────────────── */
+.psh-sp[data-type="hub"] .psh-sp__mgicon {
+  background: #fbf5e2;
+  color: var(--v3-gold-ink);
+}
+
+/* ── Vitufe vya usimamizi wa Channel vyenye icons ─────────── */
+.psh-sp__manageRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.psh-sp__mgicon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+}
+.psh-sp__mgicon svg {
+  stroke-width: 1.9;
+}
+
+/* ── Gundua & Business: chips na ikoni za kijani ──────────── */
+.psh-gu-chip-ok {
+  color: var(--c-green-700);
+}
+.psh-pagehead__icon svg {
+  stroke-width: 1.9;
+}

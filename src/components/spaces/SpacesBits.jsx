@@ -92,7 +92,6 @@ export function SpaceCard({ s, onOpen, onJoin, busy = false }) {
             {s.name}
             {s.owned ? <span className="psh-spc__own">Nafasi yako</span> : null}
           </h3>
-          <p className="psh-spc__purpose">{s.purpose}</p>
           <p className="psh-spc__meta">
             {s.category ? <Chip tone="neutral">{s.category}</Chip> : null}
             {s.place?.mji ? (
@@ -162,7 +161,6 @@ export function ChannelCard({ c, onOpen, onFollow, busy = false }) {
             {c.name}
             {c.owned ? <span className="psh-spc__own">Channel yako</span> : null}
           </h3>
-          <p className="psh-spc__purpose">{c.purpose}</p>
           <p className="psh-spc__meta">
             <span className="psh-spc__count">
               <IconPeople size={12} />
@@ -245,7 +243,6 @@ export function SpaceHeader({ s, onBack, onJoin, onLeave, busy = false }) {
           ) : null}
           <VisibilityBadge visibility={s.visibility} label={s.visibilityLabel} />
         </p>
-        <p className="psh-sph__purpose">{s.purpose}</p>
       </div>
 
       <div className="psh-sph__acts">
@@ -382,11 +379,6 @@ export function MembersBlock({ team = [], members = [], lead, onOpenProfile, tit
         </>
       ) : null}
 
-      {!team.length && !members.length ? (
-        <p className="psh-sp__note">
-          Orodha ya wanachama inaonekana kwa wanachama pekee. Wewe ni msimamizi — unaweza kualika watu.
-        </p>
-      ) : null}
     </section>
   )
 }
@@ -513,7 +505,6 @@ export function StatGrid({ stats, type = 'place' }) {
           </li>
         ))}
       </ul>
-      <p className="psh-sp__note">{stats.note}</p>
     </section>
   )
 }

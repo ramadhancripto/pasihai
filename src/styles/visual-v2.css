@@ -1,0 +1,214 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — VISUAL DIRECTION v2
+   Lengo: light → elegant → calm → social → premium.
+   · Rangi kwa uchache: #18A982 kwa utambulisho/hali ya active,
+     blue laini kwa Channels (publishing), dhahabu laini kwa
+     Hubs/Jumuiya (uanachama) na Business (utaalamu).
+   · Hakuna nyuso kubwa za giza; hakuna gradient nzito.
+   · Faili hili ni safu ya mtindo tu — haliondoi kazi yoyote.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  --v2-canvas: #f7faf9;
+  --v2-surface: #ffffff;
+  --v2-line: #e3ebe7;
+  --v2-line-soft: #eef4f1;
+  --v2-ink: #15201c;
+  --v2-mute: #6b7772;
+  --v2-green: #18a982;
+  --v2-green-ink: #0f7a5d;
+  --v2-green-soft: #e9f7f2;
+  --v2-green-line: #cdeadd;
+  --v2-blue: #3b82f6;
+  --v2-blue-ink: #2456b8;
+  --v2-blue-soft: #eef4ff;
+  --v2-gold: #d4a72c;
+  --v2-gold-ink: #8a6a12;
+  --v2-gold-soft: #fbf5e2;
+  --v2-shadow-1: 0 1px 2px rgba(20, 40, 30, 0.04);
+  --v2-shadow-2: 0 6px 18px rgba(20, 40, 30, 0.06);
+  --v2-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* ── Canvas & focus ───────────────────────────────────────── */
+body {
+  background: var(--v2-canvas);
+}
+:focus-visible {
+  outline: 2px solid var(--v2-green);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* ── Header: nyeupe, mstari mwembamba, bila uzito ─────────── */
+.psh-header {
+  background: var(--v2-surface);
+  border-bottom: 1px solid var(--v2-line-soft);
+}
+.psh-header__brand .psh-logo {
+  height: 38px;
+}
+
+/* ── Bottom nav: safi, active kwa rangi moja tu ───────────── */
+.psh-nav {
+  background: var(--v2-surface);
+  border-top: 1px solid var(--v2-line-soft);
+  box-shadow: 0 -6px 18px rgba(20, 40, 30, 0.03);
+}
+
+/* ── Status / Stories (saved accounts + wewe) ─────────────── */
+.psh-status {
+  background: var(--v2-surface);
+  border-bottom: 1px solid var(--v2-line-soft);
+}
+.psh-status__ring {
+  box-shadow: var(--v2-shadow-1);
+  transition: transform 0.2s var(--v2-ease);
+}
+.psh-status__btn:hover .psh-status__ring {
+  transform: translateY(-2px);
+}
+.psh-status__ring--viewed,
+.psh-status__ring--seen {
+  background: #d6e1dc;
+}
+.psh-status__name {
+  color: var(--v2-ink);
+}
+.psh-status__name.is-viewed {
+  color: var(--v2-mute);
+  font-weight: 500;
+}
+
+/* ── Tabs Home ────────────────────────────────────────────── */
+.psh-htabs {
+  background: var(--v2-surface);
+}
+.psh-htabs__scroll {
+  background: var(--v2-canvas);
+  border: 1px solid var(--v2-line-soft);
+}
+.psh-htab {
+  transition: background-color 0.2s var(--v2-ease), color 0.2s var(--v2-ease);
+}
+.psh-htab:not(.is-active):hover {
+  color: var(--v2-ink);
+}
+
+/* ── Chat: lugha yake mwenyewe, si WhatsApp ───────────────── */
+.psh-chat__head {
+  background: var(--v2-surface);
+}
+.psh-chat__title {
+  letter-spacing: -0.02em;
+}
+.psh-chat__row {
+  margin: 2px 8px;
+  border-radius: 18px;
+  transition: background-color 0.18s var(--v2-ease);
+}
+.psh-chat__row:hover {
+  background: var(--v2-line-soft);
+}
+.psh-chat__row.is-active {
+  background: var(--v2-green-soft);
+}
+.psh-msg--me .psh-msg__bubble {
+  background: var(--v2-green-soft);
+  border: 1px solid var(--v2-green-line);
+  color: var(--v2-ink);
+  border-radius: 20px 20px 6px 20px;
+  box-shadow: none;
+}
+.psh-msg--them .psh-msg__bubble {
+  background: var(--v2-surface);
+  border: 1px solid var(--v2-line);
+  color: var(--v2-ink);
+  border-radius: 20px 20px 20px 6px;
+  box-shadow: var(--v2-shadow-1);
+}
+
+/* ── Spaces: Channels (publishing · blue) vs Hubs (jumuiya · gold) ─ */
+.psh-sp--channel .psh-sp__card {
+  border-left: 3px solid var(--v2-blue);
+  border-radius: 16px;
+  box-shadow: var(--v2-shadow-1);
+}
+.psh-sp--channel .psh-sp__h {
+  color: var(--v2-blue-ink);
+}
+.psh-sp--channel .psh-sp__bar {
+  background: var(--v2-blue-soft);
+}
+.psh-sp[data-type="hub"] .psh-sp__card {
+  border-top: 3px solid var(--v2-gold);
+  border-radius: 22px;
+  box-shadow: var(--v2-shadow-1);
+}
+.psh-sp[data-type="hub"] .psh-sp__h {
+  color: var(--v2-green-ink);
+}
+
+/* ── Gundua: kadi safi, chips zenye rangi za hali ─────────── */
+.psh-gu-card {
+  background: var(--v2-surface);
+  border: 1px solid var(--v2-line);
+  border-radius: 20px;
+  box-shadow: var(--v2-shadow-1);
+  transition: box-shadow 0.2s var(--v2-ease), transform 0.2s var(--v2-ease);
+}
+.psh-gu-card:hover {
+  box-shadow: var(--v2-shadow-2);
+}
+.psh-gu-chip-ok {
+  background: var(--v2-green-soft);
+  color: var(--v2-green-ink);
+}
+.psh-gu-chip-wait {
+  background: var(--v2-gold-soft);
+  color: var(--v2-gold-ink);
+}
+.psh-gu-sub__h {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v2-mute);
+}
+
+/* ── Business: kitaalamu lakini cha kijamii ───────────────── */
+.psh-pagehead--business .psh-pagehead__icon {
+  background: var(--v2-gold-soft);
+  color: var(--v2-gold-ink);
+}
+.psh-pagehead__title {
+  letter-spacing: -0.02em;
+}
+.psh-pagesection {
+  background: var(--v2-surface);
+  border: 1px solid var(--v2-line);
+  border-radius: 20px;
+  box-shadow: var(--v2-shadow-1);
+}
+.psh-typecards {
+  gap: 12px;
+}
+
+/* ── Mwendo laini kwa vipengele vya kubofya ───────────────── */
+.psh-status__btn,
+.psh-htab,
+.psh-chat__row,
+.psh-gu-card {
+  transition-timing-function: var(--v2-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .psh-status__ring,
+  .psh-gu-card,
+  .psh-chat__row {
+    transition: none;
+  }
+}
+
+/* ── Thread: uso wa kijivu-nyeupe, si kijani cha WhatsApp ── */
+.psh-chat__thread {
+  background: var(--v2-canvas);
+}

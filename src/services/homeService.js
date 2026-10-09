@@ -32,11 +32,15 @@ export const homeService = {
       identityRepository.getCurrentUser(),
     ])
 
-    return Promise.all(
+    // Kwa muundo mpya: Status/Stories zinaonyeshwa kwa akaunti ulizohifadhi
+    // (zinazofuatiliwa) pamoja na status yako mwenyewe. Akaunti nyingine hazionekani hapa.
+    const mapped = await Promise.all(
       items.map(async (item) => ({
         ...item,
         user: item.own ? currentUser : await identityRepository.getUser(item.userId),
+        saved: item.own ? true : await identityRepository.isFollowing(item.userId),
       })),
     )
+    return mapped.filter((item) => item.own || item.saved)
   },
 }
