@@ -1,8 +1,6 @@
-# PASIHAI — Roadmap ya Kujenga Home UI Prototype
+# PASIHAI — Roadmap ya Kujenga Jukwaa la Kijamii
 
-**Kanuni kuu:** Hii ni prototype ya frontend tu.
-Hakuna backend, database, authentication, real-time networking, mesh networking,
-payments au production APIs.
+**Kanuni kuu:** PASIHAI ni jukwaa la kijamii lenye mawasiliano kwanza.
 
 ---
 

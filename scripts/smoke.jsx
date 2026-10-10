@@ -1111,7 +1111,13 @@ assert(
   'Chat: hakuna Direct/Group/Community ChatService — mfumo mmoja',
 )
 const chatRepoFiles = readdirSync(join(process.cwd(), 'src/data/repositories')).filter((f) => /chat/i.test(f))
-assert(chatRepoFiles.length === 1 && chatRepoFiles[0] === 'chatRepository.js', 'Chat: repository MOJA (chatRepository.js)', repoFiles.join(', '))
+// Ruhusu chatRepository.js na supabaseChatRepository.js (mock + supabase implementations)
+const validChatRepos = ['chatRepository.js', 'supabaseChatRepository.js']
+assert(
+  chatRepoFiles.every((f) => validChatRepos.includes(f)) && chatRepoFiles.includes('chatRepository.js'),
+  'Chat: repository MOJA (chatRepository.js) + optional supabase version',
+  chatRepoFiles.join(', ')
+)
 assert(
   typeof chatService.getThread === 'function' &&
     (await chatService.getThread('c4')).conversation.type === 'direct' &&

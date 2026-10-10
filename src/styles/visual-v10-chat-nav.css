@@ -90,6 +90,35 @@
   color: #2b6fe0;
 }
 
+/* ── 6. Paper: Quoted reply — rangi zinazoonekana vizuri ──────
+   Kwenye chat ya kawaida, quote ya outgoing ni nyeupe kwenye kijani.
+   Kwenye paper chat, bubbles ni karatasi (parchment/ivory) — nyeupe
+   inafifia. Hapa tunaweka rangi za wino zinazoonekana wazi. */
+
+/* Mpokeaji (incoming) — quote kwenye ivory (#fdfaf2) */
+.psh-chat--paper .psh-msg--them .psh-msg__quote {
+  background: rgba(42, 36, 24, 0.06);
+  border-left-color: var(--pp-green-deep, #1d6444);
+}
+.psh-chat--paper .psh-msg--them .psh-msg__quoteby {
+  color: #2a2418;
+}
+.psh-chat--paper .psh-msg--them .psh-msg__quotetext {
+  color: #6b5f48;
+}
+
+/* Mtumaji (outgoing) — quote kwenye parchment (#efdcb0) */
+.psh-chat--paper .psh-msg--me .psh-msg__quote {
+  background: rgba(42, 36, 24, 0.08);
+  border-left-color: #8a6d16;
+}
+.psh-chat--paper .psh-msg--me .psh-msg__quoteby {
+  color: #3a2a12;
+}
+.psh-chat--paper .psh-msg--me .psh-msg__quotetext {
+  color: #6b5330;
+}
+
 /* ── 7. Friends & Connections (Account) ─────────────────── */
 .psh-fc { margin: 14px 16px 6px; padding: 14px; border-radius: 14px; background: #fff; border: 1px solid #e3ebe6; }
 .psh-fc__head { display: grid; gap: 2px; margin-bottom: 10px; }

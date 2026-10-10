@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "PASIHAI \u2014 Home UI frontend prototype (communication-first social platform)",
+  "description": "PASIHAI — Home UI frontend prototype (communication-first social platform)",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -12,11 +12,16 @@
     "shots": "node scripts/shots.mjs"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^7.6.9",
+    "@capacitor/core": "^8.5.3",
+    "@supabase/supabase-js": "^2.109.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.0",
+    "fake-indexeddb": "^6.2.5",
     "playwright": "^1.48.2",
     "vite": "^7.0.0"
   }

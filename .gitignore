@@ -3,3 +3,8 @@ dist
 .DS_Store
 *.local
 .vite
+
+# Environment files — secrets, API keys, database URLs
+.env
+.env.local
+.env.*.local

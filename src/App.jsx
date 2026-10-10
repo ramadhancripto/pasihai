@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import Header from './components/Header.jsx'
 import useChromeHide from './hooks/useChromeHide.js'
+import { useOnlineStatus } from './hooks/useOnlineStatus.js'
 import BottomNav, { NAV_ITEMS } from './components/BottomNav.jsx'
 import Sheet from './components/Sheet.jsx'
 import Home from './pages/Home.jsx'
@@ -48,8 +49,13 @@ import {
   ShareNearbyPanel,
   SystemActivityPanel,
 } from './components/system/SystemPanels.jsx'
+import { syncEngine } from './utils/syncEngine.js'
+import { outboxManager } from './utils/outboxManager.js'
 
 export default function App() {
+  /* ── Offline detection ─────────────────────────────────── */
+  const isOnline = useOnlineStatus()
+
   /* ── Kurasa na hali za Home ───────────────────────────── */
   const [guide, setGuide] = useState(
     () => new URLSearchParams(window.location.search).has('guide'),
@@ -108,6 +114,27 @@ export default function App() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [route])
+
+  /* ── Store-and-Forward: Anzisha sync engine na recover stuck actions ── */
+  useEffect(() => {
+    // Recover stuck actions baada ya app restart au crash
+    outboxManager.recoverStuckActions().then(stats => {
+      if (stats.recovered > 0 || stats.failed > 0) {
+        console.log(`[App] Recovered ${stats.recovered} stuck actions, ${stats.failed} marked as failed`)
+      }
+    }).catch(err => {
+      console.error('[App] Failed to recover stuck actions:', err)
+    })
+
+    // Anza background sync
+    syncEngine.start()
+    console.log('[App] Store-and-Forward initialized')
+
+    // Cleanup wakati app inafungwa
+    return () => {
+      syncEngine.stop()
+    }
+  }, [])
 
   const goGuide = (on) => {
     const url = new URL(window.location.href)
@@ -429,6 +456,28 @@ export default function App() {
 
   return (
     <div className="psh-app">
+      {/* Offline banner — inaonyesha wakati app ipo offline */}
+      {!isOnline && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          style={{
+            background: '#FEF3C7',
+            color: '#92400E',
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: 500,
+            textAlign: 'center',
+            borderBottom: '1px solid #F59E0B',
+            position: 'sticky',
+            top: 0,
+            zIndex: 1000,
+          }}
+        >
+          ⚠️ Huo mtandaoni — vitendo vipya vitasubiri hadi upate mtandao
+        </div>
+      )}
+
       {route === 'home' ? (
       <Header
         unread={seenNotifs ? 0 : 3}

@@ -1,25 +1,35 @@
-# Pasihai — Home UI Prototype
+# Pasihai
 
-Frontend prototype ya **PASIHAI**, jukwaa la kijamii lenye **mawasiliano kwanza**
-(communication-first). Hii ni UI pekee — **hakuna backend, database, authentication,
-real-time, mesh, payments au production APIs.**
+**Pasihai** ni jukwaa la kijamii lenye mawasiliano kwanza (communication-first social platform).
 
 ---
 
-## Hali ya sasa
+## Hali ya Mradi
 
-| Hatua | Kazi | Hali |
-|---|---|---|
-| **0** | Msingi: design tokens, typografia, icons, primitives, mock data | ✅ Imekamilika |
-| **1** | App shell: header, bottom nav (5), kurasa za placeholder, panels | ✅ Imekamilika |
-| **1b** | Foundation seams: application/data layer (UI → service → repository) | ✅ Imekamilika |
-| 2 | Home mkondo: feed, identity system, aina za content | ⏳ Inafuata (inasubiri idhini) |
-| 3 | Reels · Friends · Channels · Live kama tabs kamili | ⏳ |
-| 4 | Muonekano unaathiri mkondo kweli (Automatic/Vertical/Horizontal) | ⏳ |
-| 5 | Story/Status viewer kamili | ⏳ |
-| 6 | Responsive polish + QA ya mwisho | ⏳ |
+| Sehemu | Hali |
+|--------|------|
+| **Design System** | ✅ Imekamilika |
+| **App Shell** (header, nav, pages) | ✅ Imekamilika |
+| **Home Feed** (tabs, filters, cards) | ✅ Imekamilika (mock mode) |
+| **Chat** (conversations, messages) | ✅ Imekamilika (mock mode) |
+| **Gundua** (search, discover) | ✅ Imekamilika (mock mode) |
+| **Spaces** (hubs, communities, channels) | ✅ Imekamilika (mock mode) |
+| **Authentication** (login, signup, session) | ✅ Imeandaliwa (haijatumwa) |
+| **Supabase Backend** (schema, RLS) | ✅ Imeandaliwa (haijatumwa) |
 
-Ramani kamili iko kwenye `ROADMAP.md`.
+### Hali ya Sasa
+
+Mradi uko katika **mock mode** — data yote inatoka kwenye `src/data/mock.js` (2,268 lines ya sample data).
+
+**Supabase integration** imeandaliwa lakini haijaunganishwa bado:
+- Migrations 17 (schema + RLS policies) zimeandaliwa kwenye `supabase/migrations/`
+- Supabase repositories (content, identity, chat, activity) zimeandaliwa
+- Auth system (AuthContext, AuthGate, Login) imeandaliwa
+
+Ili kuwezesha **live mode** na data halisi:
+1. Tuma migrations kwenye hosted Supabase
+2. Weka credentials kwenye `.env.local`
+3. Badilisha `VITE_SUPABASE_MODE=live`
 
 ---
 
@@ -31,243 +41,241 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-Zana za maendeleo (si lazima):
+### Zana za Maendeleo
 
 ```bash
 npm run build            # build ya production
-npm run smoke            # render + architecture guard + contract checks (43 checks)
-node scripts/shots.mjs   # UI verification: DOM assertions + screenshots (inahitaji dev server)
+npm run smoke            # render + architecture guard + contract checks (461 tests)
+node scripts/test-auth.mjs           # auth tests (23 tests)
+node scripts/test-supabase-repos.mjs # supabase repo tests (64 tests)
 ```
 
-> Kidokezo: `http://localhost:5173/?guide=1` inafungua **Msingi wa Muonekano**
-> (design tokens, typografia, icons, components zote).
+> Kidokezo: `http://localhost:5173/?guide=1` inafungua **Style Guide** (design tokens, typography, icons, components zote).
 
 ---
 
-## Kilichojengwa (Hatua 0 + 1)
+## Muundo wa App
 
-### Design system (`src/styles/`)
-- `tokens.css` — rangi, typografia, nafasi, radius, vivuli (hakuna rangi iliyo
-  "hardcoded" kwenye components)
-- `base.css` — reset, hierarchy ya typografia, focus states, `prefers-reduced-motion`
-- `components.css` · `shell.css` · `home.css` · `panels.css` · `placeholder.css` · `guide.css`
-- Fonts za **Inter** na **Inter Tight** zimewekwa ndani ya project
-  (`public/fonts/`) — prototype inafanya kazi bila internet.
+### Navigation (5 destinations)
 
-### Components (`src/components/`)
-- `Wordmark` — `Pasi` (green) + `hai` (blue), 22px / Semi Bold, si oversized
-- `Avatar` — rounded-square kwenye feed, mviringo kwenye Status; rangi za tone zilizochaguliwa
-- `Identity` — mstari mmoja wa uthabiti: avatar, jina, **aina ya uhusiano**, muda
-- `EntityBadge` — Channel (bluu), Hub, Biashara, Mbunifu
-- `MediaFrame`, `Waveform`, `Segmented`, `Dropdown`, `CheckRow`, `Switch`, `Sheet`
-- `icons.jsx` — seti ya icons za mstari mmoja (viewBox 24, stroke 1.7)
+1. **Home** — Feed ya machapisho, reels, live sessions
+2. **Chat** — Mazungumzo ya moja kwa moja na ya kikundi
+3. **Gundua** — Tafuta na kugundua content mpya
+4. **Spaces** — Hubs, Jumuiya, na Channels
+5. **Business** — (Placeholder — bado haijatekelezwa)
 
-### Shell
-- **Header:** `Pasihai` kushoto · 🔔 👤 ⋮ kama group moja compact kulia (nafasi sawa)
-- **Bottom nav — destinations tano pekee:**
-  Home (Kutazama) · Chat (Mawasiliano) · Gundua (Kugundua) · Spaces (Kushiriki) · Business (Kuendesha)
-- **Desktop:** bottom nav inakuwa rail iliyoelea katikati chini — si mobile iliyonyooshwa
+### Home Feed
 
-### Home (muundo)
-- **Status/Stories:** `＋ Status Yako`, pete za viewed/unviewed, badge ya video,
-  horizontal scroll **huru** (skrini hadi skrini)
-- **Tabs tano:** Mchanganyiko · Reels · Friends · Channels · Live (Mchanganyiko = default)
-- **Kichujio cha maudhui:** compact dropdown (Zote · Video · Picha · Machapisho · Reels ·
-  Sauti · Kura · Live · Matangazo) — si tabs za ziada
-- **Create:** `[DP] Nini kinaendelea?` + Picha · Video · Chapisho · Reel · Live
-- **Mstari wa hali:** "Unatazama: Mchanganyiko · Zote · Automatic" — inafanya hali
-  ionekane bila kujaza skrini
+**Tabs 5:**
+- Mchanganyiko (default) — posts zote
+- Reels — video fupi
+- Friends — content ya marafiki
+- Channels — content ya channels unazofuata
+- Live — vikao vya live
 
-### Panels (zote zinafanya kazi kwa data ya majaribio)
-- **Taarifa** — Zote/Mpya, badge za aina, kubofya kunafungua wasifu
-- **Wasifu/Akaunti** — stats zinaonyesha aina mbalimbali za uhusiano; mtumiaji
-  mwenye **followers 0** anapata uzoefu kamili (hakuna lawama kwenye UI)
-- **Unda** — Chapisho, Picha, Video, Reel, Story, Status, Live, Kura
-- **Menyu ya Home** (⋮ pekee): Muonekano · Mapendeleo ya mkondo · Mapendeleo ya maudhui ·
-  Zilizohifadhiwa · Kuokoa data (switch) · Sasisha · Mipangilio
-- **Muonekano** — Automatic / Vertical / Horizontal Full Scroll (radio + kielelezo cha mwelekeo)
+**Filters 9:**
+- Zote, Video, Picha, Machapisho, Reels, Sauti, Kura, Live, Matangazo
 
----
+**Actions:**
+- Like/reaction, comment, share, bookmark, hide, report
+- Create post (text, image, video, audio, poll, reel, live)
 
-## Application / Data Layer (Phase 1 — Foundation Seams)
+### Chat
 
-UI **haitumii** `src/data/mock.js` moja kwa moja. Mzunguko ni:
+- Direct messages (moja kwa moja)
+- Group conversations (vikundi)
+- Phone book integration
+- Message history
 
-```
-Components / Pages
-      ↓
-  hooks/useAsyncData.js          Application State
-      ↓
-  services/*Service.js           Application Services
-      ↓
-  data/repositories/index.js     Composition root  ← SWAP POINT
-      ↓
-  data/repositories/*.js         Contract + Mock implementation
-      ↓
-  data/mock.js                   Demo data
-```
+### Gundua (Discover)
 
-Kubadilisha chanzo cha data baadaye (Local DB / Firebase / Sync) = kubadilisha
-**mistari ya `data/repositories/index.js` pekee** — hakuna UI inayobadilika.
+- Search (watu, content, spaces)
+- Categories na trending
+- Business profiles
+- Public groups
+- Offers na deals
 
-| Service | Inatoa |
-|---|---|
-| `homeService` | tabs + filters + safu ya Status (na entity) |
-| `accountService` | mtumiaji wa sasa, wasifu, directory |
-| `settingsService` | view modes, mapendeleo ya mkondo |
-| `notificationService` | taarifa (scope filter + unread count + join) |
-| `productInfoService` | taarifa za kurasa za Chat/Gundua/Spaces/Business |
-| `feedService` | mkondo wa Home (tab · kichujio · mpangilio deterministic · channels zinazopendekezwa) |
-| `gunduaService` | ugunduzi (modes · kategoria · vichujio vya mode · friends view · biashara · live · panels) |
-| `chatService` | mazungumzo (Inbox · Direct · Vikundi · New Chat · Requests · hali za local/offline/sync) |
+### Spaces
 
-Ramani kamili: `docs/PHASE-1-REPORT.md` · plan: `docs/PHASE-1-PLAN.md`
+**Aina 3:**
+- **Hubs** — sehemu za jumuiya (k.m. Dar es Salaam Tech Hub)
+- **Jumuiya** — makundi ya watu wenye maslahi sawa
+- **Channels** — channels za kuchapisha content
 
-### UI polish (realistic refinement)
-
-Pass ya polish juu ya muonekano uliopo: hierarchy ya buttons (primary · secondary · **done** ·
-ghost · icon) · identity tabaka tatu (**ROLE** pill · **RELATIONSHIP** meta · **ACTION** kwa aina
-ya entity) · status compact (64px) · media scrim/badges · live speakers · **Spaces icons**
-(Hub · Jumla · Spaces · Shield · Megaphone) · bottom nav touch 44px + kionyeshi active ·
-skeleton + fade ya mkondo. Ripoti: `docs/UI-POLISH-REPORT.md` · picha: `docs/review/polish/`.
-
-### UI polish — mzunguko wa 2 (Spaces · density · urembe)
-
-`IconSpaces` sasa = **watu watatu** (kama Stitch) · mstari wa **muktadha wa tab**
-(`homeTabs[].meaning` → `FeedList` → `.psh-feed__context`) · **density**: `--card-gap` 12→10,
-strip/tabs/create/feed/end/discover/kurasa zimepunguzwa 10–25% · **urembe**: primary shadow,
-hali ya “imekamilika” kijani tulivu (`--c-green-soft-2`), typecards zenye kichwa kimoja.
-Ripoti: `docs/UI-POLISH-2-REPORT.md` · picha 17 `docs/review/polish/` + `gallery.html`.
-
-### Safu ya mfumo — top system components (Data Saved · System · Relay · Sync · Nearby)
-
-Vitendo viwili vya kudumu kwenye header: **💾 Data Saved** (`DataSavedIndicator`) na
-**⇄ System** (`SystemQuickButton`). Panel moja ya mfumo yenye vitendo vya **muktadha**:
-Relay · Nearby · Sync · Save Offline · Share Nearby · Activity — hali 6 za kifaa
-(`ONLINE · LIMITED · LOCAL · OFFLINE · WAITING_SYNC · SYNCING`), foleni ya vitendo
-(waiting · sending · synced · failed), idhini ya relay ya internet (default: haijaruhusiwa),
-na **composer MOJA** ya chapisho (uwasilishaji = metadata: Local only · Nearby · Community · Global).
-Bottom nav inabaki **5**.
-
-**Sera ya Internet Relay (2026-10-07):** Internet Relay = **ujumbe mfupi pekee** (maandishi · metadata ·
-uelekezaji mdogo) — video · picha · sauti · hati · PDF · ZIP · viambatisho **haziruhusiwi** (hakuna vighairi).
-Ukomo wa lazima **5 MB/siku** (default 3 MB; 3 au 5 pekee; zaidi ya 5 inakataliwa) · ujumbe mmoja ≤ 32 KB ·
-**OFF kwa default** (idhini ya wazi) · ukomo ukifikiwa: *Internet Relay paused* — hakuna trafiki zaidi ·
-hakuna kugeuka internet kimya kimya. **Local Mesh** (Wi-Fi Direct · Bluetooth · Wi-Fi ya karibu) hubeba
-content kubwa bila data ya simu. **Relay Data Used ≠ Data Saved** (vipimo viwili tofauti). Ripoti: `docs/TOP-SYSTEM-COMPONENTS-REPORT.md` ·
-audit: `docs/SYSTEM-COMPONENT-AUDIT.md` · picha 21: `docs/review/system/gallery.html`.
-
-### Chat — mfumo MMOJA wa mawasiliano (2026-10-07)
-
-Chat ni **destination ya pili** kwenye bottom nav (`Home | Chat | Gundua | Spaces | Business`) — jina rasmi **Chat**
-(neno "Soga" halitumiki tena). Mfumo **mmoja**: `conversation.type` = `direct` | `group`; community/hub ni
-`parentContext` (metadata), **si** type. Hakuna `DirectChatService`/`GroupChatService`, hakuna account system ya pili,
-hakuna engine ya pili ya ujumbe.
-
-- **Inbox:** kichwa `Chat` + hali ya Sync + Search + ⋮ pekee (hakuna account icon) · chips za hali · vichujio
-  **Zote · Direct · Vikundi · Haijasomwa** · orodha (direct · vikundi · vikundi vilivyounganishwa na community/hub) · FAB `New Chat`.
-- **Thread:** bubbles zote (text · reply · reactions · sauti · picha/video · hati · eneo · shared posts/reels · kura ·
-  tangazo) · **composer MOJA** · vitendo vya ujumbe (`long-press` au kitufe ⋯ → sheet ileile) · swipe → jibu.
-- **Background ya mazungumzo = rangi MOJA safi** (hakuna dots/pattern/wallpaper/gradient). Rangi: outgoing green
-  `#18A982`-family + maandishi meupe · incoming uso mweupe + hairline.
-- **New Chat:** Saved Friends → PASIHAI Friends → mawasiliano ya simu → **namba** (lookup kesi 4) · **Requests**
-  (Kubali → conversation ya kawaida · Kataa kimya kimya · Zuia) · **New Group** (jina · picha · wanachama).
-- **Hali za local/offline/sync zinatoka safu ya System ileile:** ONLINE → synced · LOCAL → Local Mesh · LIMITED/WAITING_SYNC →
-  relayed (ujumbe mfupi) au foleni · OFFLINE → *Imehifadhiwa (Offline Vault)* + foleni ileile ya Sync.
-- **Sera ya relay inaendelea:** media haipiti Internet Relay (maandishi pekee); guard inatoa njia 3 (Local Mesh · Data yako · Wi-Fi)
-  na **hakuna** kubadili njia kimya kimya.
-- **Responsive:** simu (inbox ↔ mazungumzo) · desktop **panes mbili** (orodha | mazungumzo, upana 1160px) · a11y: labels · 44px · focus ring · focus restore.
-
-Code: `services/chatService.js` · `data/repositories/chatRepository.js` · `components/chat/` ·
-`styles/chat.css` · mock: `data/mock.js` (sehemu ya CHAT). Audit: `docs/CHAT-AUDIT.md` · ripoti: `docs/CHAT-REPORT.md` ·
-picha 28: `docs/review/chat/gallery.html`.
-
-### Stitch UI integration (Stages 3–5)
-
-Muonekano wa Stitch (mobile-first reference) umeunganishwa ndani ya architecture yetu:
-
-- **Home tabs row mmoja** + utilities 2 (kichujio · muonekano) kwenye mstari ule ule.
-- **Kadi-lite** za mkondo: white + hairline border + radius 16, hakuna shadow.
-- **EntityPill** (Rafiki · Channel · Hub · Biashara · Mbunifu · Wewe) — identity pekee; relationship ni tofauti.
-- **Status:** live badge + ring ya gold kwa creator.
-- **Live:** pills za hali ndani ya tab (Inaendelea · Zilizopangwa · Zilizopita) + jukwaa la wasemaji.
-- **Channels:** "Channels zinazopendekezwa" + Fuata. **Mwisho wa mkondo:** "Umesoma yote kwa leo!".
-- Ripoti: `docs/STITCH-INTEGRATION-REPORT.md` · audit: `docs/STITCH-AUDIT.md`.
-
-### Mkondo wa Home (Phase 2A — Feed Foundation)
-
-```
-Home.jsx → FeedList → feedService.getFeed({ tab, filter })
-      ↓
-  data/repositories/contentRepository.listFeed()
-      ↓
-  data/mappers/feedMapper.js  ←  data/mock.js (posts · reels · liveSessions)
-```
-
-- Home tabs **5** (Mchanganyiko · Reels · Friends · Channels · Live). Uanachama
-  wa tab unahesabiwa kwa **sheria** (`TAB_RULES` kwenye feedService) — si kwa
-  hand-tags zinazoweza kupingana.
-- Mpangilio ni **deterministic**: relationship + recency + content-type + live state.
-  ❌ Hakuna ML, analytics, behavior collection, wala "For You".
-- Aina **8** za kipengele: `text · image · video · audio · poll · announcement ·
-  liveActivity · reel`. Identity: person · friend · channel · hub · business · creator
-  (`user.type` = identity pekee; relationship/visibility/permission ni tofauti).
-- Live Activity ina shell yake (si post ya kawaida). Vikao vya Live havimo
-  Mchanganyiko (vina tab yao).
-- Ripoti: `docs/PHASE-2A-REPORT.md` · plan: `docs/PHASE-2A-PLAN.md`
+**Features:**
+- Join/leave spaces
+- Space feed (posts za space)
+- Events na matukio
+- Resources na rasilimali
+- Members na wanachama
 
 ---
 
-## Kanuni zilizofuatwa
-
-- ❌ Hakuna Hubs/Groups/People/Businesses/Nearby kama Home tabs — zipo Gundua/Spaces/Business
-- ❌ Hakuna "For You" (Mchanganyiko ndiyo ya default)
-- ❌ Channels ≠ chat; Hubs ≠ chat
-- ❌ Hakuna hamburger, hakuna item ya sita kwenye bottom nav, hakuna side navigation
-- ❌ Hakuna glassmorphism, gradients nyingi, dark dashboard, huge shadows, pill overload
-- ✅ Gold (`#D4A72C`) inatumika kwa nadra: notification dot, tone moja ya avatar,
-  chip ya "Hatua 1 imekamilika"
-- ✅ Mtumiaji wa kawaida (marafiki 15, followers 0) ni raia wa daraja la kwanza
-
----
-
-## Muundo wa faili
+## Architecture
 
 ```
-pasihai/
-├── index.html
-├── package.json · vite.config.js
-├── public/fonts/            # Inter + Inter Tight (self-hosted)
-├── src/
-│   ├── main.jsx · App.jsx
-│   ├── data/mock.js         # washiriki, status, feed, reels, live, notifications, menus
-│   ├── components/
-│   │   ├── icons.jsx · ui.jsx · Wordmark.jsx · Header.jsx
-│   │   ├── BottomNav.jsx · Sheet.jsx · panels.jsx
-│   │   └── home/  StatusRow.jsx · HomeTabs.jsx · CreateArea.jsx
-│   ├── pages/     Home.jsx · PlaceholderPage.jsx · StyleGuide.jsx
-│   └── styles/    tokens · base · components · shell · home · panels · placeholder · guide
-├── scripts/       smoke.jsx · shots.mjs
-└── docs/shots/    # screenshots za QA (mobile, tablet, desktop)
+UI (Pages + Components)
+  ↓
+Services (Application Logic)
+  ↓
+Repositories (Data Access)
+  ↓
+Data Source (Mock au Supabase)
 ```
 
+### Mafaili Muhimu
+
+| Eneo | Maelezo |
+|------|---------|
+| `src/App.jsx` | Shell: header + nav + pages + panels |
+| `src/pages/` | Home, Chat, Gundua, Spaces, Login |
+| `src/components/` | UI components (feed, chat, spaces, etc.) |
+| `src/services/` | Application layer (feedService, chatService, etc.) |
+| `src/data/repositories/` | Data access layer (mock + supabase) |
+| `src/data/mock.js` | Sample data (2,268 lines) |
+| `src/lib/` | Auth system (AuthContext, AuthGate, supabaseClient) |
+| `supabase/migrations/` | Database schema + RLS policies (17 files) |
+
 ---
 
-## Kile ambacho KIKO WAZI kwa Hatua 2+
+## Design System
 
-1. Mkondo wa kweli wa Home (feed) na aina zote za content
-2. Identity system ndani ya feed + separation ya hila (si giant cards)
-3. Tab za Reels / Friends / Channels / Live kwa utambulisho wao
-4. Muonekano (Automatic/Vertical/Horizontal) ukiathiri mkondo kwa kweli
-5. Story/Status viewer kamili
-6. Responsive polish + QA ya mwisho
+### Rangi
+
+| Jina | Thamani |
+|------|---------|
+| Primary green | `#18A982` |
+| Secondary blue | `#3B82F6` |
+| Light green | `#EAF8F3` |
+| Primary text | `#17201D` |
+| Secondary text | `#66736E` |
+| Background | `#FFFFFF` |
+| Gold accent | `#D4A72C` (kwa nadra) |
+
+### Typography
+
+- **Headings:** Inter Tight
+- **UI text:** Inter
+- **Wordmark:** ~20–22px, Semi Bold
+
+### Spacing
+
+4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 (px)
+
+### Radius
+
+8–14px (hakuna pills kila mahali)
 
 ---
 
-## Uchaguzi wa kiufundi
+## Supabase Schema
 
-- **React 19 + Vite** — component-based, rahisi kupanua kuelekea production
-- **CSS ya kawaida yenye tokens** — hakuna Tailwind/CSS-in-JS ili muundo ubaki wazi
-  na rahisi kusoma kwa timu yoyote
-- **Hakuna library ya icons** — SVG zetu wenyewe ili tupate uthabiti kamili
-- **Self-hosted fonts** — prototype inafanya kazi bila internet
+### Tables (17 migrations)
+
+1. **profiles** — wasifu wa watumiaji
+2. **follows** — ufuatiliaji
+3. **posts** — machapisho (text, image, video, audio, poll, reel, etc.)
+4. **reactions** — like/heart/clap/fire/laugh/sad
+5. **bookmarks** — vitu vilivyohifadhiwa
+6. **hidden_items** — posts zilizofichwa
+7. **friendships** — urafiki (pending, accepted, declined)
+8. **blocks** — watumiaji waliozuiliwa
+9. **comments** — maoni kwenye posts
+10. **poll_options** + **poll_votes** — kura za polls
+11. **shares** — kushiriki posts
+12. **chat_conversations** + **chat_participants** + **chat_messages** — chat
+13. **notifications** — taarifa za watumiaji
+14. **spaces** + **space_members** + **space_posts** — spaces
+15. **live_sessions** + **statuses** + **reports** — live, stories, ripoti
+
+### RLS Policies
+
+Kila table ina Row Level Security (RLS) policies:
+- **SELECT:** watumiaji wanaona data wanayostahili
+- **INSERT:** watumiaji wanaunda data yao wenyewe
+- **UPDATE:** watumiaji wanasasisha data yao wenyewe
+- **DELETE:** watumiaji wanafuta data yao wenyewe
+
+### Functions
+
+- `handle_new_user()` — auto-create profile wakati wa signup
+- `can_see_post()` — angalia kama mtumiaji anaweza kuona post
+- `is_blocked_by()` — angalia kama mtumiaji amezuiliwa
+- `set_updated_at()` — trigger ya updated_at timestamp
+
+---
+
+## Tests
+
+### Matokeo ya Sasa
+
+```
+✅ npm run build          → 164 modules, 2.87s
+✅ npm run smoke (SSR)    → 461/461 passed
+✅ Auth tests             → 23/23 passed
+✅ Supabase repos tests   → 64/64 passed
+────────────────────────────────────────────
+JUMLA: 548 tests — ZOTE ZIMEFANIKIWA
+```
+
+### Aina za Tests
+
+1. **Smoke tests** (461) — render + architecture guard + contract checks
+2. **Auth tests** (23) — authentication flow + security checks
+3. **Supabase repo tests** (64) — repository contracts + mapper tests
+
+**Kumbuka:** Tests zote zinafanya kazi kwa **mock mode pekee**. Hakuna testing dhidi ya hosted Supabase bado.
+
+---
+
+## Hatua Zinazofuata
+
+### Batch 2: Home Feed + Actions (Inayofuata)
+
+- Unganisha supabaseContentRepository na composition root
+- Test feed loading (real data)
+- Implement like/reaction (real)
+- Implement comments (real)
+- Add error/loading/empty states
+
+### Batch 3: Chat + Notifications
+
+- Unganisha supabaseChatRepository
+- Test real-time messaging
+- Unganisha supabaseActivityRepository
+- Test real notifications
+
+### Batch 4: Gundua + Spaces
+
+- Unganisha supabaseGunduaRepository
+- Unganisha supabaseSpacesRepository
+- Test search/discover
+- Test spaces functionality
+
+### Batch 5: Media + Storage
+
+- Set up Supabase Storage
+- Implement image/video upload
+- Implement avatar/cover upload
+- Add media viewer enhancements
+
+### Batch 6: Hardening
+
+- Privacy settings
+- Account deletion
+- Blocking/reporting (real)
+- Push notifications
+- Performance optimization
+- Security audit
+
+---
+
+## Leseni
+
+Mradi huu ni wa **Pasihai** — jukwaa la kijamii lenye mawasiliano kwanza.
+
+---
+
+## Mawasiliano
+
+Kwa maswali au maoni, wasiliana na timu ya Pasihai.

@@ -16,6 +16,7 @@ import './styles/gundua.css'
 import './styles/spaces.css'
 import './styles/guide.css'
 import './styles/brand.css'
+import './styles/login.css'
 import './styles/visual-v2.css'
 import './styles/visual-v3.css'
 import './styles/visual-v4.css'
@@ -29,11 +30,31 @@ import './styles/visual-v10-chat-nav.css'
 
 import App from './App.jsx'
 import Splash from './components/Splash.jsx'
+import { AuthProvider } from './lib/AuthContext.jsx'
+import { AuthGate } from './lib/AuthGate.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Splash>
-      <App />
-    </Splash>
+    <AuthProvider>
+      <AuthGate>
+        <Splash>
+          <App />
+        </Splash>
+      </AuthGate>
+    </AuthProvider>
   </StrictMode>,
 )
+
+// ── Service Worker Registration ────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then((registration) => {
+        console.log('[Main] Service Worker registered:', registration.scope)
+      })
+      .catch((error) => {
+        console.warn('[Main] Service Worker registration failed:', error)
+      })
+  })
+}

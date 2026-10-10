@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PASIHAI</string>
+    <string name="title_activity_main">PASIHAI</string>
+    <string name="package_name">com.pasihai.app</string>
+    <string name="custom_url_scheme">com.pasihai.app</string>
+</resources>

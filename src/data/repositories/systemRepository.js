@@ -134,21 +134,35 @@ function relaySnapshot() {
 
 /* ── Repository ─────────────────────────────────────────────── */
 
-/* Mapendeleo ya mtumiaji (kikao hiki — bila backend) */
-const sessionPrefs = {
+/* Mapendeleo ya mtumiaji (inahifadhiwa kwenye localStorage kwa persistence) */
+import { storage } from '../../utils/storage.js'
+
+const PREFS_KEY = 'userPrefs'
+const DEFAULT_PREFS = {
   contentInterests: ['Teknolojia', 'Elimu', 'Habari'],
   feedSort: null,
   feedShow: {},
 }
 
+function loadPrefs() {
+  const saved = storage.get(PREFS_KEY, null)
+  return saved || { ...DEFAULT_PREFS }
+}
+
+function savePrefsToStorage(prefs) {
+  storage.set(PREFS_KEY, prefs)
+}
+
 export const mockSystemRepository = {
   async getPrefs() {
-    return JSON.parse(JSON.stringify(sessionPrefs))
+    return loadPrefs()
   },
 
   async savePrefs(patch = {}) {
-    Object.assign(sessionPrefs, patch)
-    return JSON.parse(JSON.stringify(sessionPrefs))
+    const current = loadPrefs()
+    const updated = { ...current, ...patch }
+    savePrefsToStorage(updated)
+    return updated
   },
 
   async getScenarioKey() {

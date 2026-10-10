@@ -5,6 +5,8 @@
 // ══════════════════════════════════════════════════════════════
 
 import { useState } from 'react'
+import { useAuth } from '../lib/AuthContext.jsx'
+import { isSupabaseLive } from '../lib/supabaseClient.js'
 import { accountService } from '../services/accountService.js'
 import { spacesService } from '../services/spacesService.js'
 import { feedService } from '../services/feedService.js'
@@ -313,6 +315,7 @@ export function FriendsConnections({ onToast }) {
 export function ProfilePanel({ userId = 'me', onToast, onInteract, onOpenItem, onOpenSpace }) {
   // Wasifu unatoka kwa account service (service inajua 'me' vs entity nyingine).
   // Hooks zote ziko mbele ya early-return — mpangilio wa hooks hauvunjiki.
+  const { signOut } = useAuth()
   const [version, setVersion] = useState(0)
   const [tabIndex, setTabIndex] = useState(0)
   const [editing, setEditing] = useState(false)
@@ -478,6 +481,21 @@ export function ProfilePanel({ userId = 'me', onToast, onInteract, onOpenItem, o
             >
               Shiriki wasifu
             </Button>
+            {/* Logout button - inavyoonekana tu katika live mode */}
+            {isSupabaseLive && (
+              <Button
+                variant="quiet"
+                onClick={async () => {
+                  const result = await signOut()
+                  if (!result.success) {
+                    onToast?.(`Hitilafu ya kutoka: ${result.error}`)
+                  }
+                  // AuthContext itasasisha user state na App itarudisha Login page
+                }}
+              >
+                Toka
+              </Button>
+            )}
           </>
         ) : (
           <>
