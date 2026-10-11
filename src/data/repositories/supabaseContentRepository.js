@@ -201,6 +201,11 @@ export const supabaseContentRepository = {
           return cached
         }
       }
+      // Schema error (PGRST205) — table doesn't exist yet, return empty
+      if (err?.code === 'SCHEMA_ERROR') {
+        console.warn('[ContentRepo] listFeed: schema not ready, returning empty')
+        return []
+      }
       // Rudisha error kama hakuna cache
       throw err
     }
@@ -225,7 +230,9 @@ export const supabaseContentRepository = {
       .limit(50)
 
     if (error) {
-      throw parseSupabaseError(error, 'listMyPosts')
+      const parsed = parseSupabaseError(error, 'listMyPosts')
+      if (parsed?.code === 'SCHEMA_ERROR') return []
+      throw parsed
     }
 
     const postRows = await signPostMediaRows(data || [], 'listMyPosts.media')
@@ -345,6 +352,12 @@ export const supabaseContentRepository = {
         return mapSupabaseStatus(row, { currentUserId: user.id, mediaUrl })
       }))
     } catch (error) {
+      // Schema error (PGRST205) — table doesn't exist yet, return empty
+      const parsed = parseSupabaseError(error, 'getStatuses')
+      if (parsed?.code === 'SCHEMA_ERROR') {
+        console.warn('[ContentRepo] getStatuses: schema not ready, returning empty')
+        return []
+      }
       throwStatusError(error, 'getStatuses')
     }
   },

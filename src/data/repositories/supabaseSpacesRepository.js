@@ -135,7 +135,10 @@ export const supabaseSpacesRepository = {
         followed: channels.filter(i => i.joined),
       }
     } catch (err) {
-      throw handleError(err, 'listSpaces')
+      const parsed = handleError(err, 'listSpaces')
+      // PGRST205: table doesn't exist yet — return empty, don't crash
+      if (parsed?.code === 'SCHEMA_ERROR') return { hubs: [], communities: [], channels: [], places: [], counts: { hubs: 0, communities: 0, places: 0, channels: 0 }, mine: [], followed: [] }
+      throw parsed
     }
   },
 

@@ -212,7 +212,10 @@ export const supabaseGunduaRepository = {
 
       return sections.filter(s => s.items.length > 0)
     } catch (err) {
-      throw handleError(err, 'getHighlights')
+      const parsed = handleError(err, 'getHighlights')
+      // PGRST205: table doesn't exist yet — return empty, don't crash
+      if (parsed?.code === 'SCHEMA_ERROR') return []
+      throw parsed
     }
   },
 
@@ -279,7 +282,9 @@ export const supabaseGunduaRepository = {
         when: ['live_sasa', 'leo'],
       }))
     } catch (err) {
-      throw handleError(err, 'getLive')
+      const parsed = handleError(err, 'getLive')
+      if (parsed?.code === 'SCHEMA_ERROR') return []
+      throw parsed
     }
   },
 
@@ -343,7 +348,9 @@ export const supabaseGunduaRepository = {
         communities,
       }
     } catch (err) {
-      throw handleError(err, 'getCounts')
+      const parsed = handleError(err, 'getCounts')
+      if (parsed?.code === 'SCHEMA_ERROR') return { mchanganyiko: 0, friends: 0, channels: 0, live: 0, businesses: 0, people: 0, groups: 0, hubs: 0, communities: 0 }
+      throw parsed
     }
   },
 
@@ -417,7 +424,9 @@ export const supabaseGunduaRepository = {
       result.total = Object.values(result).reduce((n, arr) => n + arr.length, 0)
       return result
     } catch (err) {
-      throw handleError(err, 'search')
+      const parsed = handleError(err, 'search')
+      if (parsed?.code === 'SCHEMA_ERROR') return { people: [], businesses: [], channels: [], communities: [], hubs: [], groups: [], live: [], total: 0 }
+      throw parsed
     }
   },
 
@@ -562,7 +571,9 @@ export const supabaseGunduaRepository = {
         profileToEntity(p, { currentUserId, followedIds, friendStates })
       )
     } catch (err) {
-      throw handleError(err, 'queryProfiles')
+      const parsed = handleError(err, 'queryProfiles')
+      if (parsed?.code === 'SCHEMA_ERROR') return []
+      throw parsed
     }
   },
 }
