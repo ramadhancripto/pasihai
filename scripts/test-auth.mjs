@@ -56,10 +56,12 @@ test('1.2: supabaseClient.js ina default ya mock', () => {
 
 /* ── Test 2: Publishable key acceptance ─────────────────── */
 console.log('\n── 2. Publishable key acceptance ──')
-test('2.1: supabaseClient.js inatumia VITE_SUPABASE_PUBLISHABLE_KEY', () => {
+test('2.1: supabaseClient.js inatumia VITE_SUPABASE_PUBLISHABLE_KEY (kupitia supabaseConfig.js)', () => {
+  // Usomaji wa env sasa uko kwenye supabaseConfig.js (chanzo kimoja cha ukweli).
   const client = readFileSync(join(ROOT, 'src/lib/supabaseClient.js'), 'utf8')
-  assert(client.includes('VITE_SUPABASE_PUBLISHABLE_KEY'), 
-    'supabaseClient.js haitumii VITE_SUPABASE_PUBLISHABLE_KEY')
+  const config = readFileSync(join(ROOT, 'src/lib/supabaseConfig.js'), 'utf8')
+  assert(client.includes('resolveSupabaseConfig') && config.includes('VITE_SUPABASE_PUBLISHABLE_KEY'),
+    'supabaseClient.js haitumii supabaseConfig.js yenye VITE_SUPABASE_PUBLISHABLE_KEY')
 })
 
 test('2.2: supabaseClient.js HAITUMII service_role au secret kwenye code', () => {

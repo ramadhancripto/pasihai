@@ -77,6 +77,19 @@ export default function PlaceholderPage({ pageKey }) {
         </div>
       </header>
 
+      {pageKey === 'business' ? (
+        <aside className="psh-page-status" role="note" aria-label="Hali ya Business">
+          <span className="psh-page-status__icon" aria-hidden="true">
+            <IconInfo size={18} />
+          </span>
+          <div className="psh-page-status__copy">
+            <strong>Business bado haijakamilika</strong>
+            <p>Hii ni preview ya vipengele vilivyopangwa; hakuna vitendo au backend ya Business vinavyopatikana bado.</p>
+          </div>
+          <Chip tone="gold">Bado</Chip>
+        </aside>
+      ) : null}
+
       <section className="psh-pagesection">
         <ul className="psh-pageitems">
           {page.items.map((it) => {

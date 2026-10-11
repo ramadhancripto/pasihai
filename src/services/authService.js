@@ -56,6 +56,7 @@ export const authService = {
             username: metadata.username || email.split('@')[0],
             ...metadata,
           },
+          emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
         },
       })
 
@@ -184,6 +185,31 @@ export const authService = {
   },
 
   /**
+   * Sasisha nenosiri (baada ya kurejesha kupitia email).
+   * @param {string} newPassword - Nenosiri jipya
+   * @returns {Promise<{error: string|null}>}
+   */
+  async updatePassword(newPassword) {
+    if (!isSupabaseLive || !supabase) {
+      return {
+        error: 'Supabase haijasanidiwa. Tafadhali weka credentials kwenye .env.local'
+      }
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      })
+      if (error) {
+        return { error: formatAuthError(error) }
+      }
+      return { error: null }
+    } catch (err) {
+      return { error: formatAuthError(err) }
+    }
+  },
+
+  /**
    * Tuma email ya kurejesha password.
    * @param {string} email - Barua pepe
    * @returns {Promise<{error: string|null}>}
@@ -197,7 +223,8 @@ export const authService = {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(
-        email.trim().toLowerCase()
+        email.trim().toLowerCase(),
+        { redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined }
       )
       if (error) {
         return { error: formatAuthError(error) }

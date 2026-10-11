@@ -1,0 +1,195 @@
+{
+  "chatRepository": {
+    "supabaseFile": "supabaseChatRepository.js",
+    "callsMade": 34,
+    "implemented": 5,
+    "missingInLive": [
+      "archiveConversation",
+      "attachMedia",
+      "blockContact",
+      "clearMedia",
+      "createGroup",
+      "createMediaMessage",
+      "getFilters",
+      "getMoreMenu",
+      "getPhoneBook",
+      "getRequests",
+      "getSettings",
+      "listArchived",
+      "listBlocked",
+      "listMessages",
+      "listSavedFriends",
+      "listSentRequests",
+      "lookupNumber",
+      "markAllRead",
+      "reactToMessage",
+      "resolveMedia",
+      "respondRequest",
+      "saveFriend",
+      "saveMessageOffline",
+      "search",
+      "sendRequest",
+      "setConversationTone",
+      "setMessageState",
+      "setSettings",
+      "unblockContact"
+    ]
+  },
+  "contentRepository": {
+    "supabaseFile": "supabaseContentRepository.js",
+    "callsMade": 25,
+    "implemented": 25,
+    "missingInLive": []
+  },
+  "identityRepository": {
+    "supabaseFile": "supabaseIdentityRepository.js",
+    "callsMade": 8,
+    "implemented": 8,
+    "missingInLive": []
+  },
+  "gunduaRepository": {
+    "supabaseFile": null,
+    "callsMade": 29,
+    "implemented": 0,
+    "missingInLive": [
+      "addFriend",
+      "cancelFriend",
+      "followChannel",
+      "getBusinesses",
+      "getCategories",
+      "getCounts",
+      "getEntity",
+      "getFilterGroups",
+      "getFilterSchema",
+      "getFriendRequests",
+      "getFriendState",
+      "getFriends",
+      "getHighlights",
+      "getJoinedConversation",
+      "getMode",
+      "getModes",
+      "getMyLink",
+      "getOffers",
+      "getPeople",
+      "getPrivateRegistry",
+      "getSearchIdeas",
+      "hideEntity",
+      "isJoined",
+      "join",
+      "listHidden",
+      "respondFriend",
+      "search",
+      "unfollowChannel",
+      "unhideEntity"
+    ]
+  },
+  "systemRepository": {
+    "supabaseFile": null,
+    "callsMade": 26,
+    "implemented": 0,
+    "missingInLive": [
+      "enqueue",
+      "getActivity",
+      "getCache",
+      "getConnection",
+      "getDataSaved",
+      "getDeliveryOptions",
+      "getInternetRelay",
+      "getLocalContent",
+      "getLocalMesh",
+      "getNearby",
+      "getOfflineables",
+      "getPrefs",
+      "getRelayChoices",
+      "getRelayMessages",
+      "getRelayPolicy",
+      "getScenarioKey",
+      "getTransports",
+      "listQueue",
+      "relayMessage",
+      "saveOffline",
+      "savePrefs",
+      "setInternetRelayEnabled",
+      "setRelayChoice",
+      "setRelayDailyLimit",
+      "shareNearby",
+      "syncQueue"
+    ]
+  },
+  "mockContentRepository": {
+    "supabaseFile": null,
+    "callsMade": 1,
+    "implemented": 0,
+    "missingInLive": [
+      "listSaved"
+    ]
+  },
+  "catalogRepository": {
+    "supabaseFile": null,
+    "callsMade": 6,
+    "implemented": 0,
+    "missingInLive": [
+      "getContentFilters",
+      "getEntityVocabulary",
+      "getFeedPreferences",
+      "getHomeTabs",
+      "getProductInfo",
+      "getViewModes"
+    ]
+  },
+  "activityRepository": {
+    "supabaseFile": "supabaseActivityRepository.js",
+    "callsMade": 3,
+    "implemented": 1,
+    "missingInLive": [
+      "markAllRead",
+      "markRead"
+    ]
+  },
+  "spacesRepository": {
+    "supabaseFile": null,
+    "callsMade": 13,
+    "implemented": 0,
+    "missingInLive": [
+      "attendEvent",
+      "createSpace",
+      "getEvents",
+      "getResources",
+      "getSpace",
+      "getStats",
+      "getVisibilityModel",
+      "join",
+      "leave",
+      "listMyRequests",
+      "listSpaces",
+      "requestJoin",
+      "saveResource"
+    ]
+  },
+  "supabaseContentRepository": {
+    "supabaseFile": null,
+    "callsMade": 8,
+    "implemented": 0,
+    "missingInLive": [
+      "addComment",
+      "addPost",
+      "hideItem",
+      "isLiked",
+      "isSaved",
+      "reportItem",
+      "toggleLike",
+      "toggleSaved"
+    ]
+  },
+  "supabaseIdentityRepository": {
+    "supabaseFile": null,
+    "callsMade": 4,
+    "implemented": 0,
+    "missingInLive": [
+      "getProfile",
+      "isFollowing",
+      "toggleFollow",
+      "updateProfile"
+    ]
+  }
+}

@@ -27,7 +27,6 @@ import {
   IconFile,
   IconInfo,
   IconMapPin,
-  IconMic,
   IconPhone,
   IconMoreVertical,
   IconPaperclip,
@@ -405,22 +404,19 @@ export default function Thread({
         <button type="button" className="psh-icobtn psh-chat__back" aria-label="Rudi kwenye orodha ya Chat" onClick={onBack}>
           <IconChevronLeft size={20} />
         </button>
-        <ChatAvatar tone={conv.tone} name={conv.title} icon={group ? conv.groupIcon : null} online={group ? undefined : true} />
+        {/* Presence (online/last seen) haionyeshwi: hakuna chanzo halisi cha presence bado */}
+        <ChatAvatar tone={conv.tone} name={conv.title} icon={group ? conv.groupIcon : null} />
         <span className="psh-chat__theadtext">
           <span className="psh-chat__theadname">{conv.title}</span>
           {group ? (
             <span className="psh-chat__theadsub">
               {`wanachama ${conv.members || (conv.memberIds || []).length}`}
             </span>
+          ) : conv.account?.handle ? (
+            <span className="psh-chat__theadsub">{conv.account.handle}</span>
           ) : null}
         </span>
-        {/* Simu bado hazijaunganishwa kwenye mfumo: vitufe vimezimwa kwa uaminifu */}
-        <button type="button" className="psh-icobtn psh-icobtn--off" disabled aria-label="Simu ya sauti (inakuja)" title="Simu ya sauti — inakuja">
-          <IconPhone size={19} />
-        </button>
-        <button type="button" className="psh-icobtn psh-icobtn--off" disabled aria-label="Video call (inakuja)" title="Video call — inakuja">
-          <IconVideo size={19} />
-        </button>
+        {/* Simu/video hazipo bado: vitufe havionyeshwi (hakuna utendaji halisi). */}
         <button type="button" className="psh-icobtn" aria-label="Menyu zaidi za mazungumzo" onClick={onMore}>
           <IconMoreVertical size={19} />
         </button>
@@ -439,8 +435,6 @@ export default function Thread({
       ) : null}
 
       <div className="psh-chat__messages" ref={listRef}>
-        <span className="psh-chat__day">{group ? 'Jumuiya ya Darasa · Leo' : 'Leo, 28 Mei'}</span>
-
         {withNames.map((m) => (
           <MessageBubble
             key={m.id}
@@ -462,14 +456,6 @@ export default function Thread({
           />
         ))}
 
-        {group ? (
-          <span className="psh-chat__typing">
-            <span className="psh-chat__typingdots" aria-hidden="true">
-              <i /><i /><i />
-            </span>
-            Dr. Kelvin anaandika
-          </span>
-        ) : null}
       </div>
 
       {reply ? (
@@ -510,14 +496,7 @@ export default function Thread({
           }}
           aria-label="Andika ujumbe"
         />
-        <button
-          type="button"
-          className="psh-chat__cbtn"
-          aria-label="Rekodi sauti"
-          onClick={() => onSend({ kind: 'audio', audio: { duration: '0:14', progress: 0.2, bars: 20, label: 'Sauti' } })}
-        >
-          <IconMic size={20} />
-        </button>
+        {/* Kurekodi sauti bado hakuna: kitufe cha maikrofoni kimeondolewa (kilituma ujumbe wa kubuni). */}
         <button
           type="button"
           className="psh-chat__cbtn psh-chat__cbtn--send"
@@ -661,9 +640,15 @@ export default function Thread({
                           disabled={forwardBusy === c.id}
                           onClick={async () => {
                             setForwardBusy(c.id)
-                            const res = await chatService.sendMessage(c.id, {
-                              text: action.text || action.doc?.name || 'Ujumbe uliosambazwa',
-                            })
+                            let res = null
+                            try {
+                              res = await chatService.sendMessage(c.id, {
+                                text: action.text || action.doc?.name || 'Ujumbe uliosambazwa',
+                              })
+                            } catch (err) {
+                              res = null
+                              onToast?.(`Haikutumwa: ${err?.message || 'hitilafu'}`)
+                            }
                             setForwardBusy(null)
                             if (!res?.message) {
                               onToast?.('Haikutumwa — angalia hali ya mtandao')

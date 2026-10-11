@@ -58,10 +58,10 @@ html[data-chrome='hidden'] .psh-nav {
 /* ── 3. Skrini nzima (simu pekee; desktop haibadiliki) ──── */
 @media (max-width: 1023px) {
   /* Mazungumzo wazi: header ya Chat yenyewe ndiyo kichwa */
-  .psh-app:has(.psh-chat[data-mobile-view='thread']) > .psh-header,
-  .psh-app:has(.psh-chat[data-mobile-view='thread']) > .psh-nav,
-  .psh-app:has(.psh-sp--detail) > .psh-header,
-  .psh-app:has(.psh-sp--detail) > .psh-nav {
+  .psh-app:has(.psh-route:not([hidden]) .psh-chat[data-mobile-view='thread']) > .psh-header,
+  .psh-app:has(.psh-route:not([hidden]) .psh-chat[data-mobile-view='thread']) > .psh-nav,
+  .psh-app:has(.psh-route:not([hidden]) .psh-sp--detail) > .psh-header,
+  .psh-app:has(.psh-route:not([hidden]) .psh-sp--detail) > .psh-nav {
     display: none;
   }
 

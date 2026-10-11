@@ -494,6 +494,89 @@
   border-color: var(--c-green);
   box-shadow: 0 0 0 3px var(--c-green-soft);
 }
+.psh-compose-media {
+  display: grid;
+  gap: var(--s-2);
+}
+.psh-compose-media__pickers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+.psh-compose-media__picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+.psh-compose-media__picker[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.psh-compose-media__picker:focus-visible,
+.psh-compose-media input:focus-visible + .psh-compose-media__picker {
+  outline: 2px solid var(--c-green);
+  outline-offset: 2px;
+}
+.psh-compose-media__empty,
+.psh-compose-media__state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 76px;
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+  background: var(--bg-subtle);
+  color: var(--t-3);
+  text-align: center;
+  font-size: var(--fs-13);
+}
+.psh-compose-media__empty p { margin: 0; }
+.psh-compose-media__empty svg { flex: 0 0 auto; }
+.psh-compose-media__preview {
+  width: min(100%, 520px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-subtle);
+}
+.psh-compose-media__preview img,
+.psh-compose-media__preview video {
+  display: block;
+  width: 100%;
+  max-height: min(52vh, 420px);
+  object-fit: contain;
+  background: #111;
+}
+.psh-compose-media__fileline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding: 8px 10px;
+}
+.psh-compose-media__fileline > span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--t-2);
+  font-size: var(--fs-12);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psh-compose__error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--c-error);
+  border-radius: var(--r-sm);
+  color: var(--c-error);
+  background: var(--bg-subtle);
+  font-size: var(--fs-13);
+  line-height: 1.5;
+}
 
 /* ── Kichwa cha panel: sentensi ya hali ────────────────────── */
 

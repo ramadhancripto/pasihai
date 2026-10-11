@@ -16,11 +16,39 @@
 // ══════════════════════════════════════════════════════════════
 
 import { supabase, isSupabaseLive } from '../../lib/supabaseClient.js'
+import { chatFilters } from '../mock.js'
 
 /* ── Error handling helper ────────────────────────────────── */
 function handleError(error, context) {
   console.error(`[SupabaseChatRepository] ${context}:`, error)
   return null
+}
+
+/* ── Helpers za ujumbe ──────────────────────────────────── */
+async function requireUser(action) {
+  if (!isSupabaseLive || !supabase) {
+    throw new Error(`${action}: Supabase live haijawezeshwa.`)
+  }
+  const { data, error } = await supabase.auth.getUser()
+  if (error || !data?.user) throw new Error(`${action}: hujaingia. Ingia tena.`)
+  return { user: data.user }
+}
+
+function toUiMessage(row, myId) {
+  const at = row.created_at
+    ? new Date(row.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    : ''
+  return {
+    id: row.id,
+    from: row.sender_id === myId ? 'me' : 'them',
+    kind: row.media_url ? (row.media_type || 'media') : 'text',
+    text: row.text || '',
+    at,
+    createdAt: row.created_at,
+    state: 'synced',
+    replyToId: row.reply_to_id || null,
+    mediaUrl: row.media_url || null,
+  }
 }
 
 /* ── Supabase conversation row → conversation object ──────── */
@@ -182,52 +210,60 @@ export const supabaseChatRepository = {
   },
 
   /* ── WRITE: Send message ────────────────────────────────── */
-  async sendMessage(conversationId, text, mediaUrl = null, mediaType = null, replyToId = null) {
-    if (!conversationId || !text || !isSupabaseLive || !supabase) return null
+  /* Labels za vichujio vya UI (sio data ya mtumiaji). */
+  async getFilters() {
+    return chatFilters.map((f) => ({ ...f }))
+  },
 
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return null
+  /* Ujumbe wa mazungumzo, umbo la UI: from 'me' | 'them'. Makosa yanatupwa, si null. */
+  async listMessages(conversationId) {
+    const { user } = await requireUser('Kusoma ujumbe')
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .select('id, text, sender_id, media_url, media_type, reply_to_id, created_at')
+      .eq('conversation_id', conversationId)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(50)
+    if (error) throw new Error(`Ujumbe haujapakiwa: ${error.message}`)
+    return (data || []).reverse().map((m) => toUiMessage(m, user.id))
+  },
 
-      // Verify user is participant
-      const { data: participation } = await supabase
-        .from('chat_participants')
-        .select('user_id')
-        .eq('conversation_id', conversationId)
-        .eq('user_id', user.id)
-        .single()
-
-      if (!participation) return null // Not a participant
-
-      // Insert message
-      const { data: message, error } = await supabase
-        .from('chat_messages')
-        .insert({
-          conversation_id: conversationId,
-          sender_id: user.id,
-          text: text.trim(),
-          media_url: mediaUrl,
-          media_type: mediaType,
-          reply_to_id: replyToId,
-        })
-        .select('id, text, sender_id, media_url, media_type, reply_to_id, created_at')
-        .single()
-
-      if (error) throw error
-
-      return {
-        id: message.id,
-        text: message.text,
-        senderId: message.sender_id,
-        mediaUrl: message.media_url,
-        mediaType: message.media_type,
-        replyToId: message.reply_to_id,
-        createdAt: message.created_at,
-      }
-    } catch (err) {
-      handleError(err, 'sendMessage')
-      return null
+  /* Inakubali (convId, { text }) au (convId, text). Inatupa kosa kama ujumbe haujahifadhiwa.
+     Inarudisha ujumbe kwa umbo la UI; state 'synced' inamaanisha INSERT ilirudisha safu. */
+  async sendMessage(conversationId, input = {}, mediaUrl = null, mediaType = null, replyToId = null) {
+    const payload = typeof input === 'string' ? { text: input } : (input || {})
+    if (payload.kind && payload.kind !== 'text') {
+      throw new Error('Aina hii ya ujumbe bado haijaunganishwa na live. Tuma maandishi pekee.')
     }
+    const text = String(payload.text ?? '').trim()
+    if (!conversationId) throw new Error('Mazungumzo hayajachaguliwa.')
+    if (!text) throw new Error('Ujumbe ni tupu.')
+    const { user } = await requireUser('Kutuma ujumbe')
+
+    const { data: participation, error: pErr } = await supabase
+      .from('chat_participants')
+      .select('user_id')
+      .eq('conversation_id', conversationId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (pErr) throw new Error(`Ruhusa ya mazungumzo haijathibitishwa: ${pErr.message}`)
+    if (!participation) throw new Error('Huna ruhusa ya kutuma kwenye mazungumzo haya.')
+
+    const { data: message, error } = await supabase
+      .from('chat_messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        text,
+        media_url: mediaUrl,
+        media_type: mediaType,
+        reply_to_id: replyToId,
+      })
+      .select('id, text, sender_id, media_url, media_type, reply_to_id, created_at')
+      .single()
+    if (error) throw new Error(`Ujumbe haujahifadhiwa: ${error.message}`)
+    return toUiMessage(message, user.id)
   },
 
   /* ── WRITE: Start direct conversation ───────────────────── */
@@ -270,13 +306,14 @@ export const supabaseChatRepository = {
 
       if (error) throw error
 
-      // Add participants
-      await supabase
+      // Add participants. Kosa lazima lionekane; conversation isiyo na washiriki wote haitangazwi kama imefanikiwa.
+      const { error: participantsError } = await supabase
         .from('chat_participants')
         .insert([
           { conversation_id: conv.id, user_id: user.id },
           { conversation_id: conv.id, user_id: otherUserId },
         ])
+      if (participantsError) throw participantsError
 
       return { conversationId: conv.id }
     } catch (err) {

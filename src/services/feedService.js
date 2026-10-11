@@ -17,7 +17,11 @@ import {
   contentRepository,
   identityRepository,
   catalogRepository,
+  REPOSITORY_MODE,
 } from '../data/repositories/index.js'
+import { ValidationError } from '../utils/errors.js'
+import { validatePostMediaFile, PostMediaConfigurationError } from '../utils/postMedia.js'
+import { StatusConfigurationError, validateStatusDraft } from '../utils/statusMedia.js'
 
 /* ── Uzito wa uhusiano (deterministic mock relevance) ─────── */
 const RELATIONSHIP_WEIGHT = {
@@ -185,7 +189,16 @@ export const feedService = {
       this.loadFeedState(),
     ])
     // Posts zangu zinafuata sheria za feed (si pinned).
-    const all = [...myPosts, ...feed].filter((i) => !state.hidden.includes(i.id))
+    // Dedupe kwa id: listFeed() inaweza kujumuisha posts zangu pia (Supabase).
+    const seenIds = new Set()
+    const all = [...myPosts, ...feed]
+      .filter((i) => {
+        if (!i?.id) return true // items bila id hazifutwi
+        if (seenIds.has(i.id)) return false
+        seenIds.add(i.id)
+        return true
+      })
+      .filter((i) => !state.hidden.includes(i.id))
     const { entities, followed } = state
 
     // 1) unganisha entity kwanza, kisha 2) hesabu uanachama wa tab kwa sheria
@@ -275,13 +288,54 @@ export const feedService = {
     return contentRepository.reportItem(itemId, reason)
   },
 
-  /** Chapisha chapisho jipya la mtumiaji (halisi — linaonekana juu ya mkondo) */
-  async createPost(draft) {
-    const kind = draft.kind ?? 'text'
+  /** Hifadhi post; picha/video lazima zitokane na faili halisi na Storage. */
+  async createPost(draft = {}) {
+    const requestedKind = draft.kind ?? 'text'
+    const normalizedKind = requestedKind === 'post'
+      ? 'text'
+      : requestedKind === 'photo'
+        ? 'photo'
+        : requestedKind
+    const file = draft.file || null
+    let fileDetails = null
+
+    if (file) {
+      const expectedType = normalizedKind === 'image'
+        ? 'image'
+        : normalizedKind === 'video' || normalizedKind === 'reel'
+          ? 'video'
+          : null
+      fileDetails = validatePostMediaFile(file, expectedType)
+      if (REPOSITORY_MODE !== 'supabase') throw new PostMediaConfigurationError()
+    } else if (['photo', 'image', 'video', 'reel'].includes(normalizedKind)) {
+      throw new ValidationError(
+        normalizedKind === 'video' || normalizedKind === 'reel'
+          ? 'Chagua faili la video kabla ya kuchapisha.'
+          : 'Chagua faili la picha kabla ya kuchapisha.',
+      )
+    }
+
+    // "photo" ni chaguo la UI la picha-au-video; aina halisi huamuliwa na faili.
+    // "post" ni alias ya text ya CreateArea, si aina ya posts table.
+    const kind = file
+      ? (normalizedKind === 'reel' ? 'reel' : fileDetails.mediaType)
+      : normalizedKind === 'photo'
+        ? 'image'
+        : normalizedKind
     const TONE = ['green', 'blue', 'gold', 'teal', 'plum', 'clay', 'slate']
     const tone = draft.tone || TONE[Math.floor(Math.random() * TONE.length)]
 
     const payload = { ...draft, kind }
+    if (fileDetails) {
+      payload.mediaType = fileDetails.mediaType
+      payload.mediaMeta = {
+        ...(draft.mediaMeta || {}),
+        mediaType: fileDetails.mediaType,
+        mimeType: fileDetails.mimeType,
+        size: fileDetails.size,
+        ratio: kind === 'reel' ? '9 / 16' : fileDetails.mediaType === 'video' ? '16 / 9' : '4 / 3',
+      }
+    }
 
     if (kind === 'poll') {
       payload.poll = {
@@ -291,10 +345,8 @@ export const feedService = {
       }
       payload.filters = ['polls', 'posts']
     } else if (kind === 'image') {
-      payload.media = { tone, ratio: '4 / 3', caption: draft.text || 'Picha yangu' }
       payload.filters = ['picha', 'posts']
     } else if (kind === 'video' || kind === 'reel') {
-      payload.media = { tone, ratio: kind === 'reel' ? '9 / 16' : '16 / 9', duration: kind === 'reel' ? '0:18' : '1:20', views: 0, caption: draft.text || 'Video yangu' }
       payload.filters = kind === 'reel' ? ['reels', 'video'] : ['video', 'posts']
       if (kind === 'reel') payload.source = 'reel'
     } else if (kind === 'audio') {
@@ -342,9 +394,17 @@ export const feedService = {
     return contentRepository.listMyLive()
   },
 
-  /** Status/Story: inaonekana kwenye safu ya Status kwa saa 24 (mock) */
-  async createStatus(payload) {
-    return contentRepository.addStatus(payload)
+  /** Status: maandishi ni ya hiari ikiwa faili halali imechaguliwa. */
+  async createStatus(payload = {}) {
+    const validated = validateStatusDraft(payload)
+    if (REPOSITORY_MODE !== 'supabase') throw new StatusConfigurationError()
+    return contentRepository.addStatus({ ...payload, ...validated })
+  },
+
+  /** Futa status; ruhusa ya mwisho inatekelezwa na RLS. */
+  async deleteStatus(statusId) {
+    if (!statusId) return { deleted: false, id: statusId }
+    return contentRepository.deleteStatus(statusId)
   },
 
   /** Kufuata: chanzo kimoja ni identityRepository (§ subscriptions) */

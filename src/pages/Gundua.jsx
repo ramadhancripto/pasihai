@@ -80,7 +80,15 @@ export default function Gundua({ onToast, onOpenChat }) {
     () => ({
       open: (kind, id) => push({ key: 'entity', payload: { kind, id } }),
       more: (item) => push({ key: 'quick', payload: item }),
-      add: async (person) => { await gunduaService.addFriend(person.id); onToast?.(`Ombi la urafiki limetumwa kwa ${person.name || 'mtu huyu'}`); reload() },
+      add: async (person) => {
+        try {
+          const res = await gunduaService.addFriend(person.id)
+          onToast?.(res?.changed === false ? res.hint || 'Hakuna mabadiliko' : `Ombi la urafiki limetumwa kwa ${person.name || 'mtu huyu'}`)
+        } catch (err) {
+          onToast?.(err?.message || 'Ombi halikutumwa. Jaribu tena.')
+        }
+        reload()
+      },
       accept: async (person) => { await gunduaService.respondFriend(person.id, 'accept'); onToast?.(`${person.name || 'Mtumiaji'} amekubaliwa — mazungumzo yapo Chat`); reload() },
       decline: async (person) => { await gunduaService.respondFriend(person.id, 'decline'); onToast?.('Ombi la urafiki limekataliwa'); reload() },
       chat: async (item) => {

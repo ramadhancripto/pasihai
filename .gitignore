@@ -8,3 +8,14 @@ dist
 .env
 .env.local
 .env.*.local
+supabase/.temp/
+
+# Additional secret protection
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+service-account*.json
+*service-account*.json
+credentials.json

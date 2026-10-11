@@ -4,7 +4,7 @@
 // ══════════════════════════════════════════════════════════════
 
 import { initials } from '../ui.jsx'
-import { IconHub, IconSpaces, IconCheck, IconChecks, IconRelay, IconRadar, IconDatabase } from '../icons.jsx'
+import { IconHub, IconSpaces, IconCheck, IconRelay, IconRadar, IconDatabase } from '../icons.jsx'
 
 const GROUP_ICON = { group: IconSpaces, hub: IconHub, community: IconSpaces }
 
@@ -20,11 +20,14 @@ export function ChatAvatar({ tone = 'green', name = '', icon, online, size = 'md
 }
 
 /** Ticks za delivery: sent = ✓ moja, synced/relayed = ✓✓ */
+/* Alama moja tu: "Imetumwa". Alama mbili ("Imefika") hazionyeshwi kwa sasa kwa sababu
+   mfumo hauna risiti halisi ya kupokelewa/kusomwa na mpokeaji. `state` inabaki kwa
+   matumizi ya baadaye; hali ya njia (relay/mesh/vault) inaonyeshwa na MethodNote. */
+// eslint-disable-next-line no-unused-vars
 export function Ticks({ state }) {
-  const double = state === 'synced' || state === 'relayed' || state === 'local'
   return (
-    <span className="psh-msg__ticks" aria-label={double ? 'Imefika' : 'Imetumwa'}>
-      {double ? <IconChecks size={13} strokeWidth={2} /> : <IconCheck size={13} strokeWidth={2} />}
+    <span className="psh-msg__ticks" aria-label="Imetumwa" title="Imetumwa">
+      <IconCheck size={13} strokeWidth={2} />
     </span>
   )
 }

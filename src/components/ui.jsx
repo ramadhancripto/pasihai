@@ -284,10 +284,7 @@ export function defaultRelationship(user) {
   return user.relationship ?? REL_BY_TYPE[user.type] ?? 'Mtumiaji'
 }
 
-/* ── MediaFrame: nafasi ya picha/video ya majaribio ───────── */
-// Prototype hii haitumii picha za interneti. Tunatumia fremu ya hila
-// inayoonyesha aina ya media, uwiano na maelezo.
-
+/* ── MediaFrame: mock placeholder au media iliyohifadhiwa ─── */
 export function MediaFrame({
   tone = 'green',
   ratio = '4 / 3',
@@ -297,17 +294,33 @@ export function MediaFrame({
   children,
   rounded = true,
   showCaption = true,
+  mediaUrl,
+  mediaType = 'image',
 }) {
+  const hasMedia = Boolean(mediaUrl)
   return (
     <div
       className={`psh-media ${rounded ? 'psh-media--rounded' : ''} psh-media--tone-${tone}`}
       style={{ aspectRatio: ratio }}
-      role="img"
+      role={hasMedia && mediaType === 'video' ? undefined : 'img'}
       aria-label={caption || 'Media'}
     >
-      <div className="psh-media__glyph" aria-hidden="true">
-        {icon}
-      </div>
+      {hasMedia ? (
+        mediaType === 'video' ? (
+          <video
+            className="psh-media__asset psh-media__asset--video"
+            src={mediaUrl}
+            controls
+            playsInline
+            preload="metadata"
+            aria-label={caption || 'Video ya chapisho'}
+          />
+        ) : (
+          <img className="psh-media__asset psh-media__asset--image" src={mediaUrl} alt={caption || 'Picha ya chapisho'} loading="lazy" />
+        )
+      ) : (
+        <div className="psh-media__glyph" aria-hidden="true">{icon}</div>
+      )}
       {overlay}
       {caption && showCaption ? <div className="psh-media__caption">{caption}</div> : null}
       {children}

@@ -81,7 +81,7 @@ check('1.2: Database is open', info.isOpen === true)
 check('1.3: Database name is "pasihai"', info.name === 'pasihai')
 
 // 1.4: Database version is correct
-check('1.4: Database version is 2', info.version === 2)
+check('1.4: Database version is 3 (v3 adds contentSharingIndex)', info.version === 3)
 
 // ── Test 2: Posts store — CRUD operations ───────────────────
 console.log('')

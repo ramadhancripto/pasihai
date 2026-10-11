@@ -61,7 +61,12 @@ export default function Home({
         modeLabel={activeMode?.label}
       />
 
-      <CreateArea onCreate={onCreate} prompt={activeTab?.prompt} />
+      <CreateArea
+        onCreate={onCreate}
+        prompt={activeTab?.prompt}
+        onPosted={() => onRefreshFeed?.()}
+        onToast={onToast}
+      />
 
       {/* Mstari wa hali: inaonyesha tab · muonekano · kichujio vilivyochaguliwa.
           Hii inafanya View Mode na Filter kuonekana BILA kujaza skrini. */}

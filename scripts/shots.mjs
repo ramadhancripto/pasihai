@@ -103,10 +103,11 @@ assert(
 await textOf(m, '.psh-header__brand', 'Pasihai', 'Header inaonyesha wordmark "Pasihai"')
 await countOf(m, '.psh-header__right .psh-icobtn', 3, 'Header: icons tatu (taarifa · akaunti · zaidi)')
 
-/* ── Status / Stories ────────────────────────────────────── */
-await countOf(m, '.psh-status__item:not(.psh-status__item--more)', 13, 'Status/Stories: status 13 zinaonekana')
-await textOf(m, '.psh-status__name', 'Status Yako', 'Status: "Status Yako" ni ya kwanza')
-await textOf(m, '.psh-status__item:nth-child(2)', 'Amina', 'Status: Amina ni wa pili')
+/* ── Status / Stories (mock content imeondolewa; own slot si Status fake) ─ */
+await countOf(m, '.psh-status__item[data-status-own="true"]', 1, 'Status/Stories: own slot moja tu')
+await countOf(m, '.psh-status__item:not(.psh-status__item--more)', 1, 'Status/Stories: hakuna Status za demo')
+await textOf(m, '.psh-status__name', 'Status Yako', 'Status: own create slot ina jina moja')
+await textOf(m, '.psh-status__empty-note', 'Hakuna status hai', 'Status: empty state iko wazi')
 
 /* ── Mchanganyiko: mkondo wa Home (Phase 2A) ─────────────── */
 assert((await feedCount(m)) === 20, 'Mkondo: Mchanganyiko una vipengele 20', `${await feedCount(m)}`)
@@ -747,7 +748,7 @@ await lim.close()
 const d = await newPage({ width: 1280, height: 900 })
 await d.goto(BASE, { waitUntil: 'networkidle' })
 await sleep(400)
-await countOf(d, '.psh-status__item:not(.psh-status__item--more)', 13, 'Desktop: status zinaonekana')
+await countOf(d, '.psh-status__item[data-status-own="true"]', 1, 'Desktop: own Status entry ni moja')
 await countOf(d, '.psh-ctl', 2, 'Desktop: vitendo 2 vya mfumo')
 assert(
   (await shownText(d, '.psh-ctl--saved')) === '184 MB saved',
@@ -802,7 +803,7 @@ await sleep(250)
 await d.setViewportSize({ width: 834, height: 1000 })
 await d.goto(BASE, { waitUntil: 'networkidle' })
 await sleep(400)
-await countOf(d, '.psh-status__item:not(.psh-status__item--more)', 13, 'Tablet: status zinaonekana')
+await countOf(d, '.psh-status__item[data-status-own="true"]', 1, 'Tablet: own Status entry ni moja')
 await d.screenshot({ path: `${OUT}/30-home-tablet.png` })
 await d.close()
 
@@ -1490,7 +1491,7 @@ await pr.screenshot({ path: `${OUT6}/06-live-ended.png` })
 await pr.keyboard.press('Escape')
 await sleep(400)
 
-/* ── 06 Status: kuunda (inaonekana kwenye safu) ───────────── */
+/* ── 06 Status: composer bila backend huonyesha setup error ─ */
 await pr.locator('.psh-createbar__plus').click()
 await sleep(600)
 await pr.getByRole('button', { name: /^Status/ }).first().click()
@@ -1498,9 +1499,16 @@ await sleep(700)
 await textOf(pr, '.psh-sheet__title', 'Status yangu', 'M: panel ya Status inafunguka')
 await pr.locator('.psh-compose__input').fill('Leo niko Kariakoo — mchana mzuri!')
 await pr.getByRole('button', { name: 'Chapisha status' }).click()
-await sleep(900)
-await textOf(pr, '.psh-status__item', 'Leo niko Kariakoo', 'M: status yangu mpya inaonekana kwenye safu ya Status')
-await pr.screenshot({ path: `${OUT6}/07-status-created.png` })
+await sleep(500)
+await textOf(pr, '.psh-status-feedback--error', 'VITE_SUPABASE_MODE=live', 'M: Status haionyeshi mafanikio ya mock')
+assert(
+  (await pr.locator('.psh-status__item[data-status-own="true"]').count()) === 1
+    && (await pr.locator('.psh-toast').count()) === 0,
+  'M: hakuna Status ya pili/toast ya mafanikio bila Supabase',
+)
+await pr.screenshot({ path: `${OUT6}/07-status-setup-required.png` })
+await pr.keyboard.press('Escape')
+await sleep(350)
 
 /* ── 07 Zilizohifadhiwa (orodha halisi) ───────────────────── */
 await pr.locator('.psh-header__right .psh-icobtn').nth(2).click()

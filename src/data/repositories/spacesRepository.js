@@ -27,12 +27,13 @@ import {
   users,
   me,
 } from '../mock.js'
-import {
-  identityRepository,
-  contentRepository,
-  systemRepository,
-  gunduaRepository,
-} from './index.js'
+// Repositories hizi zinasajiliwa na index.js baada ya kuundwa (bila mzunguko wa imports).
+import { lazyRepo } from './lazyRepo.js'
+
+const identityRepository = lazyRepo('identityRepository')
+const contentRepository = lazyRepo('contentRepository')
+const systemRepository = lazyRepo('systemRepository')
+const gunduaRepository = lazyRepo('gunduaRepository')
 
 /* ── Hali ya kikao (haipotei hadi app ifungwe — prototype) ───
    Hii ni hali ya MTUMIAJI MWENYEWE pekee: maombi niliyotuma,

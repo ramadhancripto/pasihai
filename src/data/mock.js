@@ -598,21 +598,8 @@ export const me = {
 
 /* ── Status / Stories (safu inayosogea kwa mlalo) ─────────── */
 
-export const statuses = [
-  { id: 'st-you', userId: 'me', label: 'Status Yako', own: true, viewed: true },
-  { id: 'st-amina', userId: 'amina', label: 'Amina', viewed: false, ring: 'friend', hasVideo: false, ago: '12 dak' },
-  { id: 'st-juma', userId: 'juma', label: 'Juma', viewed: false, ring: 'friend', hasVideo: true, ago: '34 dak' },
-  { id: 'st-sara', userId: 'sara', label: 'Sara', viewed: false, ring: 'friend', hasVideo: false, live: true, ago: '1 saa' },
-  { id: 'st-hassan', userId: 'hassan', label: 'Hassan', viewed: false, ring: 'friend', hasVideo: false, ago: '2 saa' },
-  { id: 'st-fatma', userId: 'fatma', label: 'Fatma', viewed: false, ring: 'friend', hasVideo: true, ago: '3 saa' },
-  { id: 'st-updates', userId: 'pasihaiUpdates', label: 'Pasihai', viewed: true, ring: 'channel', ago: '5 saa' },
-  { id: 'st-tech', userId: 'techSasa', label: 'Tech Sasa', viewed: true, ring: 'channel', ago: '7 saa' },
-  { id: 'st-dartech', userId: 'darTechHub', label: 'Dar Tech', viewed: false, ring: 'hub', ago: '9 saa' },
-  { id: 'st-store', userId: 'exampleStore', label: 'Store', viewed: true, ring: 'business', ago: '11 saa' },
-  { id: 'st-elimu', userId: 'elimuYetu', label: 'Elimu', viewed: false, ring: 'channel', ago: '13 saa' },
-  { id: 'st-creators', userId: 'tzCreators', label: 'Creators', viewed: true, ring: 'hub', ago: '15 saa' },
-  { id: 'st-neema', userId: 'neemaBeats', label: 'Neema', viewed: false, ring: 'creator', live: true, ago: '18 saa' },
-]
+// Status si seeded kwenye mock data: bila backend live, StatusRow/All huonyesha empty state.
+export const statuses = []
 
 /* ── Feed navigation ──────────────────────────────────────── */
 

@@ -84,9 +84,11 @@ check('2.1: addPost inatumia idempotency_key',
   contentRepoCode.includes('insertData.idempotency_key = options.idempotencyKey'))
 
 // 2.2: addPost inashughulikia duplicate error (23505)
-check('2.2: addPost inashughulikia duplicate error (23505)',
+// Tabia: insert ikigonga 23505 kwa idempotency_key, addPost inasoma row iliyopo kwa key hiyo.
+// (Sasa inakagua tabia, si sentensi mahususi ya log.)
+check('2.2: addPost inashughulikia duplicate error (23505) kwa idempotency_key',
   contentRepoCode.includes("error.code === '23505'") &&
-  contentRepoCode.includes('Duplicate detected, fetching existing'))
+  contentRepoCode.includes(".eq('idempotency_key', options.idempotencyKey)"))
 
 // 2.3: addComment inatumia idempotency_key
 check('2.3: addComment inatumia idempotency_key',
@@ -173,8 +175,9 @@ console.log('')
 console.log('── 4. Handler Signatures ──')
 
 // 4.1: addPost inapokea options parameter
+// Signature: `draft` yenye au bila default (`draft = {}`) — zote zinakubalika.
 check('4.1: addPost(draft, options = {})',
-  contentRepoCode.includes('async addPost(draft, options = {})'))
+  /async addPost\(draft(\s*=\s*\{\})?,\s*options\s*=\s*\{\}\)/.test(contentRepoCode))
 
 // 4.2: addComment inapokea options parameter
 check('4.2: addComment(itemId, text, options = {})',

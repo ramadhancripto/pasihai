@@ -12,7 +12,7 @@ CREATE TABLE chat_conversations (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   type        TEXT NOT NULL DEFAULT 'direct'
                 CHECK (type IN ('direct', 'group')),
-  title       TEXT CHECK (type = 'group' AND char_length(title) >= 1 AND char_length(title) <= 100),
+  title       TEXT CHECK (type = 'direct' OR (type = 'group' AND char_length(title) >= 1 AND char_length(title) <= 100)),
   created_by  UUID REFERENCES profiles(user_id) ON DELETE SET NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()

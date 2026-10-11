@@ -1,3 +1,5 @@
+import { parseContent } from '../../utils/postContent.js'
+import StructuredPost from '../studio/StructuredPost.jsx'
 // ══════════════════════════════════════════════════════════════
 // PASIHAI — FEED BODIES
 //
@@ -30,12 +32,17 @@ import {
 /* ── Prima: maandishi ya chapisho ─────────────────────────── */
 function FeedText({ text }) {
   if (!text) return null
+  // Chapisho lenye muundo (Makala, Tangazo, Nukuu) lina envelope yenye marker.
+  const structured = parseContent(text)
+  if (structured) return <StructuredPost content={structured} />
   return <p className="psh-feedtext">{text}</p>
 }
 
 /* ── Prima: media yenye play/duration ─────────────────────── */
 function MediaWithOverlay({ media, tone, icon, rounded = true }) {
   const Icon = icon
+  const hasPlayableVideo = Boolean(media?.url && (media?.mediaType === 'video' || Icon))
+  const placeholderIcon = Icon && !hasPlayableVideo ? <Icon size={26} /> : null
   return (
     <MediaFrame
       tone={media?.tone ?? 'green'}
@@ -43,27 +50,31 @@ function MediaWithOverlay({ media, tone, icon, rounded = true }) {
       caption={media?.caption}
       rounded={rounded}
       showCaption={!Icon}
-      icon={Icon ? <Icon size={26} /> : null}
+      icon={placeholderIcon}
+      mediaUrl={media?.url}
+      mediaType={media?.mediaType || (Icon ? 'video' : 'image')}
       overlay={
-        <>
-          {Icon ? <span className="psh-media__scrim" aria-hidden="true" /> : null}
-          {Icon && media?.views ? (
-            <span className="psh-media__views">
-              <IconEye size={12} />
-              {media.views}
-            </span>
-          ) : null}
-          {Icon && media?.duration ? (
-            <span className="psh-media__dur">{media.duration}</span>
-          ) : null}
-          {Icon ? (
-            <span className="psh-media__play" aria-hidden="true">
-              <span className="psh-media__playbtn">
-                <IconPlay size={18} />
+        hasPlayableVideo ? null : (
+          <>
+            {Icon ? <span className="psh-media__scrim" aria-hidden="true" /> : null}
+            {Icon && media?.views ? (
+              <span className="psh-media__views">
+                <IconEye size={12} />
+                {media.views}
               </span>
-            </span>
-          ) : null}
-        </>
+            ) : null}
+            {Icon && media?.duration ? (
+              <span className="psh-media__dur">{media.duration}</span>
+            ) : null}
+            {Icon ? (
+              <span className="psh-media__play" aria-hidden="true">
+                <span className="psh-media__playbtn">
+                  <IconPlay size={18} />
+                </span>
+              </span>
+            ) : null}
+          </>
+        )
       }
     />
   )
@@ -331,11 +342,27 @@ export function ReelBody({ item }) {
   const media = item.media ?? {}
   return (
     <div className="psh-reel">
-      <span className={`psh-reel__thumb psh-reel__thumb--tone-${media.tone ?? 'green'}`} aria-hidden="true">
-        <span className="psh-reel__play">
-          <IconPlay size={16} />
-        </span>
-        {media.duration ? <span className="psh-reel__dur">{media.duration}</span> : null}
+      <span
+        className={`psh-reel__thumb psh-reel__thumb--tone-${media.tone ?? 'green'}`}
+        aria-hidden={media.url ? undefined : 'true'}
+      >
+        {media.url ? (
+          <video
+            className="psh-reel__video"
+            src={media.url}
+            controls
+            playsInline
+            preload="metadata"
+            aria-label={item.text ? `Video ya Reel: ${item.text}` : 'Video ya Reel'}
+          />
+        ) : (
+          <>
+            <span className="psh-reel__play">
+              <IconPlay size={16} />
+            </span>
+            {media.duration ? <span className="psh-reel__dur">{media.duration}</span> : null}
+          </>
+        )}
       </span>
 
       <div className="psh-reel__meta">

@@ -51,6 +51,40 @@
   color: var(--t-2);
 }
 
+.psh-page-status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--line-2);
+  border-left: 3px solid var(--c-gold);
+  border-radius: var(--r-md);
+  background: var(--c-gold-soft);
+}
+.psh-page-status__icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: var(--t-1);
+}
+.psh-page-status__copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-page-status__copy strong {
+  display: block;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--t-1);
+}
+.psh-page-status__copy p {
+  margin: 3px 0 0;
+  font-size: var(--fs-12);
+  line-height: var(--lh-snug);
+  color: var(--t-2);
+}
+
 .psh-pagelead {
   margin: 12px 0 0;
   font-size: var(--fs-15);
