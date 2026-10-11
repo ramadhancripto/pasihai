@@ -56,6 +56,7 @@ export const authService = {
             username: metadata.username || email.split('@')[0],
             ...metadata,
           },
+          emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
         },
       })
 
@@ -197,7 +198,8 @@ export const authService = {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(
-        email.trim().toLowerCase()
+        email.trim().toLowerCase(),
+        { redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined }
       )
       if (error) {
         return { error: formatAuthError(error) }

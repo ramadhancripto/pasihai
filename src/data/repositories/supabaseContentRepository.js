@@ -351,8 +351,34 @@ export const supabaseContentRepository = {
 
   /* ── READ: Space posts ──────────────────────────────────── */
   async listSpacePosts(spaceId) {
-    // Phase 1D — haijatekelezwa bado
-    return []
+    if (!isSupabaseLive || !supabase) return []
+    if (!spaceId) return []
+
+    try {
+      const { data, error } = await supabase
+        .from('space_posts')
+        .select(`
+          post_id,
+          posts!inner(
+            id, author_id, kind, text, media_url, media_meta,
+            poll_question, visibility, reactions_count, comments_count,
+            shares_count, created_at, deleted_at
+          )
+        `)
+        .eq('space_id', spaceId)
+        .is('posts.deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(50)
+
+      if (error) throw parseSupabaseError(error, 'listSpacePosts')
+
+      const postRows = (data || []).map(row => row.posts).filter(Boolean)
+      return mapSupabaseFeed({ posts: postRows })
+    } catch (err) {
+      if (err instanceof PASIHAIError) throw err
+      handleError(err, 'listSpacePosts')
+      return []
+    }
   },
 
   /* ══════════════════════════════════════════════════════════
