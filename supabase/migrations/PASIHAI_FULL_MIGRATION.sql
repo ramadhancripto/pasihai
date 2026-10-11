@@ -804,11 +804,11 @@ BEGIN
   IF TG_OP = 'INSERT' AND NEW.deleted_at IS NULL THEN
     UPDATE posts SET comments_count = comments_count + 1 WHERE id = NEW.post_id;
   ELSIF TG_OP = 'UPDATE' AND OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
-    UPDATE posts SET comments_count = comments_count - 1 WHERE id = NEW.post_id;
+    UPDATE posts SET comments_count = GREATEST(0, comments_count - 1) WHERE id = NEW.post_id;
   END IF;
   RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE TRIGGER trg_comments_count
   AFTER INSERT OR UPDATE OF deleted_at ON comments
@@ -916,11 +916,11 @@ BEGIN
   IF TG_OP = 'INSERT' THEN
     UPDATE poll_options SET votes_count = votes_count + 1 WHERE id = NEW.option_id;
   ELSIF TG_OP = 'DELETE' THEN
-    UPDATE poll_options SET votes_count = votes_count - 1 WHERE id = OLD.option_id;
+    UPDATE poll_options SET votes_count = GREATEST(0, votes_count - 1) WHERE id = OLD.option_id;
   END IF;
   RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE TRIGGER trg_poll_votes_count
   AFTER INSERT OR DELETE ON poll_votes
@@ -977,11 +977,11 @@ BEGIN
   IF TG_OP = 'INSERT' THEN
     UPDATE posts SET shares_count = shares_count + 1 WHERE id = NEW.post_id;
   ELSIF TG_OP = 'DELETE' THEN
-    UPDATE posts SET shares_count = shares_count - 1 WHERE id = OLD.post_id;
+    UPDATE posts SET shares_count = GREATEST(0, shares_count - 1) WHERE id = OLD.post_id;
   END IF;
   RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE TRIGGER trg_shares_count
   AFTER INSERT OR DELETE ON shares
@@ -1946,9 +1946,9 @@ $$ LANGUAGE plpgsql;
 -- zilizoundwa.
 -- ══════════════════════════════════════════════════════════════
 
--- 1. Tables created (inatarajiwa: 17)
+-- 1. Tables created (inatarajiwa: 22)
 SELECT 'TABLES' AS check_type, count(*) AS found,
-       CASE WHEN count(*) >= 15 THEN 'PASS' ELSE 'FAIL' END AS status
+       CASE WHEN count(*) >= 22 THEN 'PASS' ELSE 'FAIL' END AS status
 FROM information_schema.tables
 WHERE table_schema = 'public'
   AND table_name IN (
@@ -1960,9 +1960,9 @@ WHERE table_schema = 'public'
     'live_sessions','statuses','reports'
   );
 
--- 2. RLS enabled on all public tables (inatarajiwa: zote)
+-- 2. RLS enabled on all public tables (inatarajiwa: 22)
 SELECT 'RLS_ENABLED' AS check_type, count(*) AS tables_with_rls,
-       CASE WHEN count(*) >= 15 THEN 'PASS' ELSE 'FAIL' END AS status
+       CASE WHEN count(*) >= 22 THEN 'PASS' ELSE 'FAIL' END AS status
 FROM pg_tables
 WHERE schemaname = 'public'
   AND rowsecurity = true
@@ -1975,15 +1975,15 @@ WHERE schemaname = 'public'
     'live_sessions','statuses','reports'
   );
 
--- 3. Key functions exist (inatarajiwa: zote)
+-- 3. Key functions exist (inatarajiwa: 13)
 SELECT 'FUNCTIONS' AS check_type, count(*) AS found,
-       CASE WHEN count(*) >= 8 THEN 'PASS' ELSE 'FAIL' END AS status
+       CASE WHEN count(*) >= 13 THEN 'PASS' ELSE 'FAIL' END AS status
 FROM pg_proc
 WHERE proname IN (
   'handle_new_user','set_updated_at','can_see_post','is_blocked_by',
   'update_follow_counts','update_reaction_count','update_friends_count',
   'update_comment_count','update_share_count','update_poll_votes_count',
-  'update_conversation_timestamp','protect_post_counts'
+  'update_conversation_timestamp','protect_post_counts','get_unread_count'
 );
 
 -- 4. Storage buckets created (inatarajiwa: 2)

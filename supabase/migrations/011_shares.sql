@@ -29,11 +29,11 @@ BEGIN
   IF TG_OP = 'INSERT' THEN
     UPDATE posts SET shares_count = shares_count + 1 WHERE id = NEW.post_id;
   ELSIF TG_OP = 'DELETE' THEN
-    UPDATE posts SET shares_count = shares_count - 1 WHERE id = OLD.post_id;
+    UPDATE posts SET shares_count = GREATEST(0, shares_count - 1) WHERE id = OLD.post_id;
   END IF;
   RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE TRIGGER trg_shares_count
   AFTER INSERT OR DELETE ON shares

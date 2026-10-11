@@ -32,11 +32,11 @@ BEGIN
   IF TG_OP = 'INSERT' AND NEW.deleted_at IS NULL THEN
     UPDATE posts SET comments_count = comments_count + 1 WHERE id = NEW.post_id;
   ELSIF TG_OP = 'UPDATE' AND OLD.deleted_at IS NULL AND NEW.deleted_at IS NOT NULL THEN
-    UPDATE posts SET comments_count = comments_count - 1 WHERE id = NEW.post_id;
+    UPDATE posts SET comments_count = GREATEST(0, comments_count - 1) WHERE id = NEW.post_id;
   END IF;
   RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE TRIGGER trg_comments_count
   AFTER INSERT OR UPDATE OF deleted_at ON comments

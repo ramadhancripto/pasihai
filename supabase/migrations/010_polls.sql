@@ -66,11 +66,11 @@ BEGIN
   IF TG_OP = 'INSERT' THEN
     UPDATE poll_options SET votes_count = votes_count + 1 WHERE id = NEW.option_id;
   ELSIF TG_OP = 'DELETE' THEN
-    UPDATE poll_options SET votes_count = votes_count - 1 WHERE id = OLD.option_id;
+    UPDATE poll_options SET votes_count = GREATEST(0, votes_count - 1) WHERE id = OLD.option_id;
   END IF;
   RETURN NULL;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE TRIGGER trg_poll_votes_count
   AFTER INSERT OR DELETE ON poll_votes

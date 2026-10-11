@@ -104,6 +104,34 @@ export const supabaseIdentityRepository = {
         spaces: [], // Phase 1D — spaces integration
       }
     } catch (err) {
+      // Schema error (profiles table doesn't exist) — return fallback from auth
+      const isSchemaError = err?.code === 'PGRST205' || err?.code === 'SCHEMA_ERROR' || err?.message?.includes('schema cache')
+      if (isSchemaError) {
+        console.warn('[SupabaseIdentityRepository] getCurrentUser: profiles schema not ready, using auth fallback')
+        // Re-fetch auth user to construct a minimal profile
+        try {
+          const { data: { user: authUser } } = await supabase.auth.getUser()
+          if (!authUser) return null
+          const displayName = authUser.user_metadata?.display_name || authUser.email?.split('@')[0] || 'Mtumiaji'
+          return {
+            id: `auth-${authUser.id}`,
+            userId: authUser.id,
+            name: displayName,
+            handle: `@${displayName.toLowerCase().replace(/\s+/g, '')}`,
+            type: 'you',
+            avatarTone: 'green',
+            verified: false,
+            bio: '',
+            stats: { friends: 0, followers: 0, following: 0, posts: 0 },
+            since: 'Mwanachama mpya',
+            spaces: [],
+            prefs: {},
+            _schemaFallback: true,
+          }
+        } catch {
+          return null
+        }
+      }
       handleError(err, 'getCurrentUser')
       return null
     }
