@@ -175,9 +175,11 @@ export function parseSupabaseError(error, context) {
   if (
     code === '42P01' || // undefined_table
     code === '42703' || // undefined_column
+    code === 'PGRST205' || // PostgREST: table not in schema cache
     message.includes('relation') ||
     message.includes('column') ||
-    message.includes('does not exist')
+    message.includes('does not exist') ||
+    message.includes('schema cache')
   ) {
     return new SchemaError(`Schema ya database si sahihi (${context})`, { originalError: error })
   }
