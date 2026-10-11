@@ -146,9 +146,17 @@ async function requireStatusUser(context) {
 
 function throwStatusError(error, context) {
   if (error instanceof PASIHAIError) throw error
+  // Not-null violation: table exists but column constraint fails
   if (context === 'addStatus' && error?.code === '23502') {
     throw new SchemaError(
       'Status haijahifadhiwa: schema bado inahitaji migration 017_status_media_storage_rls.sql (media_url/media_type ziwe nullable kwa text-only Status); migration 015_live_statuses_reports.sql ndiyo hutengeneza statuses na RLS.',
+      { context, originalError: error },
+    )
+  }
+  // Table doesn't exist: 409 from PostgREST or 404 — not a real conflict/RLS issue
+  if (context === 'addStatus' && (error?.status === 409 || error?.status === 404 || error?.code === '42P01' || error?.code === 'PGRST205')) {
+    throw new SchemaError(
+      'Status haijahifadhiwa: table ya statuses haipo bado. Endesha PASIHAI_FULL_MIGRATION.sql kwenye Supabase SQL Editor.',
       { context, originalError: error },
     )
   }

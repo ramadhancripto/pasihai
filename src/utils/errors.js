@@ -172,14 +172,21 @@ export function parseSupabaseError(error, context) {
   }
   
   // Schema errors
+  // 409 Conflict from PostgREST when table doesn't exist (not a real conflict)
+  // 406 Not Acceptable from .single() when 0 rows returned (table missing or no matching row)
+  // 404 Not Found from PostgREST when relation not found
   if (
     code === '42P01' || // undefined_table
     code === '42703' || // undefined_column
     code === 'PGRST205' || // PostgREST: table not in schema cache
+    error?.status === 404 ||
+    error?.status === 406 ||
+    (error?.status === 409 && (code === '42P01' || code === 'PGRST205' || message.includes('relation') || message.includes('does not exist') || message.includes('schema cache'))) ||
     message.includes('relation') ||
     message.includes('column') ||
     message.includes('does not exist') ||
-    message.includes('schema cache')
+    message.includes('schema cache') ||
+    message.includes('JSON object requested, multiple (or no) rows returned')
   ) {
     return new SchemaError(`Schema ya database si sahihi (${context})`, { originalError: error })
   }

@@ -104,8 +104,17 @@ export const supabaseIdentityRepository = {
         spaces: [], // Phase 1D — spaces integration
       }
     } catch (err) {
-      // Schema error (profiles table doesn't exist) — return fallback from auth
-      const isSchemaError = err?.code === 'PGRST205' || err?.code === 'SCHEMA_ERROR' || err?.message?.includes('schema cache')
+      // Schema error (profiles table doesn't exist) or no matching row — return fallback from auth
+      const status = err?.status || err?.statusCode
+      const isSchemaError =
+        err?.code === 'PGRST205' ||
+        err?.code === 'SCHEMA_ERROR' ||
+        err?.code === '42P01' ||
+        err?.message?.includes('schema cache') ||
+        err?.message?.includes('does not exist') ||
+        err?.message?.includes('relation') ||
+        status === 404 ||
+        status === 406
       if (isSchemaError) {
         console.warn('[SupabaseIdentityRepository] getCurrentUser: profiles schema not ready, using auth fallback')
         // Re-fetch auth user to construct a minimal profile
