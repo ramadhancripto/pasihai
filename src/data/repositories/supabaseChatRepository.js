@@ -379,4 +379,323 @@ export const supabaseChatRepository = {
       return 0
     }
   },
+
+  /* ── READ: Phone book (friends/contacts for new chat) ────── */
+  async getPhoneBook() {
+    if (!isSupabaseLive || !supabase) return []
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return []
+
+      // Get people the current user follows (mutual = friends)
+      const { data: following } = await supabase
+        .from('follows')
+        .select('followee_id')
+        .eq('follower_id', user.id)
+
+      const followeeIds = (following || []).map(f => f.followee_id)
+      if (followeeIds.length === 0) return []
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name, entity_type, avatar_tone, verified')
+        .in('user_id', followeeIds)
+        .is('deleted_at', null)
+
+      return (profiles || []).map(p => ({
+        accountId: p.user_id,
+        name: p.display_name || p.username,
+        handle: `@${p.username}`,
+        type: p.entity_type || 'person',
+        avatarTone: p.avatar_tone || 'green',
+        verified: p.verified || false,
+      }))
+    } catch (err) {
+      handleError(err, 'getPhoneBook')
+      return []
+    }
+  },
+
+  /* ── READ: More menu items ────────────────────────────────── */
+  async getMoreMenu() {
+    return [
+      { id: 'archived', label: 'Zilizohifadhiwa', icon: 'archive' },
+      { id: 'settings', label: 'Mipangilio', icon: 'settings' },
+      { id: 'blocked', label: 'Waliokatazwa', icon: 'block' },
+    ]
+  },
+
+  /* ── READ: Archived conversations ─────────────────────────── */
+  async listArchived() {
+    // Phase: archived conversations not yet tracked in DB
+    return []
+  },
+
+  /* ── READ: Chat requests (incoming) ───────────────────────── */
+  async getRequests() {
+    // Phase: chat-specific requests not yet separate from friend requests
+    return []
+  },
+
+  /* ── WRITE: Respond to chat request ───────────────────────── */
+  async respondRequest(id, action) {
+    return { requests: [], conversation: null }
+  },
+
+  /* ── READ: Search conversations/messages/people ───────────── */
+  async search(query = '') {
+    const q = query.trim().toLowerCase()
+    if (!q || !isSupabaseLive || !supabase) return { conversations: [], messages: [], people: [] }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { conversations: [], messages: [], people: [] }
+
+      // Search people
+      const { data: people } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name, avatar_tone')
+        .or(`display_name.ilike.%${q}%,username.ilike.%${q}%`)
+        .is('deleted_at', null)
+        .limit(6)
+
+      return {
+        conversations: [],
+        messages: [],
+        people: (people || []).map(p => ({
+          accountId: p.user_id,
+          name: p.display_name || p.username,
+          handle: `@${p.username}`,
+          avatarTone: p.avatar_tone || 'green',
+        })),
+      }
+    } catch (err) {
+      handleError(err, 'search')
+      return { conversations: [], messages: [], people: [] }
+    }
+  },
+
+  /* ── WRITE: Mark all conversations as read ────────────────── */
+  async markAllRead() {
+    if (!isSupabaseLive || !supabase) return []
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return []
+
+      await supabase
+        .from('chat_participants')
+        .update({ last_read_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+
+      return this.listConversations()
+    } catch (err) {
+      handleError(err, 'markAllRead')
+      return []
+    }
+  },
+
+  /* ── READ: Chat settings ──────────────────────────────────── */
+  async getSettings() {
+    return {
+      notifications: true,
+      sounds: true,
+      readReceipts: true,
+      mediaAutoDownload: true,
+    }
+  },
+
+  /* ── WRITE: Save/unsave friend in chat ────────────────────── */
+  async saveFriend(accountId, on = true) {
+    return { accountId, saved: !!on }
+  },
+
+  /* ── READ: Saved friends list ─────────────────────────────── */
+  async listSavedFriends() {
+    return []
+  },
+
+  /* ── WRITE: Send chat request ─────────────────────────────── */
+  async sendRequest(accountId) {
+    return { id: `sr-${Date.now()}`, accountId, state: 'sent', at: new Date().toISOString() }
+  },
+
+  /* ── READ: Sent requests ──────────────────────────────────── */
+  async listSentRequests() {
+    return []
+  },
+
+  /* ── WRITE: Block contact ─────────────────────────────────── */
+  async blockContact(accountId) {
+    if (!isSupabaseLive || !supabase) return { blocked: [] }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { blocked: [] }
+
+      await supabase
+        .from('blocks')
+        .insert({ blocker_id: user.id, blocked_id: accountId })
+        .select()
+
+      return { blocked: [accountId] }
+    } catch (err) {
+      handleError(err, 'blockContact')
+      return { blocked: [] }
+    }
+  },
+
+  /* ── WRITE: Unblock contact ───────────────────────────────── */
+  async unblockContact(accountId) {
+    if (!isSupabaseLive || !supabase) return { blocked: [] }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { blocked: [] }
+
+      await supabase
+        .from('blocks')
+        .delete()
+        .eq('blocker_id', user.id)
+        .eq('blocked_id', accountId)
+
+      return { blocked: [] }
+    } catch (err) {
+      handleError(err, 'unblockContact')
+      return { blocked: [] }
+    }
+  },
+
+  /* ── READ: Blocked contacts ───────────────────────────────── */
+  async listBlocked() {
+    if (!isSupabaseLive || !supabase) return []
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return []
+
+      const { data } = await supabase
+        .from('blocks')
+        .select('blocked_id, profiles!blocks_blocked_id_fkey(username, display_name, avatar_tone)')
+        .eq('blocker_id', user.id)
+
+      return (data || []).map(b => ({
+        id: b.blocked_id,
+        accountId: b.blocked_id,
+        name: b.profiles?.display_name || b.profiles?.username || 'Mtumiaji',
+        tone: b.profiles?.avatar_tone || 'slate',
+      }))
+    } catch (err) {
+      handleError(err, 'listBlocked')
+      return []
+    }
+  },
+
+  /* ── WRITE: Chat settings ─────────────────────────────────── */
+  async setSettings(patch = {}) {
+    return { ...patch }
+  },
+
+  /* ── WRITE: Set conversation tone ─────────────────────────── */
+  async setConversationTone(convId, tone) {
+    return { convId, tone }
+  },
+
+  /* ── WRITE: Clear media ───────────────────────────────────── */
+  async clearMedia() {
+    return { cleared: true, at: new Date().toISOString() }
+  },
+
+  /* ── WRITE: Archive conversation ──────────────────────────── */
+  async archiveConversation(convId, on = true) {
+    return { convId, archived: !!on }
+  },
+
+  /* ── WRITE: Create group conversation ─────────────────────── */
+  async createGroup({ name, members = [], parentContext = null }) {
+    if (!isSupabaseLive || !supabase) return null
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return null
+
+      const { data: conv, error } = await supabase
+        .from('chat_conversations')
+        .insert({ type: 'group', title: name, created_by: user.id })
+        .select('id, type, title, created_at')
+        .single()
+
+      if (error) throw error
+
+      // Add all members including creator
+      const allMembers = [...new Set([user.id, ...members])]
+      const participantRows = allMembers.map(userId => ({
+        conversation_id: conv.id,
+        user_id: userId,
+      }))
+
+      const { error: pError } = await supabase
+        .from('chat_participants')
+        .insert(participantRows)
+
+      if (pError) throw pError
+
+      return {
+        id: conv.id,
+        type: 'group',
+        title: conv.title,
+        tone: 'green',
+        members: allMembers.length,
+        unread: 0,
+        updatedAt: conv.created_at,
+      }
+    } catch (err) {
+      handleError(err, 'createGroup')
+      return null
+    }
+  },
+
+  /* ── WRITE: React to message ──────────────────────────────── */
+  async reactToMessage(convId, msgId, reaction = 'heart') {
+    // Phase: reactions on messages not yet in DB schema
+    return { msgId, reaction }
+  },
+
+  /* ── WRITE: Resolve media ─────────────────────────────────── */
+  async resolveMedia(convId, msgId, choice) {
+    return { msgId, choice }
+  },
+
+  /* ── WRITE: Set message state ─────────────────────────────── */
+  async setMessageState(convId, msgId, patch = {}) {
+    return { msgId, ...patch }
+  },
+
+  /* ── WRITE: Create media message ──────────────────────────── */
+  async createMediaMessage(convId, media = {}) {
+    return this.sendMessage(convId, { kind: media.type || 'image', text: media.caption || '' }, media.url, media.type)
+  },
+
+  /* ── WRITE: Attach media ──────────────────────────────────── */
+  async attachMedia(convId) {
+    return { convId }
+  },
+
+  /* ── READ: Lookup phone number ────────────────────────────── */
+  async lookupNumber(number = '') {
+    const digits = String(number).replace(/\D/g, '')
+    if (!digits || !isSupabaseLive || !supabase) return []
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name, avatar_tone')
+        .or(`username.ilike.%${digits}%,display_name.ilike.%${digits}%`)
+        .is('deleted_at', null)
+        .limit(5)
+
+      return (data || []).map(p => ({
+        accountId: p.user_id,
+        name: p.display_name || p.username,
+        handle: `@${p.username}`,
+        avatarTone: p.avatar_tone || 'green',
+      }))
+    } catch (err) {
+      handleError(err, 'lookupNumber')
+      return []
+    }
+  },
 }

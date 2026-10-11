@@ -455,8 +455,193 @@ export const supabaseGunduaRepository = {
   },
 
   async getFriends(filters = {}) {
-    // Delegate to friendship repository (already wired)
-    return { myFriends: [], requests: [], sent: [], discover: [], fromSpaces: [], nearby: [], blocked: [] }
+    if (!isSupabaseLive || !supabase) return { myFriends: [], requests: [], sent: [], discover: [], fromSpaces: [], nearby: [], blocked: [] }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { myFriends: [], requests: [], sent: [], discover: [], fromSpaces: [], nearby: [], blocked: [] }
+
+      // Get all friendships involving this user
+      const { data: friendships, error } = await supabase
+        .from('friendships')
+        .select('id, requester_id, addressee_id, status, created_at')
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+
+      if (error) throw error
+
+      const myFriends = []
+      const requests = []  // incoming requests (others sent to me)
+      const sent = []      // outgoing requests (I sent)
+      const blocked = []
+
+      for (const f of (friendships || [])) {
+        const otherId = f.requester_id === user.id ? f.addressee_id : f.requester_id
+        const isIncoming = f.addressee_id === user.id
+
+        // Fetch other user's profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_id, username, display_name, entity_type, avatar_tone, verified')
+          .eq('user_id', otherId)
+          .single()
+
+        const entry = {
+          id: otherId,
+          friendshipId: f.id,
+          name: profile?.display_name || profile?.username || 'Mtumiaji',
+          handle: profile?.username ? `@${profile.username}` : '',
+          type: profile?.entity_type || 'person',
+          avatarTone: profile?.avatar_tone || 'green',
+          verified: profile?.verified || false,
+          since: f.created_at,
+        }
+
+        if (f.status === 'accepted') {
+          myFriends.push({ ...entry, relationship: 'friend' })
+        } else if (f.status === 'pending' && isIncoming) {
+          requests.push({ ...entry, state: 'pending' })
+        } else if (f.status === 'pending' && !isIncoming) {
+          sent.push({ ...entry, state: 'sent' })
+        } else if (f.status === 'blocked') {
+          blocked.push({ ...entry, state: 'blocked' })
+        }
+      }
+
+      return { myFriends, requests, sent, discover: [], fromSpaces: [], nearby: [], blocked }
+    } catch (err) {
+      handleError(err, 'getFriends')
+      return { myFriends: [], requests: [], sent: [], discover: [], fromSpaces: [], nearby: [], blocked: [] }
+    }
+  },
+
+  async addFriend(id) {
+    if (!isSupabaseLive || !supabase) return { id, state: 'error', changed: false }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { id, state: 'error', changed: false }
+      if (user.id === id) return { id, state: 'self', changed: false }
+
+      // Check if friendship already exists
+      const { data: existing } = await supabase
+        .from('friendships')
+        .select('id, status, requester_id')
+        .or(`and(requester_id.eq.${user.id},addressee_id.eq.${id}),and(requester_id.eq.${id},addressee_id.eq.${user.id})`)
+        .maybeSingle()
+
+      if (existing) {
+        if (existing.status === 'accepted') return { id, state: 'friend', changed: false }
+        if (existing.status === 'pending') return { id, state: 'sent', changed: false }
+        if (existing.status === 'blocked') return { id, state: 'blocked', changed: false }
+      }
+
+      const { error } = await supabase
+        .from('friendships')
+        .insert({ requester_id: user.id, addressee_id: id })
+
+      if (error) {
+        if (error.code === '23505') return { id, state: 'sent', changed: false }
+        throw error
+      }
+
+      return { id, state: 'sent', changed: true }
+    } catch (err) {
+      handleError(err, 'addFriend')
+      return { id, state: 'error', changed: false }
+    }
+  },
+
+  async cancelFriend(id) {
+    if (!isSupabaseLive || !supabase) return { id, state: 'error', changed: false }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { id, state: 'error', changed: false }
+
+      const { error } = await supabase
+        .from('friendships')
+        .delete()
+        .eq('requester_id', user.id)
+        .eq('addressee_id', id)
+        .eq('status', 'pending')
+
+      if (error) throw error
+      return { id, state: 'not_friend', changed: true }
+    } catch (err) {
+      handleError(err, 'cancelFriend')
+      return { id, state: 'error', changed: false }
+    }
+  },
+
+  async respondFriend(id, action) {
+    if (!isSupabaseLive || !supabase) return { id, state: 'error', changed: false }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { id, state: 'error', changed: false }
+
+      // Find the friendship where I'm the addressee
+      const { data: friendship } = await supabase
+        .from('friendships')
+        .select('id, status')
+        .eq('requester_id', id)
+        .eq('addressee_id', user.id)
+        .maybeSingle()
+
+      if (!friendship) return { id, state: 'not_found', changed: false }
+
+      if (action === 'accept') {
+        const { error } = await supabase
+          .from('friendships')
+          .update({ status: 'accepted' })
+          .eq('id', friendship.id)
+        if (error) throw error
+        return { id, state: 'friend', changed: true }
+      }
+
+      if (action === 'decline') {
+        const { error } = await supabase
+          .from('friendships')
+          .delete()
+          .eq('id', friendship.id)
+        if (error) throw error
+        return { id, state: 'not_friend', changed: true }
+      }
+
+      return { id, state: friendship.status, changed: false }
+    } catch (err) {
+      handleError(err, 'respondFriend')
+      return { id, state: 'error', changed: false }
+    }
+  },
+
+  async getFriendRequests() {
+    const friends = await this.getFriends({})
+    return friends.requests || []
+  },
+
+  async followChannel(id) {
+    if (!isSupabaseLive || !supabase) return { id, following: false }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { id, following: false }
+      const { error } = await supabase.from('follows').insert({ follower_id: user.id, followee_id: id })
+      if (error && error.code !== '23505') throw error
+      return { id, following: true }
+    } catch (err) {
+      handleError(err, 'followChannel')
+      return { id, following: false }
+    }
+  },
+
+  async unfollowChannel(id) {
+    if (!isSupabaseLive || !supabase) return { id, following: false }
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return { id, following: false }
+      const { error } = await supabase.from('follows').delete().eq('follower_id', user.id).eq('followee_id', id)
+      if (error) throw error
+      return { id, following: false }
+    } catch (err) {
+      handleError(err, 'unfollowChannel')
+      return { id, following: false }
+    }
   },
 
   async getMyLink() {
