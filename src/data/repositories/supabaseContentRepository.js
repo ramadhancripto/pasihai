@@ -246,19 +246,22 @@ export const supabaseContentRepository = {
       throw new NetworkError('Supabase client haijasanidiwa')
     }
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return []
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return []
 
-    const { data, error } = await supabase
-      .from('hidden_items')
-      .select('post_id')
-      .eq('user_id', user.id)
+      const { data, error } = await supabase
+        .from('hidden_items')
+        .select('post_id')
+        .eq('user_id', user.id)
 
-    if (error) {
-      throw parseSupabaseError(error, 'listHidden')
+      if (error) throw error
+
+      return (data || []).map((row) => row.post_id)
+    } catch (err) {
+      handleError(err, 'listHidden')
+      return []
     }
-
-    return (data || []).map((row) => row.post_id)
   },
 
   /* ── READ: Items zilizopendwa (likes) ───────────────────── */
@@ -388,6 +391,11 @@ export const supabaseContentRepository = {
       const postRows = (data || []).map(row => row.posts).filter(Boolean)
       return mapSupabaseFeed({ posts: postRows })
     } catch (err) {
+      // Schema error (PGRST205) — table doesn't exist yet, return empty
+      if (err?.code === 'SCHEMA_ERROR') {
+        console.warn('[ContentRepo] listSpacePosts: schema not ready, returning empty')
+        return []
+      }
       if (err instanceof PASIHAIError) throw err
       handleError(err, 'listSpacePosts')
       return []
