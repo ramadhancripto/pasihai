@@ -775,7 +775,7 @@ function formatComposerMediaSize(bytes) {
     : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function ComposerPanel({ kind = 'text', onToast, onClose, onPosted }) {
+export function ComposerPanel({ kind = 'text', spaceId = null, onToast, onClose, onPosted }) {
   const meta = COMPOSE_KINDS[kind] || COMPOSE_KINDS.text
   const [text, setText] = useState('')
   const [options, setOptions] = useState(['', ''])
@@ -855,6 +855,7 @@ export function ComposerPanel({ kind = 'text', onToast, onClose, onPosted }) {
         file: file || undefined,
         mediaType: mediaType || undefined,
         options: isPoll ? filled : undefined,
+        spaceId: spaceId || undefined,
       })
       if (!post?.id) {
         throw new Error('Chapisho halijahifadhiwa: mfumo haukurudisha kitambulisho cha post.')

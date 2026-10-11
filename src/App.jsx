@@ -504,6 +504,7 @@ export default function App() {
           body: (
             <ComposerPanel
               kind={top.payload?.kind || 'text'}
+              spaceId={top.payload?.spaceId || null}
               onToast={toastIt}
               onClose={closeAll}
               onPosted={refreshFeed}

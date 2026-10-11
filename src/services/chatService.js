@@ -30,18 +30,37 @@ const MESSAGE_STATES = {
 
 /* ── Kikundi halisi (identity join) ─────────────────────────── */
 
+const DEMO_MEMBERS = [
+  { id: 'kelvin', name: 'Dr. Kelvin', role: 'Msimamizi', tone: 'blue' },
+  { id: 'sarah', name: 'Sarah', role: 'Mwanafunzi', tone: 'green' },
+  { id: 'juma', name: 'Juma Rashid', role: 'Kiongozi', tone: 'clay' },
+  { id: 'asha', name: 'Asha Mussa', role: 'Rafiki', tone: 'gold' },
+]
+
 async function withMembers(item) {
   if (item.type !== 'group') {
-    const account = item.accountId ? await identityRepository.getUser(item.accountId) : null
-    return { ...item, account }
+    // Direct conversation: load the other user's profile
+    const account = item.accountId ? await identityRepository.getUser(item.accountId).catch(() => null) : null
+    return {
+      ...item,
+      account,
+      title: account?.name || item.title || 'Mazungumzo',
+      avatarTone: account?.avatarTone || 'green',
+    }
   }
-  const demo = [
-    { id: 'kelvin', name: 'Dr. Kelvin', role: 'Msimamizi', tone: 'blue' },
-    { id: 'sarah', name: 'Sarah', role: 'Mwanafunzi', tone: 'green' },
-    { id: 'juma', name: 'Juma Rashid', role: 'Kiongozi', tone: 'clay' },
-    { id: 'asha', name: 'Asha Mussa', role: 'Rafiki', tone: 'gold' },
-  ]
-  return { ...item, memberPreview: demo.slice(0, item.members > 40 ? 4 : 3) }
+  // Group: use real participant data if available, otherwise demo fallback
+  const members = item.participants || []
+  const count = item.members > 40 ? 4 : 3
+  if (members.length > 0) {
+    const memberPreview = members.slice(0, count).map(p => ({
+      id: p.id,
+      name: p.name,
+      role: p.id === item.createdBy ? 'Admin' : 'Member',
+      tone: p.avatarTone || 'green',
+    }))
+    return { ...item, memberPreview }
+  }
+  return { ...item, memberPreview: DEMO_MEMBERS.slice(0, count) }
 }
 
 /* ── Service ────────────────────────────────────────────────── */

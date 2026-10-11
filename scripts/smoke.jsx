@@ -196,7 +196,7 @@ check('Home — kila tab', () =>
           setHomeTab={noop}
           filter="all"
           setFilter={noop}
-          viewMode="auto"
+          viewMode="large-post-feed"
           onCreate={noop}
           onOpenStatus={noop}
           onToast={noop}
@@ -217,7 +217,7 @@ check('Home — kila kichujio', () =>
           setHomeTab={noop}
           filter={f}
           setFilter={noop}
-          viewMode="vertical"
+          viewMode="vertical-slide"
           onCreate={noop}
           onOpenStatus={noop}
           onToast={noop}
@@ -255,7 +255,7 @@ check('Panels — Unda', () => renderToString(<panels.CreatePanel onToast={noop}
 check('Panels — Menyu ya Home', () =>
   renderToString(
     <panels.MorePanel
-      viewMode="auto"
+      viewMode="large-post-feed"
       onOpenPanel={noop}
       onViewMode={noop}
       onToast={noop}
@@ -482,7 +482,7 @@ assert(
 
 const modes = await catalogRepository.getViewModes()
 assert(
-  modes.length === 3 && modes[0].id === 'auto' && modes[2].id === 'horizontal',
+  modes.length === 4 && modes[0].id === 'large-post-feed' && modes[3].id === 'automatic-view',
   'catalog.getViewModes',
   modes.map((m) => m.label).join(' · '),
 )
@@ -551,7 +551,7 @@ assert(notifFresh.length === 3 && notifFresh.every((n) => n.unread), 'notificati
 assert((await notificationService.countUnread()) === 3, 'notificationService.countUnread', '3 mpya')
 
 /* ── Settings service ────────────────────────────────────── */
-assert((await settingsService.getViewModes()).length === 3, 'settingsService.getViewModes')
+assert((await settingsService.getViewModes()).length === 4, 'settingsService.getViewModes')
 assert((await settingsService.getFeedPreferences()).show.length === 5, 'settingsService.getFeedPreferences')
 
 /* ── Product info service ────────────────────────────────── */

@@ -170,11 +170,19 @@ export default function Chat({ onToast }) {
   }
 
   const startDirect = async (accountId) => {
-    const res = await chatService.startDirect(accountId)
-    close()
-    setActiveId(res.conversation.id)
-    onToast?.(res.created ? `Mazungumzo mapya na ${res.conversation.title}` : `Mazungumzo na ${res.conversation.title}`)
-    refresh()
+    try {
+      const res = await chatService.startDirect(accountId)
+      if (!res?.conversation?.id) {
+        onToast?.('Mazungumzo halikuweza kuanzishwa')
+        return
+      }
+      close()
+      setActiveId(res.conversation.id)
+      onToast?.(`Mazungumzo na ${res.conversation.title}`)
+      refresh()
+    } catch (err) {
+      onToast?.(`Hitilafu: ${err?.message || 'Mazungumzo hayukuweza kuanzishwa'}`)
+    }
   }
 
   /* Archive kutoka kwenye orodha: haifuti historia wala kumtoa mtu kwenye kikundi. */
@@ -187,11 +195,19 @@ export default function Chat({ onToast }) {
   }
 
   const createGroup = async ({ name, members, tone }) => {
-    const created = await chatService.createGroup({ name, members, tone })
-    close()
-    setActiveId(created.id)
-    onToast?.(`Kikundi “${created.title}” kimeundwa — wanachama ${members.length}`)
-    refresh()
+    try {
+      const created = await chatService.createGroup({ name, members, tone })
+      if (!created?.id) {
+        onToast?.('Kikundi hakikuweza kuundwa')
+        return
+      }
+      close()
+      setActiveId(created.id)
+      onToast?.(`Kikundi “${created.title}” kimeundwa — wanachama ${members.length}`)
+      refresh()
+    } catch (err) {
+      onToast?.(`Hitilafu: ${err?.message || 'Kikundi hakikuweza kuundwa'}`)
+    }
   }
 
   /* ── Panel stack (Sheet ileile) ──────────────────────────── */

@@ -43,6 +43,7 @@ const supabaseRepos = {
   friendship: null,
   gunduaDiscovery: null,
   spaces: null,
+  system: null,
 }
 
 const loadPromises = {
@@ -53,6 +54,7 @@ const loadPromises = {
   friendship: null,
   gunduaDiscovery: null,
   spaces: null,
+  system: null,
 }
 
 async function loadSupabaseRepo(name) {
@@ -67,6 +69,7 @@ async function loadSupabaseRepo(name) {
       friendship: () => import('./supabaseFriendshipRepository.js').then(m => m.supabaseFriendshipRepository),
       gunduaDiscovery: () => import('./supabaseGunduaRepository.js').then(m => m.supabaseGunduaRepository),
       spaces: () => import('./supabaseSpacesRepository.js').then(m => m.supabaseSpacesRepository),
+      system: () => import('./supabaseSystemRepository.js').then(m => m.supabaseSystemRepository),
     }
 
     loadPromises[name] = loaders[name]().then(repo => {
@@ -234,37 +237,7 @@ export const catalogRepository = liveGuard(mockCatalogRepository, 'catalogReposi
 })
 
 /* ── System: device-local + connection ────────────────────── */
-export const systemRepository = liveGuard(mockSystemRepository, 'systemRepository', {
-  getConnection: async () => ({
-    state: typeof navigator !== 'undefined' && navigator.onLine === false ? 'OFFLINE' : 'ONLINE',
-    source: 'navigator.onLine',
-  }),
-  getDataSaved: async (scope = 'today') => mockSystemRepository.getDataSaved(scope),
-  getCache: async () => mockSystemRepository.getCache(),
-  getScenarioKey: async () => mockSystemRepository.getScenarioKey(),
-  getRelayPolicy: async () => mockSystemRepository.getRelayPolicy(),
-  getLocalMesh: async () => mockSystemRepository.getLocalMesh(),
-  getInternetRelay: async () => mockSystemRepository.getInternetRelay(),
-  setInternetRelayEnabled: async (on) => mockSystemRepository.setInternetRelayEnabled(on),
-  setRelayDailyLimit: async (mb) => mockSystemRepository.setRelayDailyLimit(mb),
-  getRelayMessages: async () => mockSystemRepository.getRelayMessages(),
-  getRelayChoices: async () => mockSystemRepository.getRelayChoices(),
-  setRelayChoice: async (id, on) => mockSystemRepository.setRelayChoice(id, on),
-  relayMessage: async (payload) => mockSystemRepository.relayMessage(payload),
-  getTransports: async () => mockSystemRepository.getTransports(),
-  listQueue: async () => mockSystemRepository.listQueue(),
-  syncQueue: async () => mockSystemRepository.syncQueue(),
-  enqueue: async (item) => mockSystemRepository.enqueue(item),
-  getNearby: async () => mockSystemRepository.getNearby(),
-  getActivity: async () => mockSystemRepository.getActivity(),
-  getOfflineables: async () => mockSystemRepository.getOfflineables(),
-  saveOffline: async (id) => mockSystemRepository.saveOffline(id),
-  getLocalContent: async () => mockSystemRepository.getLocalContent(),
-  shareNearby: async (id) => mockSystemRepository.shareNearby(id),
-  getDeliveryOptions: async () => mockSystemRepository.getDeliveryOptions(),
-  getPrefs: async () => mockSystemRepository.getPrefs(),
-  savePrefs: async (patch) => mockSystemRepository.savePrefs(patch),
-})
+export const systemRepository = createRepositoryProxy(mockSystemRepository, 'system')
 
 /* ── Spaces: Supabase live implementation ─────────────────── */
 export const spacesRepository = createRepositoryProxy(mockSpacesRepository, 'spaces')
@@ -282,7 +255,7 @@ export const REPOSITORY_MODE = checkIsLive() ? 'supabase' : 'mock'
 export async function waitForSupabaseRepos() {
   if (!checkIsLive()) return
 
-  const names = ['content', 'identity', 'chat', 'activity', 'friendship', 'gunduaDiscovery', 'spaces']
+  const names = ['content', 'identity', 'chat', 'activity', 'friendship', 'gunduaDiscovery', 'spaces', 'system']
   const results = await Promise.all(names.map((name) => loadSupabaseRepo(name)))
   const failed = names.filter((_, i) => !results[i])
   if (failed.length) {

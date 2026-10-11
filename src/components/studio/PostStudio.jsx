@@ -46,6 +46,7 @@ import {
 import { DraftConflictError, listDrafts, removeDraft, saveDraft } from '../../utils/studioDrafts.js'
 import StructuredPost from './StructuredPost.jsx'
 import { Swatches, SizeSelect } from './FormatControls.jsx'
+import MentionInput from './MentionInput.jsx'
 
 const STEPS = [
   { id: 'type', label: '1 · Aina' },
@@ -344,9 +345,14 @@ export default function PostStudio({ payload, onToast, onClose, onPosted }) {
           {fields.has('body') ? (
             <label className="psh-ps__field">
               <span className="psh-ps__label">{TYPE_LABEL_FIELD[content.type] ?? 'Maudhui'}</span>
-              <textarea className="psh-ps__input psh-ps__textarea" rows={content.type === 'article' ? 8 : 3}
-                value={content.body.text} maxLength={MAX_BODY}
-                onChange={(e) => patch((c) => ({ ...c, body: { ...c.body, text: e.target.value } }))} />
+              <MentionInput
+                className="psh-ps__input psh-ps__textarea"
+                rows={content.type === 'article' ? 8 : 3}
+                value={content.body.text}
+                maxLength={MAX_BODY}
+                placeholder="Andika… tumia @kutaja mtu"
+                onChange={(text) => patch((c) => ({ ...c, body: { ...c.body, text } }))}
+              />
             </label>
           ) : null}
           {fields.has('conclusion') ? (

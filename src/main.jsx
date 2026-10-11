@@ -28,6 +28,8 @@ import './styles/visual-v8-cleanup.css'
 import './styles/visual-v9-topbar.css'
 import './styles/visual-v10-chat-nav.css'
 import './styles/quick-post.css'
+import './styles/mentions.css'
+import './styles/feed-modes.css'
 import './styles/post-studio.css'
 
 import App from './App.jsx'

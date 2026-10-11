@@ -1,9 +1,10 @@
 // ══════════════════════════════════════════════════════════════
 // PASIHAI — STATUS / STORIES
 // Safu ya mlalo; kila akaunti ina entry moja, Status zake ziko kwenye viewer.
+// Media preview kubwa, avatar + jina, horizontal scroll.
 // ══════════════════════════════════════════════════════════════
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 import { homeService } from '../../services/homeService.js'
 import { statusErrorMessage } from '../../utils/statusMedia.js'
@@ -24,6 +25,7 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
   const [retryKey, setRetryKey] = useState(0)
+  const scrollRef = useRef(null)
 
   useEffect(() => {
     let active = true
@@ -48,6 +50,16 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
 
     return () => { active = false }
   }, [version, retryKey])
+
+  // Handle horizontal wheel scroll
+  const handleWheel = (e) => {
+    const el = scrollRef.current
+    if (!el) return
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+  }
 
   if (loading) {
     return (
@@ -81,18 +93,20 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
           Hakuna status hai zinazoonekana sasa. Hapa ndipo Status yako halisi itaonekana baada ya kuhifadhiwa.
         </p>
       ) : null}
-      <ul className="psh-status__row">
+      <ul className="psh-status__row" ref={scrollRef} onWheel={handleWheel} dir="ltr">
         {rowItems.map((item) => {
           const user = item.user
           const ringTone = item.own ? 'own' : ringForUser(user, item)
           const name = item.own ? 'Status Yako' : item.label || user?.name || 'Status'
+          const viewed = !item.own && item.viewed
 
           return (
             <li
               key={item.id}
-              className="psh-status__item"
+              className={`psh-status__item ${viewed ? 'psh-status__item--viewed' : ''}`}
               data-status-own={item.own ? 'true' : 'false'}
               data-status-id={item.latestStatusId || ''}
+              data-status-viewed={viewed ? 'true' : 'false'}
             >
               <button
                 type="button"
@@ -104,27 +118,48 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
                     ? `Tazama status zako ${item.statusCount > 1 ? `(${item.statusCount})` : ''}`.trim()
                     : `Tazama status ya ${user?.name || 'mtumiaji'}${item.live ? ' (ana hewani)' : ''}`}
               >
-                <span className={`psh-status__ring psh-status__ring--${ringTone}`}>
-                  <span className="psh-status__inner">
-                    {item.isCreateSlot ? (
-                      <span className="psh-status__createicon" aria-hidden="true"><IconPlus size={25} /></span>
-                    ) : (
-                      <Avatar user={user} size={56} shape="circle" badge={false} />
-                    )}
-                  </span>
+                {/* Media preview card */}
+                <span className={`psh-status__card psh-status__card--tone-${ringTone}`}>
+                  {item.isCreateSlot ? (
+                    <span className="psh-status__createcard" aria-hidden="true">
+                      <IconPlus size={28} />
+                    </span>
+                  ) : item.mediaPreview ? (
+                    <img
+                      className="psh-status__thumb"
+                      src={item.mediaPreview}
+                      alt=""
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className={`psh-status__gradient psh-status__gradient--${ringTone}`} aria-hidden="true">
+                      <Avatar user={user} size={40} shape="circle" badge={false} />
+                    </span>
+                  )}
+                  {/* Video indicator */}
                   {item.hasVideo ? (
-                    <span className="psh-status__video" aria-hidden="true"><IconPlay size={10} /></span>
+                    <span className="psh-status__video" aria-hidden="true"><IconPlay size={14} /></span>
                   ) : null}
+                  {/* Live indicator */}
                   {!item.own && item.live ? (
                     <span className="psh-status__live" aria-hidden="true">
                       <span className="psh-status__livedot" /> LIVE
                     </span>
                   ) : null}
                 </span>
-                <span className="psh-status__name">{name}</span>
-                {item.isCreateSlot ? (
-                  <span className="psh-status__ago">Ongeza</span>
-                ) : item.statusCount > 1 ? (
+
+                {/* Avatar + name below card */}
+                <span className="psh-status__foot">
+                  <span className={`psh-status__ring psh-status__ring--${ringTone}`}>
+                    <span className="psh-status__inner">
+                      <Avatar user={user} size={28} shape="circle" badge={false} />
+                    </span>
+                  </span>
+                  <span className={`psh-status__name ${viewed ? 'is-viewed' : ''}`}>
+                    {item.isCreateSlot ? 'Ongeza' : name}
+                  </span>
+                </span>
+                {item.isCreateSlot ? null : item.statusCount > 1 ? (
                   <span className="psh-status__ago">{item.statusCount} Status</span>
                 ) : item.ago ? (
                   <span className="psh-status__ago">{item.ago}</span>
@@ -136,12 +171,12 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
 
         <li className="psh-status__item psh-status__item--more">
           <button type="button" className="psh-status__btn" onClick={onOpenAll}>
-            <span className="psh-status__ring psh-status__ring--more">
-              <span className="psh-status__inner">
-                <span className="psh-status__moreicon"><IconArrowRight size={20} /></span>
-              </span>
+            <span className="psh-status__card psh-status__card--more">
+              <span className="psh-status__moreicon"><IconArrowRight size={20} /></span>
             </span>
-            <span className="psh-status__name">Zote</span>
+            <span className="psh-status__foot">
+              <span className="psh-status__name">Zote</span>
+            </span>
           </button>
         </li>
       </ul>

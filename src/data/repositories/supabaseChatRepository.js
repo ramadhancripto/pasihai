@@ -52,29 +52,61 @@ function toUiMessage(row, myId) {
 }
 
 /* ── Supabase conversation row → conversation object ──────── */
-function mapConversation(row, participants = [], lastMessage = null) {
+function mapConversation(row, participants = [], lastMessage = null, currentUserId = null) {
   if (!row) return null
+
+  const mappedParticipants = participants.map(p => ({
+    id: p.user_id,
+    name: p.profiles?.display_name || p.profiles?.username || 'Unknown',
+    handle: `@${p.profiles?.username || 'unknown'}`,
+    avatarTone: p.profiles?.avatar_tone || 'green',
+    joinedAt: p.joined_at,
+    lastReadAt: p.last_read_at,
+  }))
+
+  // For direct conversations, derive title from the other participant
+  let title = row.title
+  let accountId = null
+  if (row.type === 'direct' && currentUserId) {
+    const other = participants.find(p => p.user_id !== currentUserId)
+    if (other) {
+      title = other.profiles?.display_name || other.profiles?.username || 'Mazungumzo'
+      accountId = other.user_id
+    }
+  }
+
+  // Compute unread count: messages after last_read_at from other senders
+  let unread = 0
+  if (currentUserId && lastMessage) {
+    const myParticipant = participants.find(p => p.user_id === currentUserId)
+    const lastRead = myParticipant?.last_read_at
+    if (!lastRead || new Date(lastMessage.created_at) > new Date(lastRead)) {
+      if (lastMessage.sender_id !== currentUserId) {
+        unread = 1 // Simplified: at least 1 unread
+      }
+    }
+  }
 
   return {
     id: row.id,
     type: row.type || 'direct',
-    title: row.title || null,
-    participants: participants.map(p => ({
-      id: p.user_id,
-      name: p.profiles?.display_name || p.profiles?.username || 'Unknown',
-      handle: `@${p.profiles?.username || 'unknown'}`,
-      avatarTone: p.profiles?.avatar_tone || 'green',
-      joinedAt: p.joined_at,
-      lastReadAt: p.last_read_at,
-    })),
+    title: title || 'Mazungumzo',
+    accountId,
+    participants: mappedParticipants,
+    members: mappedParticipants.length,
+    unread,
     lastMessage: lastMessage ? {
       id: lastMessage.id,
       text: lastMessage.text || '',
       senderId: lastMessage.sender_id,
       createdAt: lastMessage.created_at,
+      at: lastMessage.created_at
+        ? new Date(lastMessage.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+        : '',
     } : null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    relationship: 'none',
   }
 }
 
@@ -109,11 +141,12 @@ export const supabaseChatRepository = {
       if (error) throw error
       if (!participations) return []
 
-      // For each conversation, get participants and last message
+      // For each conversation, get participants, last message, and unread count
       const conversations = await Promise.all(
         participations.map(async (p) => {
           const conv = p.chat_conversations
-          
+          if (!conv) return null
+
           // Get participants
           const { data: participants } = await supabase
             .from('chat_participants')
@@ -128,9 +161,34 @@ export const supabaseChatRepository = {
             .is('deleted_at', null)
             .order('created_at', { ascending: false })
             .limit(1)
-            .single()
+            .maybeSingle()
 
-          return mapConversation(conv, participants || [], lastMessage)
+          // Get unread count (messages after last_read_at from others)
+          let unreadCount = 0
+          const myLastRead = p.last_read_at
+          if (myLastRead) {
+            const { count } = await supabase
+              .from('chat_messages')
+              .select('*', { count: 'exact', head: true })
+              .eq('conversation_id', conv.id)
+              .neq('sender_id', user.id)
+              .is('deleted_at', null)
+              .gt('created_at', myLastRead)
+            unreadCount = count || 0
+          } else {
+            // Never read: count all messages from others
+            const { count } = await supabase
+              .from('chat_messages')
+              .select('*', { count: 'exact', head: true })
+              .eq('conversation_id', conv.id)
+              .neq('sender_id', user.id)
+              .is('deleted_at', null)
+            unreadCount = count || 0
+          }
+
+          const mapped = mapConversation(conv, participants || [], lastMessage, user.id)
+          if (mapped) mapped.unread = unreadCount
+          return mapped
         })
       )
 
@@ -292,10 +350,29 @@ export const supabaseChatRepository = {
             .single()
 
           if (otherParticipant) {
-            return { conversationId: p.conversation_id }
+            // Get other user's profile for title
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('display_name, username')
+              .eq('user_id', otherUserId)
+              .single()
+            return {
+              conversationId: p.conversation_id,
+              conversation: {
+                id: p.conversation_id,
+                title: profile?.display_name || profile?.username || 'Mazungumzo',
+              },
+            }
           }
         }
       }
+
+      // Get other user's profile for title
+      const { data: newProfile } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('user_id', otherUserId)
+        .single()
 
       // Create new direct conversation
       const { data: conv, error } = await supabase
@@ -315,7 +392,13 @@ export const supabaseChatRepository = {
         ])
       if (participantsError) throw participantsError
 
-      return { conversationId: conv.id }
+      return {
+        conversationId: conv.id,
+        conversation: {
+          id: conv.id,
+          title: newProfile?.display_name || newProfile?.username || 'Mazungumzo mapya',
+        },
+      }
     } catch (err) {
       handleError(err, 'startDirect')
       return null

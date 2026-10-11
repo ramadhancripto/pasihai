@@ -15,7 +15,7 @@
 //   · Mwisho wa mkondo: hali ya "Umesoma yote kwa leo!".
 // ══════════════════════════════════════════════════════════════
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { feedService } from '../../services/feedService.js'
 import { chatService } from '../../services/chatService.js'
 import useAsyncData from '../../hooks/useAsyncData.js'
@@ -44,6 +44,7 @@ export default function FeedList({
   onRefreshFeed,
   onOpenChat,
   feedVersion = 0,
+  feedMode = 'large-post-feed',
 }) {
   const feed = useAsyncData(
     () =>
@@ -147,7 +148,7 @@ export default function FeedList({
     : null
 
   return (
-    <section className="psh-feed" aria-label={spaceId ? `Shughuli za ${spaceLabel || 'Space'}` : 'Mkondo wa Home'}>
+    <section className={`psh-feed psh-feed--${feedMode}`} aria-label={spaceId ? `Shughuli za ${spaceLabel || 'Space'}` : 'Mkondo wa Home'}>
       {tabMeaning && !spaceId ? <p className="psh-feed__context">{tabMeaning}</p> : null}
 
       {isLive ? (

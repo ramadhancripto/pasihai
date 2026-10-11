@@ -68,6 +68,18 @@ export const PALETTE = {
   plum: { label: 'Zambarau', hex: '#6b2c6e' },
   clay: { label: 'Udongo', hex: '#9a4a2c' },
   slate: { label: 'Kijivu', hex: '#3e4a46' },
+  red: { label: 'Nyekundu', hex: '#c53030' },
+  orange: { label: 'Machungwa', hex: '#c05621' },
+  gold: { label: 'Dhahabu', hex: '#975a16' },
+  teal: { label: 'Tiroli', hex: '#2c7a7b' },
+  navy: { label: 'Bahari', hex: '#2a4365' },
+  rose: { label: 'Waridi', hex: '#b83280' },
+  forest: { label: 'Msimiti', hex: '#276749' },
+  coral: { label: 'Koroli', hex: '#e53e3e' },
+  amber: { label: 'Ambari', hex: '#b7791f' },
+  sky: { label: 'Anga', hex: '#3182ce' },
+  charcoal: { label: 'Makaa', hex: '#2d3748' },
+  white: { label: 'Nyeupe', hex: '#ffffff' },
 }
 
 /** Backgrounds salama (hex tu). `none` = hakuna background. */

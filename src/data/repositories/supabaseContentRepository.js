@@ -873,6 +873,18 @@ export const supabaseContentRepository = {
       } catch {
         console.warn('[ContentRepo:addPost] Post saved; local cache update failed.')
       }
+
+      // Link post to space/channel if spaceId provided
+      if (draft.spaceId && post.id) {
+        try {
+          await supabase
+            .from('space_posts')
+            .insert({ space_id: draft.spaceId, post_id: post.id })
+        } catch (spaceErr) {
+          console.warn('[ContentRepo:addPost] Post saved but not linked to space:', spaceErr.message)
+        }
+      }
+
       return result
     } catch (error) {
       if (uploadedPath && !postInserted) await removeUnattachedMedia()

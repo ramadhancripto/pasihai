@@ -942,24 +942,29 @@ export const upNext = {
 
 export const viewModes = [
   {
-    id: 'auto',
-    label: 'Automatic',
-    desc: 'Pasihai anachagua muonekano unaofaa kwa kila chapisho.',
+    id: 'large-post-feed',
+    label: 'Large Post Feed',
+    desc: 'Default — post kubwa na sehemu ya post inayofuata inaonekana.',
   },
   {
-    id: 'vertical',
-    label: 'Vertical',
-    desc: 'Mkondo wa juu na chini. Bora kwa Reels, video na picha.',
+    id: 'vertical-slide',
+    label: 'Vertical Slide',
+    desc: 'Post moja karibu full-screen; swipe juu/chini.',
   },
   {
-    id: 'horizontal',
-    label: 'Horizontal / Full Scroll',
-    desc: 'Kutazama kwa undani — picha na video zinasogea kwa mlalo.',
+    id: 'horizontal-slide',
+    label: 'Horizontal Full Screen',
+    desc: 'Post moja kubwa; swipe kushoto/kulia.',
+  },
+  {
+    id: 'automatic-view',
+    label: 'Automatic View',
+    desc: 'Mfumo unachagua mpangilio unaofaa kwa aina ya maudhui na kifaa.',
   },
 ]
 
 export const moreMenuItems = [
-  { id: 'view-mode', label: 'Muonekano (View mode)', icon: 'eye', hint: 'Automatic' },
+  { id: 'view-mode', label: 'Muonekano (View mode)', icon: 'eye', hint: 'Large Post Feed' },
   { id: 'feed-prefs', label: 'Mapendeleo ya mkondo', icon: 'sliders', hint: '' },
   { id: 'content-prefs', label: 'Mapendeleo ya maudhui', icon: 'spark', hint: '' },
   { id: 'saved', label: 'Zilizohifadhiwa', icon: 'bookmark', hint: '3' },

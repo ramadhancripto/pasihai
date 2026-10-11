@@ -1,0 +1,294 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — FEED MODES
+   4 viewing modes: large-post-feed, vertical-slide,
+   horizontal-slide, automatic-view
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Mode switcher bar ─────────────────────────────────────── */
+.psh-feedmode-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-subtle);
+  border-radius: var(--r-md);
+  margin-bottom: 8px;
+}
+
+.psh-feedmode-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--t-3);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.psh-feedmode-btn:hover {
+  color: var(--t-2);
+  background: var(--bg);
+}
+
+.psh-feedmode-btn.is-active {
+  color: var(--t-1);
+  background: var(--bg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* ── Large Post Feed (default) ─────────────────────────────── */
+.psh-feed--large-post-feed .psh-feeditem {
+  margin-bottom: 0;
+}
+
+.psh-feed--large-post-feed .psh-feedmedia {
+  margin: 10px calc(var(--card-pad) * -1) 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
+
+.psh-feed--large-post-feed .psh-feedmedia .psh-media {
+  border-radius: 0;
+  border: none;
+  min-height: 280px;
+  max-height: 65vh;
+}
+
+/* Media fills width; aspect-ratio controlled by content */
+.psh-feed--large-post-feed .psh-media__asset--image,
+.psh-feed--large-post-feed .psh-media__asset--video {
+  object-fit: contain;
+  position: relative;
+  max-height: 65vh;
+}
+
+/* Portrait video: taller */
+.psh-feed--large-post-feed .psh-media--portrait {
+  max-height: 75vh;
+}
+
+/* Landscape video: wider */
+.psh-feed--large-post-feed .psh-media--landscape {
+  max-height: 55vh;
+}
+
+/* ── Vertical Slide ────────────────────────────────────────── */
+.psh-feed--vertical-slide {
+  scroll-snap-type: y mandatory;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.psh-feed--vertical-slide .psh-feed__items {
+  gap: 0;
+}
+
+.psh-feed--vertical-slide .psh-feeditem {
+  scroll-snap-align: start;
+  min-height: calc(100dvh - 120px);
+  min-height: calc(100svh - 120px);
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.psh-feed--vertical-slide .psh-feeditem__head {
+  padding: 8px 12px;
+}
+
+.psh-feed--vertical-slide .psh-feeditem__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.psh-feed--vertical-slide .psh-feedmedia {
+  flex: 1;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+}
+
+.psh-feed--vertical-slide .psh-media {
+  border-radius: 0;
+  border: none;
+  height: 100%;
+  min-height: 300px;
+}
+
+.psh-feed--vertical-slide .psh-media__asset--image,
+.psh-feed--vertical-slide .psh-media__asset--video {
+  object-fit: contain;
+  position: relative;
+}
+
+.psh-feed--vertical-slide .psh-feedactions {
+  padding: 8px 12px;
+}
+
+/* ── Horizontal Full Screen ────────────────────────────────── */
+.psh-feed--horizontal-slide {
+  scroll-snap-type: x mandatory;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.psh-feed--horizontal-slide .psh-feed__items {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  padding: 0;
+}
+
+.psh-feed--horizontal-slide .psh-feeditem {
+  scroll-snap-align: start;
+  flex: 0 0 100vw;
+  min-height: 100dvh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+
+.psh-feed--horizontal-slide .psh-feeditem__head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  padding: 10px 14px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+  color: #fff;
+}
+
+.psh-feed--horizontal-slide .psh-feeditem__body {
+  flex: 1;
+  margin: 0;
+}
+
+.psh-feed--horizontal-slide .psh-feedmedia {
+  height: 100%;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+}
+
+.psh-feed--horizontal-slide .psh-media {
+  height: 100%;
+  border-radius: 0;
+  border: none;
+}
+
+.psh-feed--horizontal-slide .psh-media__asset--video,
+.psh-feed--horizontal-slide .psh-media__asset--image {
+  object-fit: contain;
+  position: relative;
+}
+
+.psh-feed--horizontal-slide .psh-feedactions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  padding: 10px 14px;
+  background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+  color: #fff;
+}
+
+/* ── Automatic View ────────────────────────────────────────── */
+.psh-feed--automatic-view .psh-feeditem {
+  /* Automatic uses same as large-post-feed but can switch per-item */
+}
+
+/* ── Shared: peek next post in large-post-feed ─────────────── */
+.psh-feed--large-post-feed .psh-feed__items {
+  gap: 2px;
+}
+
+/* ── Action bar styling for fullscreen modes ───────────────── */
+.psh-feed--horizontal-slide .psh-feedactions__btn,
+.psh-feed--vertical-slide .psh-feedactions__btn {
+  color: rgba(255,255,255,0.9);
+}
+
+.psh-feed--horizontal-slide .psh-feedactions__btn:hover,
+.psh-feed--vertical-slide .psh-feedactions__btn:hover {
+  color: #fff;
+}
+
+.psh-feed--horizontal-slide .psh-feedactions__btn.is-active,
+.psh-feed--vertical-slide .psh-feedactions__btn.is-active {
+  color: var(--c-green);
+}
+
+/* ── Swipe hint (first time) ───────────────────────────────── */
+.psh-swipe-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--c-green-soft);
+  color: var(--c-green);
+  font-size: var(--fs-12);
+  border-radius: var(--r-md);
+  margin: 4px 0;
+  animation: psh-swipe-hint-fade 3s ease forwards;
+}
+
+@keyframes psh-swipe-hint-fade {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
+
+/* ── Responsive adjustments ────────────────────────────────── */
+@media (min-width: 768px) {
+  .psh-feed--large-post-feed .psh-feedmedia .psh-media {
+    max-height: 70vh;
+  }
+  
+  .psh-feed--vertical-slide .psh-feeditem {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: calc(100dvh - 80px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .psh-feed--large-post-feed .psh-feeditem {
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .psh-feed--large-post-feed .psh-feedmedia {
+    margin-left: calc(var(--card-pad) * -1);
+    margin-right: calc(var(--card-pad) * -1);
+  }
+  
+  .psh-feed--horizontal-slide .psh-feeditem {
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: auto;
+    height: calc(100dvh - 60px);
+  }
+}

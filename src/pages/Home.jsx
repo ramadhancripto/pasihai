@@ -92,6 +92,7 @@ export default function Home({
         onRefreshFeed={onRefreshFeed}
         onOpenChat={onOpenChat}
         feedVersion={feedVersion}
+        feedMode={viewMode || 'large-post-feed'}
       />
     </div>
   )

@@ -62,7 +62,10 @@
 .psh-status__item {
   scroll-snap-align: start;
   flex: 0 0 auto;
-  width: 74px;
+  width: 100px;
+}
+.psh-status__item--viewed .psh-status__card {
+  opacity: 0.7;
 }
 .psh-status__btn {
   display: grid;
@@ -194,6 +197,87 @@
   font-size: var(--fs-11);
   color: var(--t-3);
   line-height: 1;
+}
+
+/* ── Status card (media preview) ───────────────────────────── */
+.psh-status__card {
+  position: relative;
+  display: block;
+  width: 88px;
+  height: 132px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-subtle);
+  transition: transform var(--dur-2) var(--ease);
+}
+.psh-status__btn:hover .psh-status__card {
+  transform: translateY(-2px);
+}
+.psh-status__card--tone-green {
+  border: 2px solid var(--c-green);
+}
+.psh-status__card--tone-blue {
+  border: 2px solid var(--c-blue);
+}
+.psh-status__card--tone-gold {
+  border: 2px solid var(--c-gold);
+}
+.psh-status__card--tone-own {
+  border: 2px solid var(--c-green-soft);
+}
+.psh-status__card--more {
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--line-2);
+}
+.psh-status__thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.psh-status__gradient {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+.psh-status__gradient--green {
+  background: linear-gradient(145deg, #0d4537, #167559 56%, #0e3028);
+}
+.psh-status__gradient--blue {
+  background: linear-gradient(145deg, #153c62, #236ea2 56%, #102c47);
+}
+.psh-status__gradient--gold {
+  background: linear-gradient(145deg, #694713, #b27721 56%, #392c15);
+}
+.psh-status__createcard {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--c-green-700);
+  background: var(--c-green-soft);
+}
+.psh-status__foot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  width: 100%;
+  overflow: hidden;
+}
+.psh-status__foot .psh-status__ring {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.psh-status__foot .psh-status__inner {
+  padding: 1px;
+}
+.psh-status__foot .psh-status__name {
+  max-width: 60px;
+  font-size: var(--fs-11);
 }
 
 /* ── Home tabs + content filter ───────────────────────────── */

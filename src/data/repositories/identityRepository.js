@@ -60,6 +60,24 @@ export const mockIdentityRepository = {
     return Object.values(users).map(withRelationship)
   },
 
+  async searchUsers(query, limit = 8) {
+    const q = (query || '').toLowerCase()
+    if (!q) return []
+    return Object.values(users)
+      .filter((u) =>
+        (u.name || '').toLowerCase().includes(q) ||
+        (u.handle || '').toLowerCase().includes(q)
+      )
+      .slice(0, limit)
+      .map((u) => ({
+        id: u.id,
+        name: u.name,
+        handle: u.handle || '',
+        avatarUrl: u.avatar || null,
+        type: u.type || 'person',
+      }))
+  },
+
   async listChannelSuggestions() {
     return channelSuggestions.map((id) => users[id]).filter(Boolean).map(withRelationship)
   },

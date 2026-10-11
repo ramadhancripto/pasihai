@@ -275,6 +275,35 @@ export const supabaseIdentityRepository = {
     }
   },
 
+  /* ── SEARCH: Users by name/handle (for @mentions) ───────── */
+  async searchUsers(query, limit = 8) {
+    if (!isSupabaseLive || !supabase) return []
+    if (!query || query.length < 2) return []
+
+    try {
+      const pattern = `%${query}%`
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, handle, avatar_url, user_type')
+        .or(`display_name.ilike.${pattern},handle.ilike.${pattern}`)
+        .is('deleted_at', null)
+        .limit(limit)
+
+      if (error) throw error
+
+      return (data || []).map((r) => ({
+        id: r.user_id,
+        name: r.display_name || r.handle || 'Mtumiaji',
+        handle: r.handle || '',
+        avatarUrl: r.avatar_url || null,
+        type: r.user_type || 'person',
+      }))
+    } catch (err) {
+      handleError(err, 'searchUsers')
+      return []
+    }
+  },
+
   /* ── READ: Channel suggestions ──────────────────────────── */
   async listChannelSuggestions() {
     if (!isSupabaseLive || !supabase) return []
