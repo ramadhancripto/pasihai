@@ -48,8 +48,15 @@ assert('403 + 42501 (real RLS)', parseSupabaseError({
   details: null, hint: null, status: 403
 }, 'addStatus'), 'RLS_ERROR');
 
-// ── CASE 2: profiles SELECT → 406 from .single() returning 0 rows ──
+// ── CASE 2: profiles SELECT → PGRST116 from .single() returning 0 rows ──
 console.log('\n--- profiles SELECT (.single() 0 rows) ---');
+
+assert('PGRST116 .single() no rows', parseSupabaseError({
+  code: 'PGRST116',
+  message: 'Cannot coerce the result to a single JSON object',
+  details: 'The result contains 0 rows',
+  hint: null, status: 406
+}, 'getCurrentUser'), 'SCHEMA_ERROR');
 
 assert('406 .single() no rows', parseSupabaseError({
   code: undefined,

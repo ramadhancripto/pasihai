@@ -144,9 +144,9 @@ export const supabaseIdentityRepository = {
       }
 
       // CASE 2: profiles table EXISTS but no row for this user.
-      // .single() returns 406 when 0 rows match.
+      // PGRST116: .single() returned 0 rows.
       // Use ensure_profile() RPC to create profile atomically.
-      if (status === 406 || err?.message?.includes('no rows returned') || err?.message?.includes('JSON object requested')) {
+      if (code === 'PGRST116' || status === 406 || err?.message?.includes('no rows returned') || err?.message?.includes('JSON object requested')) {
         console.warn('[SupabaseIdentityRepository] getCurrentUser: profile row missing — calling ensure_profile()')
         if (!authUser) return null
         try {

@@ -179,6 +179,7 @@ export function parseSupabaseError(error, context) {
   if (
     code === '42P01' || // undefined_table
     code === '42703' || // undefined_column
+    code === 'PGRST116' || // .single() returned 0 rows
     code === 'PGRST204' || // column not in schema cache
     code === 'PGRST205' || // table not in schema cache
     error?.status === 404 ||
