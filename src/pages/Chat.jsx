@@ -36,8 +36,6 @@ import {
   IconInfo,
   IconMoreVertical,
   IconPlus,
-  IconPhone,
-  IconVideo,
   IconComment,
   IconRadar,
   IconSearchSmall,
@@ -112,11 +110,16 @@ export default function Chat({ onToast }) {
   const send = async (payload) => {
     if (!activeId) return
     setBusy(true)
-    const res = await chatService.sendMessage(activeId, payload)
-    setBusy(false)
-    const label = chatService.MESSAGE_STATES[res.message?.state]?.label
-    onToast?.(label ? `Ujumbe: ${label}` : 'Ujumbe umetumwa')
-    refresh()
+    try {
+      const res = await chatService.sendMessage(activeId, payload)
+      const label = chatService.MESSAGE_STATES[res.message?.state]?.label
+      onToast?.(label ? `Ujumbe: ${label}` : 'Ujumbe umetumwa')
+    } catch (err) {
+      onToast?.(`Ujumbe haujatumwa: ${err?.message || 'hitilafu isiyojulikana'}`)
+    } finally {
+      setBusy(false)
+      refresh()
+    }
   }
 
   const react = async (msgId, reaction) => {
@@ -377,12 +380,6 @@ export default function Chat({ onToast }) {
               ) : null}
             </div>
             <div className="psh-chat__headactions">
-              <button type="button" className="psh-icobtn psh-icobtn--off" disabled aria-label="Simu ya sauti (inakuja)" title="Simu ya sauti — inakuja">
-                <IconPhone size={20} />
-              </button>
-              <button type="button" className="psh-icobtn psh-icobtn--off" disabled aria-label="Video call (inakuja)" title="Video call — inakuja">
-                <IconVideo size={20} />
-              </button>
               <button type="button" className="psh-icobtn" aria-label="Tafuta kwenye Chat" onClick={() => go('search')}>
                 <IconSearchSmall size={20} />
               </button>

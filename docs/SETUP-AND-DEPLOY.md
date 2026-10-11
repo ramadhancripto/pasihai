@@ -44,6 +44,23 @@ Jaza `.env.local` kwenye mashine yako. **Usiweke `.env.local` kwenye Git wala ZI
 
 **Usiweke kamwe** service_role key, database password, au secret yoyote kwenye variables zenye `VITE_` (zinaingia kwenye browser bundle).
 
+### 4.1 Makosa ya usanidi na jinsi app inavyoyaonyesha
+
+App haipakii mock kimya kimya ukiwa na usanidi usio sahihi. Inaonyesha ujumbe wa "Usanidi wa Supabase una tatizo" pamoja na orodha ya mambo ya kurekebisha. Kanuni:
+
+| Hali | Matokeo |
+|---|---|
+| Hakuna URL, key, wala mode | Mock mode (lebo "DEMO") |
+| URL na key zimewekwa, `VITE_SUPABASE_MODE` haijawekwa au si `live` | Kosa: weka `live` au ondoa URL/key |
+| `VITE_SUPABASE_MODE=live` bila URL au key | Kosa: thamani zinazokosekana zinatajwa |
+| Jina `VITE_SUPABASE_ANON_KEY` | Halitambuliwi; tumia `VITE_SUPABASE_PUBLISHABLE_KEY` |
+| `sb_secret_...` au JWT yenye `role: service_role` kwenye key | Kosa, app haitapakia. Badilisha key kwenye Supabase |
+| URL isiyo https (isipokuwa localhost/127.0.0.1) | Kosa |
+
+Baada ya kubadilisha `.env.local`, zima `npm run dev` na uwashe tena. Kwa build ya `dist`, rebuild baada ya kubadilisha env.
+
+Jaribio la moduli hii: `npm run test:config` (14 checks, bila mtandao).
+
 ## 5. Supabase: migrations
 
 Tekeleza `supabase/migrations/` kwa mpangilio wa jina. Hii ni orodha halisi (21 kwa idadi, pamoja na 007b na 008b):

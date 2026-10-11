@@ -17,10 +17,35 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext.jsx'
-import { isSupabaseLive } from './supabaseClient.js'
+import { isSupabaseLive, supabaseConfigProblems } from './supabaseClient.js'
 import { waitForSupabaseRepos } from '../data/repositories/index.js'
 import { Button } from '../components/ui.jsx'
 import Login from '../pages/Login.jsx'
+
+function ConfigError({ problems }) {
+  return (
+    <div
+      className="psh-app"
+      role="alert"
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 12, padding: 24, textAlign: 'left', maxWidth: 640, margin: '0 auto' }}
+    >
+      <h1 style={{ fontSize: 20, margin: 0 }}>Usanidi wa Supabase una tatizo</h1>
+      <p style={{ margin: 0 }}>
+        App haipakii data ya mock kimya kimya. Rekebisha mambo haya kwenye <code>.env.local</code>
+        {' '}(kwenye folder yenye <code>package.json</code>), kisha zima <code>npm run dev</code> na uwashe tena:
+      </p>
+      <ul style={{ margin: 0, paddingLeft: 20 }}>
+        {problems.map((p) => (
+          <li key={p} style={{ marginBottom: 6 }}>{p}</li>
+        ))}
+      </ul>
+      <p style={{ margin: 0, fontSize: 13 }}>
+        Mfano sahihi kwa Supabase: <code>VITE_SUPABASE_MODE=live</code>, <code>VITE_SUPABASE_URL=https://&lt;project-ref&gt;.supabase.co</code>,
+        {' '}<code>VITE_SUPABASE_PUBLISHABLE_KEY=&lt;publishable-key&gt;</code>. Kwa mock tu, ondoa URL na key.
+      </p>
+    </div>
+  )
+}
 
 export function AuthGate({ children }) {
   const { loading: authLoading, isAuthenticated } = useAuth()
@@ -45,6 +70,11 @@ export function AuthGate({ children }) {
       cancelled = true
     }
   }, [needsRepos, attempt])
+
+  // Tatizo lolote la usanidi: onyesha kosa wazi, usipakie App wala mock.
+  if (supabaseConfigProblems.length > 0) {
+    return <ConfigError problems={supabaseConfigProblems} />
+  }
 
   // Katika mock mode, rudi moja kwa moja kwa children
   if (!isSupabaseLive) {

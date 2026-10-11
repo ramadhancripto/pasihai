@@ -17,29 +17,37 @@
 // ══════════════════════════════════════════════════════════════
 
 import { createClient } from '@supabase/supabase-js'
+import { resolveSupabaseConfig } from './supabaseConfig.js'
 
+// Chanzo kimoja cha ukweli: supabaseConfig.js (inasoma VITE_* env).
 // Safe access kwa import.meta.env (SSR-compatible)
 const env = (typeof import.meta !== 'undefined' && import.meta.env) || {}
-const supabaseUrl = env.VITE_SUPABASE_URL
-const supabaseKey = env.VITE_SUPABASE_PUBLISHABLE_KEY
+const config = resolveSupabaseConfig(env)
+const supabaseUrl = config.url
+const supabaseKey = config.key
 
 /**
  * Hali ya mfumo: 'mock' | 'live'
  * - 'mock': repositories zinarudisha mock data (default, salama)
  * - 'live': repositories zinatuma queries kwa Supabase (inahitaji schema + RLS)
  */
-export const SUPABASE_MODE = env.VITE_SUPABASE_MODE || 'mock'
+export const SUPABASE_MODE = config.mode
 
 /**
- * Je, Supabase client imesanidiwa na tayari kutumika?
- * Inarudisha true tu ikiwa URL na key zipo na mode ni 'live'.
+ * Je, Supabase client imesanidiwa (URL na key zipo)?
  */
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey)
+export const isSupabaseConfigured = config.isConfigured
 
 /**
- * Je, Supabase ipo katika hali ya 'live' (si mock)?
+ * Je, Supabase ipo katika hali ya 'live' bila matatizo ya usanidi?
  */
-export const isSupabaseLive = isSupabaseConfigured && SUPABASE_MODE === 'live'
+export const isSupabaseLive = config.isLive
+
+/**
+ * Orodha ya matatizo ya usanidi (tupu = sawa). AuthGate inaitumia
+ * kuonyesha ujumbe wa kosa badala ya kupakia App kimya kimya.
+ */
+export const supabaseConfigProblems = config.problems
 
 /**
  * Supabase client instance (lazy initialization).

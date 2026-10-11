@@ -17,6 +17,8 @@
 // ══════════════════════════════════════════════════════════════
 
 // Mock implementations (static imports - salama kwa SSR)
+import { supabaseConfig } from '../../lib/supabaseConfig.js'
+import { registerRepo } from './lazyRepo.js'
 import { mockIdentityRepository } from './identityRepository.js'
 import { mockContentRepository } from './contentRepository.js'
 import { mockActivityRepository } from './activityRepository.js'
@@ -27,15 +29,10 @@ import { mockGunduaRepository } from './gunduaRepository.js'
 import { mockSpacesRepository } from './spacesRepository.js'
 
 /* ── Mode detection (SSR-safe) ─────────────────────────────── */
+// Chanzo kimoja cha ukweli: supabaseConfig.js. Live ni kweli TU ikiwa
+// mode ni 'live' na hakuna tatizo la usanidi. Hakuna fallback kimya.
 function checkIsLive() {
-  try {
-    const env = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {}
-    return env.VITE_SUPABASE_MODE === 'live' && 
-           env.VITE_SUPABASE_URL && 
-           env.VITE_SUPABASE_PUBLISHABLE_KEY
-  } catch {
-    return false
-  }
+  return supabaseConfig.isLive
 }
 
 /* ── Lazy Supabase repository loader ─────────────────────────
@@ -121,12 +118,44 @@ function createRepositoryProxy(mockRepo, supabaseName) {
         })
       }
       
+      // Symbols na 'then' (await/thenable checks) hazipaswi kutupa
+      if (typeof prop === 'symbol' || prop === 'then') return undefined
+
+      // Repo imepakia lakini method haipo kwenye Supabase: kataa wazi, usirudishe mock
+      if (supabaseRepos[supabaseName]) {
+        return () => Promise.reject(liveNotImplemented(`${supabaseName}.${String(prop)}`))
+      }
+
       // Ikiwa bado inapakia, toa error badala ya kurudisha mock
       throw new Error(
         `[Repository] Live mode: Supabase ${supabaseName} repository bado inapakia. ` +
         `Tumia await waitForSupabaseRepos() kabla ya kutumia repositories.`
       )
     }
+  })
+}
+
+/* Kosa la wazi kwa method ambayo haijaunganishwa na live. Hairudishi data ya mock. */
+export function liveNotImplemented(name) {
+  const err = new Error(`Kipengele hiki bado hakijaunganishwa na Supabase live: ${name}`)
+  err.code = 'LIVE_NOT_IMPLEMENTED'
+  return err
+}
+
+/* Repo ya mock isiyo na Supabase: kwenye live, kila function inakataliwa wazi.
+   `allowed` ni methods zenye toleo halisi la live. */
+function liveGuard(mockRepo, label, allowed = {}) {
+  if (!checkIsLive()) return mockRepo
+  return new Proxy(mockRepo, {
+    get(target, prop) {
+      if (typeof prop === 'symbol' || prop === 'then') return undefined
+      if (Object.prototype.hasOwnProperty.call(allowed, prop)) return allowed[prop]
+      const value = target[prop]
+      if (typeof value === 'function') {
+        return () => Promise.reject(liveNotImplemented(`${label}.${String(prop)}`))
+      }
+      return value
+    },
   })
 }
 
@@ -162,16 +191,31 @@ function createGunduaRepository(mockRepo) {
           return repo[prop](...args)
         }
       }
+      if (typeof target[prop] === 'function') {
+        return () => Promise.reject(liveNotImplemented(`gunduaRepository.${String(prop)}`))
+      }
       return target[prop]
     },
   })
 }
 
-// Hizi bado ni mock pekee (Supabase repos hazijaandaliwa bado)
-export const catalogRepository = mockCatalogRepository
-export const systemRepository = mockSystemRepository
+// Hizi hazina toleo la Supabase. Kwenye live zinakataliwa wazi; hazirudishi mock.
+// Isipokuwa: connection ya kivinjari (navigator.onLine) ni hali halisi ya kivinjari, si uthibitisho wa seva.
+export const catalogRepository = liveGuard(mockCatalogRepository, 'catalogRepository')
+export const systemRepository = liveGuard(mockSystemRepository, 'systemRepository', {
+  getConnection: async () => ({
+    state: typeof navigator !== 'undefined' && navigator.onLine === false ? 'OFFLINE' : 'ONLINE',
+    source: 'navigator.onLine',
+  }),
+})
 export const gunduaRepository = createGunduaRepository(mockGunduaRepository)
-export const spacesRepository = mockSpacesRepository
+export const spacesRepository = liveGuard(mockSpacesRepository, 'spacesRepository')
+
+/* Sajili repos kwa lazyRepo (spacesRepository.js inazitumia wakati wa kuitwa; hakuna mzunguko wa imports). */
+registerRepo('identityRepository', identityRepository)
+registerRepo('contentRepository', contentRepository)
+registerRepo('systemRepository', systemRepository)
+registerRepo('gunduaRepository', gunduaRepository)
 
 /* ── Mode export (kwa debugging) ─────────────────────────── */
 export const REPOSITORY_MODE = checkIsLive() ? 'supabase' : 'mock'

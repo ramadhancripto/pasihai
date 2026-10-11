@@ -19,6 +19,12 @@
 // ══════════════════════════════════════════════════════════════
 
 import { supabase, isSupabaseLive } from '../../lib/supabaseClient.js'
+import {
+  cloudinaryConfig,
+  cloudinaryMediaMeta,
+  isOwnCloudinaryUrl,
+  uploadMediaToCloudinary,
+} from '../../utils/cloudinary.js'
 import { mapSupabaseFeed } from '../mappers/supabaseFeedMapper.js'
 import { mapSupabaseStatus } from '../mappers/statusMapper.js'
 import {
@@ -32,12 +38,13 @@ import {
 } from '../../utils/errors.js'
 import {
   getPostMediaExtension,
+  MAX_POST_MEDIA_BYTES,
   POST_MEDIA_BUCKET,
   POST_MEDIA_SIGNED_URL_TTL,
   PostMediaConfigurationError,
   validatePostMediaFile,
 } from '../../utils/postMedia.js'
-import { validateStatusDraft } from '../../utils/statusMedia.js'
+import { STATUS_MAX_MEDIA_BYTES, validateStatusDraft } from '../../utils/statusMedia.js'
 import { offlineActions } from '../../utils/offlineActions.js'
 import { contentCache } from '../../utils/contentCache.js'
 
@@ -679,6 +686,7 @@ export const supabaseContentRepository = {
     }
 
     let uploadedPath = null
+    let cloudAsset = null
     let postInserted = false
     const removeUnattachedMedia = async () => {
       if (!uploadedPath) return
@@ -704,9 +712,27 @@ export const supabaseContentRepository = {
       if (draft.pollQuestion) kind = 'poll'
       if (file) kind = normalizedKind === 'reel' ? 'reel' : fileDetails.mediaType
       const mediaMeta = { ...(draft.mediaMeta || {}) }
-      let mediaUrl = draft.mediaUrl || null
+      // Mteja hawezi kuingiza URL yake. URL pekee inayokubalika ni ya cloud yetu ya Cloudinary.
+      if (draft.mediaUrl && !file && !isOwnCloudinaryUrl(draft.mediaUrl)) {
+        throw new ValidationError('URL ya media haikubaliki. Chagua picha au video kutoka kwenye kifaa chako.')
+      }
+      let mediaUrl = !file && draft.mediaUrl ? draft.mediaUrl : null
 
-      if (file) {
+      if (file && cloudinaryConfig.mode !== 'off') {
+        // Cloudinary: picha/video inakwenda Cloudinary; DB inahifadhi URL + metadata, si faili.
+        cloudAsset = await uploadMediaToCloudinary(file, {
+          mediaType: fileDetails.mediaType,
+          maxBytes: MAX_POST_MEDIA_BYTES,
+        })
+        mediaUrl = cloudAsset.url
+        Object.assign(mediaMeta, {
+          mediaType: fileDetails.mediaType,
+          mimeType: fileDetails.mimeType,
+          size: fileDetails.size,
+          ratio: kind === 'reel' ? '9 / 16' : fileDetails.mediaType === 'video' ? '16 / 9' : '4 / 3',
+          ...cloudinaryMediaMeta(cloudAsset),
+        })
+      } else if (file) {
         const mediaPath = makePostMediaPath(user.id, file)
         const storage = supabase.storage.from(POST_MEDIA_BUCKET)
         const { error: uploadError } = await storage.upload(mediaPath, file, {
@@ -731,7 +757,7 @@ export const supabaseContentRepository = {
         author_id: user.id,
         kind,
         text: draft.text || null,
-        media_url: file ? null : mediaUrl,
+        media_url: file ? (cloudAsset ? cloudAsset.url : null) : mediaUrl,
         media_path: uploadedPath,
         media_meta: mediaMeta,
         poll_question: draft.pollQuestion || null,
@@ -796,6 +822,10 @@ export const supabaseContentRepository = {
       return result
     } catch (error) {
       if (uploadedPath && !postInserted) await removeUnattachedMedia()
+      if (cloudAsset && !postInserted) {
+        // Unsigned Cloudinary haiwezi kufuta asset; inaripotiwa ili ifuatiliwe.
+        console.warn('[ContentRepo:addPost] Cloudinary asset uploaded but post not saved; asset needs manual cleanup.', cloudAsset.publicId)
+      }
       if (file && (error instanceof NetworkError || (typeof navigator !== 'undefined' && !navigator.onLine))) {
         throw new NetworkError(
           'Mtandao haupatikani; picha/video haikutumwa na hakuna post iliyohifadhiwa. Unganisha mtandao kisha jaribu tena.',
@@ -1021,11 +1051,20 @@ export const supabaseContentRepository = {
     if (st.file && !supabase?.storage) {
       throw new SchemaError('Supabase Storage client haijaandaliwa kwa Status media.')
     }
-    const mediaPath = st.file ? `${user.id}/${makeStatusMediaName(st.file)}` : null
+    // Cloudinary: media ya status inakwenda Cloudinary; statuses.media_url inahifadhi URL
+    // na media_path inabaki NULL (sharti la statuses_content_check, migration 017).
+    const useCloudinary = Boolean(st.file) && cloudinaryConfig.mode !== 'off'
+    const mediaPath = st.file && !useCloudinary ? `${user.id}/${makeStatusMediaName(st.file)}` : null
     let uploaded = false
+    let cloudAsset = null
 
     try {
-      if (st.file) {
+      if (useCloudinary) {
+        cloudAsset = await uploadMediaToCloudinary(st.file, {
+          mediaType: draft.mediaType,
+          maxBytes: STATUS_MAX_MEDIA_BYTES,
+        })
+      } else if (st.file) {
         const { error: uploadError } = await supabase.storage
           .from(STATUS_MEDIA_BUCKET)
           .upload(mediaPath, st.file, {
@@ -1041,7 +1080,7 @@ export const supabaseContentRepository = {
         .from('statuses')
         .insert({
           user_id: user.id,
-          media_url: null,
+          media_url: cloudAsset ? cloudAsset.url : null,
           media_path: mediaPath,
           media_type: draft.mediaType,
           text: draft.text,
@@ -1053,7 +1092,7 @@ export const supabaseContentRepository = {
       if (error) throw error
       if (!status) throw new Error('Database haikurudisha status iliyohifadhiwa.')
 
-      let mediaUrl = null
+      let mediaUrl = cloudAsset ? cloudAsset.url : null
       let mediaWarning = false
       if (mediaPath) {
         try {
@@ -1084,6 +1123,10 @@ export const supabaseContentRepository = {
         } catch {
           console.warn('[ContentRepo:addStatus] Uploaded status media cleanup failed.')
         }
+      }
+      if (cloudAsset) {
+        // Unsigned Cloudinary haiwezi kufuta asset; inaripotiwa ili ifuatiliwe.
+        console.warn('[ContentRepo:addStatus] Cloudinary asset uploaded but status not saved; asset needs manual cleanup.', cloudAsset.publicId)
       }
       throwStatusError(error, 'addStatus')
     }

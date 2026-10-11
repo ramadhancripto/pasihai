@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "smoke": "vite build --ssr scripts/smoke.jsx --outDir node_modules/.smoke --logLevel error && node node_modules/.smoke/smoke.js",
     "shots": "node scripts/shots.mjs",
-    "db:verify": "node supabase/verify/run-migrations.mjs . pasihai_verify && node supabase/verify/behavior-test.mjs pasihai_verify"
+    "db:verify": "node supabase/verify/run-migrations.mjs . pasihai_verify && node supabase/verify/behavior-test.mjs pasihai_verify",
+    "test:config": "node scripts/test-supabase-config.mjs",
+    "test:cloudinary": "node scripts/test-cloudinary.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

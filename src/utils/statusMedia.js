@@ -1,12 +1,22 @@
 import { ValidationError } from './errors.js'
+import { supabaseConfig } from '../lib/supabaseConfig.js'
 
 export const STATUS_MAX_MEDIA_BYTES = 25 * 1024 * 1024
 
 export const STATUS_CONFIGURATION_MESSAGE =
   'Status haijahifadhiwa: Supabase Status haijawezeshwa. Weka VITE_SUPABASE_MODE=live pamoja na VITE_SUPABASE_URL na VITE_SUPABASE_PUBLISHABLE_KEY. Maandishi yanahitaji schema ya statuses (migration 015 na 017); picha/video pia zinahitaji bucket binafsi pasihai-status-media na sera za Storage za migration 017. Hakuna Status iliyohifadhiwa.'
 
+/* Ujumbe unaonyesha SABABU halisi kutoka supabaseConfig (sio ushauri wa jumla tu). */
+export function statusConfigurationDetail() {
+  const cfg = supabaseConfig
+  if (cfg.problems && cfg.problems.length) {
+    return ` Sababu: ${cfg.problems.join(' ')}`
+  }
+  return ` Hali ya sasa: mode=${cfg.mode}, URL ${cfg.url ? 'imewekwa' : 'haijawekwa'}, KEY ${cfg.key ? 'imewekwa' : 'haijawekwa'}.`
+}
+
 export class StatusConfigurationError extends Error {
-  constructor(message = STATUS_CONFIGURATION_MESSAGE) {
+  constructor(message = STATUS_CONFIGURATION_MESSAGE + statusConfigurationDetail()) {
     super(message)
     this.name = 'StatusConfigurationError'
     this.code = 'STATUS_CONFIGURATION_ERROR'

@@ -11,7 +11,7 @@
 // hatubadili kwenda internet kimya kimya (hakuna silent fallback).
 // ══════════════════════════════════════════════════════════════
 
-import { chatRepository, identityRepository, systemRepository } from '../data/repositories/index.js'
+import { chatRepository, identityRepository, systemRepository, REPOSITORY_MODE } from '../data/repositories/index.js'
 import { systemService } from './systemService.js'
 
 /* ── Ufafanuzi wa hali za ujumbe (state vocabulary) ───────── */
@@ -126,6 +126,12 @@ export const chatService = {
 
   /* ── Tuma ujumbe: hali inatoka kwa safu ya mfumo ────────── */
   async sendMessage(convId, payload = {}) {
+    // Live: ujumbe ni 'synced' tu INSERT ikirudisha safu. Hakuna relay/mesh/foleni ya mock.
+    // Kosa lolote linatupwa ili UI ionyeshe kushindwa kwa uaminifu.
+    if (REPOSITORY_MODE === 'supabase') {
+      const message = await chatRepository.sendMessage(convId, payload)
+      return { message: { ...message, route: 'internet', stateInfo: MESSAGE_STATES.synced }, conversation: null }
+    }
     const connection = await systemRepository.getConnection()
     const { message, conversation } = await chatRepository.sendMessage(convId, payload)
 

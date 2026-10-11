@@ -284,3 +284,10 @@ Mradi huu ni wa **Pasihai** — jukwaa la kijamii lenye mawasiliano kwanza.
 ## Mawasiliano
 
 Kwa maswali au maoni, wasiliana na timu ya Pasihai.
+
+## Live Supabase (hali ya sasa, 2026-10-11)
+
+- Ripoti kamili, mapungufu na mpango wa migrations: `docs/LIVE-BACKEND-REPORT-2026-10-11.md`.
+- Live inahitaji `.env.local` yenye `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` na `VITE_SUPABASE_MODE=live` (herufi zozote). Service-role key haiwekwi kamwe kwenye frontend.
+- Kwenye live, kipengele kisichounganishwa na Supabase kinakataliwa kwa kosa la wazi (`LIVE_NOT_IMPLEMENTED`); hakuna data ya mock.
+- Mradi wa remote haujakaguliwa bado: endesha `supabase/verify/remote-inspect.sql` (READ-ONLY) kwenye mradi wa test kwanza.
