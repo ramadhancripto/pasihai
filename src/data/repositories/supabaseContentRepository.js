@@ -153,13 +153,7 @@ function throwStatusError(error, context) {
       { context, originalError: error },
     )
   }
-  // Table doesn't exist: 409 from PostgREST or 404 — not a real conflict/RLS issue
-  if (context === 'addStatus' && (error?.status === 409 || error?.status === 404 || error?.code === '42P01' || error?.code === 'PGRST205')) {
-    throw new SchemaError(
-      'Status haijahifadhiwa: table ya statuses haipo bado. Endesha PASIHAI_FULL_MIGRATION.sql kwenye Supabase SQL Editor.',
-      { context, originalError: error },
-    )
-  }
+  // parseSupabaseError now handles 409/404/406 → SchemaError correctly
   throw handleError(error, context)
 }
 

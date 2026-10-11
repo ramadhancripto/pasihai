@@ -84,9 +84,11 @@ export const supabaseIdentityRepository = {
   async getCurrentUser() {
     if (!isSupabaseLive || !supabase) return null
 
+    let authUser = null
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return null
+      authUser = user
 
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -99,48 +101,103 @@ export const supabaseIdentityRepository = {
 
       return {
         ...mapProfileToEntity(profile),
-        type: 'you', // Current user always has type 'you'
+        type: 'you',
         since: `Mwanachama tangu ${new Date(profile.created_at).toLocaleDateString('sw-TZ', { month: 'long', year: 'numeric' })}`,
-        spaces: [], // Phase 1D — spaces integration
+        spaces: [],
       }
     } catch (err) {
-      // Schema error (profiles table doesn't exist) or no matching row — return fallback from auth
       const status = err?.status || err?.statusCode
-      const isSchemaError =
-        err?.code === 'PGRST205' ||
-        err?.code === 'SCHEMA_ERROR' ||
-        err?.code === '42P01' ||
-        err?.message?.includes('schema cache') ||
-        err?.message?.includes('does not exist') ||
-        err?.message?.includes('relation') ||
+      const code = err?.code || ''
+
+      // CASE 1: profiles TABLE does not exist — schema not deployed yet.
+      // The user IS authenticated (auth.users always exists) but the migration
+      // hasn't been run. Return a minimal object so the UI stays usable,
+      // and mark it so downstream code can tell it's incomplete.
+      const isTableMissing =
+        code === 'PGRST205' ||
+        code === '42P01' ||
+        code === '42703' ||
         status === 404 ||
-        status === 406
-      if (isSchemaError) {
-        console.warn('[SupabaseIdentityRepository] getCurrentUser: profiles schema not ready, using auth fallback')
-        // Re-fetch auth user to construct a minimal profile
+        err?.message?.includes('schema cache') ||
+        err?.message?.includes('does not exist')
+
+      if (isTableMissing) {
+        console.warn('[SupabaseIdentityRepository] getCurrentUser: profiles table not deployed — migration needed')
+        if (!authUser) return null
+        const displayName = authUser.user_metadata?.display_name
+          || authUser.email?.split('@')[0] || 'Mtumiaji'
+        return {
+          id: `auth-${authUser.id}`,
+          userId: authUser.id,
+          name: displayName,
+          handle: `@${displayName.toLowerCase().replace(/\s+/g, '')}`,
+          type: 'you',
+          avatarTone: 'green',
+          verified: false,
+          bio: '',
+          stats: { friends: 0, followers: 0, following: 0, posts: 0 },
+          since: 'Mwanachama mpya',
+          spaces: [],
+          prefs: {},
+          _tableMissing: true,
+        }
+      }
+
+      // CASE 2: profiles table EXISTS but no row for this user.
+      // .single() returns 406 when 0 rows match.
+      // Use ensure_profile() RPC to create profile atomically.
+      if (status === 406 || err?.message?.includes('no rows returned') || err?.message?.includes('JSON object requested')) {
+        console.warn('[SupabaseIdentityRepository] getCurrentUser: profile row missing — calling ensure_profile()')
+        if (!authUser) return null
         try {
-          const { data: { user: authUser } } = await supabase.auth.getUser()
-          if (!authUser) return null
-          const displayName = authUser.user_metadata?.display_name || authUser.email?.split('@')[0] || 'Mtumiaji'
-          return {
-            id: `auth-${authUser.id}`,
-            userId: authUser.id,
-            name: displayName,
-            handle: `@${displayName.toLowerCase().replace(/\s+/g, '')}`,
-            type: 'you',
-            avatarTone: 'green',
-            verified: false,
-            bio: '',
-            stats: { friends: 0, followers: 0, following: 0, posts: 0 },
-            since: 'Mwanachama mpya',
-            spaces: [],
-            prefs: {},
-            _schemaFallback: true,
+          const { data: ensured, error: rpcErr } = await supabase
+            .rpc('ensure_profile', { p_user_id: authUser.id })
+            .single()
+
+          if (!rpcErr && ensured) {
+            return {
+              ...mapProfileToEntity(ensured),
+              type: 'you',
+              since: `Mwanachama tangu ${new Date(ensured.created_at).toLocaleDateString('sw-TZ', { month: 'long', year: 'numeric' })}`,
+              spaces: [],
+            }
           }
-        } catch {
+
+          // RPC haikufanya kazi — jaribu INSERT moja kwa moja
+          console.warn('[SupabaseIdentityRepository] getCurrentUser: ensure_profile RPC failed, trying direct INSERT:', rpcErr)
+          const displayName = authUser.user_metadata?.display_name
+            || authUser.email?.split('@')[0] || 'Mtumiaji'
+          const username = (authUser.email?.split('@')[0] || 'user')
+            .toLowerCase().replace(/[^a-z0-9._]/g, '').slice(0, 30) || `user_${authUser.id.slice(0, 8)}`
+
+          const { data: newProfile, error: insertErr } = await supabase
+            .from('profiles')
+            .upsert({
+              user_id: authUser.id,
+              username: username.length >= 3 ? username : `user_${authUser.id.slice(0, 8)}`,
+              display_name: displayName,
+            }, { onConflict: 'user_id' })
+            .select('*')
+            .single()
+
+          if (insertErr) {
+            console.error('[SupabaseIdentityRepository] getCurrentUser: profile creation failed:', insertErr)
+            return null
+          }
+
+          return {
+            ...mapProfileToEntity(newProfile),
+            type: 'you',
+            since: `Mwanachama tangu ${new Date(newProfile.created_at).toLocaleDateString('sw-TZ', { month: 'long', year: 'numeric' })}`,
+            spaces: [],
+          }
+        } catch (createErr) {
+          console.error('[SupabaseIdentityRepository] getCurrentUser: profile recovery failed:', createErr)
           return null
         }
       }
+
+      // CASE 3: Any other error — report, don't hide
       handleError(err, 'getCurrentUser')
       return null
     }

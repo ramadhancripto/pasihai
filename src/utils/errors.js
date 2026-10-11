@@ -161,6 +161,39 @@ export function parseSupabaseError(error, context) {
     return new AuthError(`Hujalogin au token si sahihi (${context})`, { originalError: error })
   }
   
+  // Validation errors — PostgreSQL error codes are precise; check FIRST
+  if (
+    code === '23502' || // not_null_violation
+    code === '23503' || // foreign_key_violation
+    code === '23505' || // unique_violation
+    code === '23514' || // check_violation
+    (code >= '23000' && code <= '23999') // any integrity constraint violation
+  ) {
+    return new ValidationError(`Data ya input si sahihi (${context})`, { originalError: error })
+  }
+
+  // Schema errors — codes and specific status codes
+  // 409 from PostgREST when table not in schema cache (not a real conflict)
+  // 406 from .single() when 0 rows returned
+  // 404 when relation not found
+  if (
+    code === '42P01' || // undefined_table
+    code === '42703' || // undefined_column
+    code === 'PGRST204' || // column not in schema cache
+    code === 'PGRST205' || // table not in schema cache
+    error?.status === 404 ||
+    error?.status === 406 ||
+    // 409 from PostgREST = relation not in schema cache OR
+    // "permission denied for table X" = table exists but RLS not configured,
+    // PostgREST cannot expose it — both are schema problems, not RLS.
+    (error?.status === 409) ||
+    message.includes('does not exist') ||
+    message.includes('schema cache') ||
+    message.includes('JSON object requested, multiple (or no) rows returned')
+  ) {
+    return new SchemaError(`Schema ya database si sahihi (${context})`, { originalError: error })
+  }
+
   // RLS errors
   if (
     code === '42501' || // insufficient_privilege
@@ -169,37 +202,6 @@ export function parseSupabaseError(error, context) {
     message.includes('row-level security')
   ) {
     return new RLSError(`Huna ruhusa ya kufanya operesheni hii (${context})`, { originalError: error })
-  }
-  
-  // Schema errors
-  // 409 Conflict from PostgREST when table doesn't exist (not a real conflict)
-  // 406 Not Acceptable from .single() when 0 rows returned (table missing or no matching row)
-  // 404 Not Found from PostgREST when relation not found
-  if (
-    code === '42P01' || // undefined_table
-    code === '42703' || // undefined_column
-    code === 'PGRST205' || // PostgREST: table not in schema cache
-    error?.status === 404 ||
-    error?.status === 406 ||
-    (error?.status === 409 && (code === '42P01' || code === 'PGRST205' || message.includes('relation') || message.includes('does not exist') || message.includes('schema cache'))) ||
-    message.includes('relation') ||
-    message.includes('column') ||
-    message.includes('does not exist') ||
-    message.includes('schema cache') ||
-    message.includes('JSON object requested, multiple (or no) rows returned')
-  ) {
-    return new SchemaError(`Schema ya database si sahihi (${context})`, { originalError: error })
-  }
-  
-  // Validation errors
-  if (
-    code === '23502' || // not_null_violation
-    code === '23503' || // foreign_key_violation
-    code === '23505' || // unique_violation
-    code === '23514' || // check_violation
-    message.includes('violates')
-  ) {
-    return new ValidationError(`Data ya input si sahihi (${context})`, { originalError: error })
   }
   
   // Rate limit errors

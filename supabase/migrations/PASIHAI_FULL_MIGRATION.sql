@@ -136,6 +136,57 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
+-- ── Fallback: ensure_profile (RPC) ────────────────────────────
+-- getCurrentUser() inaitumia pale profile row inapokosekana.
+-- Idempotent: ON CONFLICT DO NOTHING inazuia duplicates.
+CREATE OR REPLACE FUNCTION ensure_profile(p_user_id UUID)
+RETURNS profiles AS $$
+DECLARE
+  v_profile profiles%ROWTYPE;
+  v_auth_user RECORD;
+  v_username TEXT;
+  v_display TEXT;
+BEGIN
+  SELECT * INTO v_profile FROM profiles WHERE user_id = p_user_id;
+  IF FOUND THEN RETURN v_profile; END IF;
+
+  SELECT id, raw_user_meta_data, email
+  INTO v_auth_user
+  FROM auth.users WHERE id = p_user_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'User % haipo kwenye auth.users', p_user_id;
+  END IF;
+
+  v_username := regexp_replace(
+    lower(COALESCE(v_auth_user.raw_user_meta_data->>'username',
+      'user_' || substr(replace(v_auth_user.id::text, '-', ''), 1, 8))),
+    '[^a-z0-9._]', '', 'g'
+  );
+  IF char_length(v_username) < 3 THEN
+    v_username := v_username || substr(replace(v_auth_user.id::text, '-', ''), 1, 3);
+  END IF;
+  v_username := left(v_username, 30);
+  IF EXISTS (SELECT 1 FROM profiles WHERE username = v_username) THEN
+    v_username := left(v_username, 25) || '_' || substr(md5(random()::text), 1, 4);
+  END IF;
+
+  v_display := left(
+    COALESCE(
+      v_auth_user.raw_user_meta_data->>'display_name',
+      COALESCE(v_auth_user.raw_user_meta_data->>'full_name', 'Mtumiaji Mpya')
+    ),
+    60
+  );
+
+  INSERT INTO profiles (user_id, username, display_name, avatar_tone)
+  VALUES (p_user_id, v_username, v_display, 'green')
+  ON CONFLICT (user_id) DO NOTHING;
+
+  SELECT * INTO v_profile FROM profiles WHERE user_id = p_user_id;
+  RETURN v_profile;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- ── RLS ───────────────────────────────────────────────────────
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles FORCE ROW LEVEL SECURITY;
@@ -1763,17 +1814,28 @@ CREATE POLICY "statuses_insert_own"
     AND expires_at > now()
     AND expires_at <= now() + interval '24 hours'
     AND (
+      -- CASE 1: Text-only status
       (
         media_path IS NULL
         AND media_url IS NULL
         AND media_type IS NULL
         AND NULLIF(BTRIM(text), '') IS NOT NULL
       )
-      OR (
+      OR
+      -- CASE 2: Media via Supabase Storage (private bucket)
+      (
         media_path IS NOT NULL
         AND media_url IS NULL
         AND media_type IN ('image', 'video')
         AND split_part(media_path, '/', 1) = auth.uid()::text
+      )
+      OR
+      -- CASE 3: Media via Cloudinary (external URL)
+      (
+        media_path IS NULL
+        AND media_url IS NOT NULL
+        AND media_url LIKE 'https://res.cloudinary.com/%'
+        AND media_type IN ('image', 'video')
       )
     )
   );
@@ -1975,15 +2037,16 @@ WHERE schemaname = 'public'
     'live_sessions','statuses','reports'
   );
 
--- 3. Key functions exist (inatarajiwa: 13)
+-- 3. Key functions exist (inatarajiwa: 14)
 SELECT 'FUNCTIONS' AS check_type, count(*) AS found,
-       CASE WHEN count(*) >= 13 THEN 'PASS' ELSE 'FAIL' END AS status
+       CASE WHEN count(*) >= 14 THEN 'PASS' ELSE 'FAIL' END AS status
 FROM pg_proc
 WHERE proname IN (
   'handle_new_user','set_updated_at','can_see_post','is_blocked_by',
   'update_follow_counts','update_reaction_count','update_friends_count',
   'update_comment_count','update_share_count','update_poll_votes_count',
-  'update_conversation_timestamp','protect_post_counts','get_unread_count'
+  'update_conversation_timestamp','protect_post_counts','get_unread_count',
+  'ensure_profile'
 );
 
 -- 4. Storage buckets created (inatarajiwa: 2)
