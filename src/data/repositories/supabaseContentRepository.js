@@ -681,8 +681,13 @@ export const supabaseContentRepository = {
       )
     }
     if (!isSupabaseLive) return null
-    if (!supabase?.auth || !supabase?.storage) {
-      throw new NetworkError('Supabase client/Storage haijasanidiwa; hakikisha credentials za live zipo.')
+    if (!supabase?.auth) {
+      throw new NetworkError('Supabase client haijasanidiwa; hakikisha credentials za live zipo.')
+    }
+    // Supabase Storage inahitajika tu kama Cloudinary HAIJASANIDIWA na kuna faili.
+    const useCloudinaryForPost = file && cloudinaryConfig.mode !== 'off'
+    if (file && !useCloudinaryForPost && !supabase?.storage) {
+      throw new NetworkError('Supabase Storage haijasanidiwa na Cloudinary haijawekwa. Pakia media haiwezekani.')
     }
 
     let uploadedPath = null
@@ -1048,12 +1053,12 @@ export const supabaseContentRepository = {
     if (!STATUS_TONES.has(tone)) throw new ValidationError('Rangi ya status haikubaliki.')
 
     const user = await requireStatusUser('addStatus')
-    if (st.file && !supabase?.storage) {
-      throw new SchemaError('Supabase Storage client haijaandaliwa kwa Status media.')
-    }
     // Cloudinary: media ya status inakwenda Cloudinary; statuses.media_url inahifadhi URL
     // na media_path inabaki NULL (sharti la statuses_content_check, migration 017).
     const useCloudinary = Boolean(st.file) && cloudinaryConfig.mode !== 'off'
+    if (st.file && !useCloudinary && !supabase?.storage) {
+      throw new SchemaError('Supabase Storage client haijaandaliwa na Cloudinary haijawekwa. Status media haiwezi kupakiwa.')
+    }
     const mediaPath = st.file && !useCloudinary ? `${user.id}/${makeStatusMediaName(st.file)}` : null
     let uploaded = false
     let cloudAsset = null
