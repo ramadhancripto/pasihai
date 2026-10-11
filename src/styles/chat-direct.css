@@ -1,0 +1,103 @@
+/* ══════════════════════════════════════════════════════════════
+   DIRECT CHAT — uboreshaji (scoped kwa .psh-chat)
+   · Utambulisho: PASIHAI Friend (bluu) / Saved Contact (kijani).
+     Kila moja ina lebo ya maandishi, rangi pekee si kiashiria.
+   · Archive kutoka orodha kupitia kitufe cha wazi ⋯ (si swipe).
+   · Malengo ya kugusa ≥44px kwenye simu.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-chat__rel {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.psh-chat__rel--friend {
+  background: #EAF3FF;
+  color: #1D4FB8;
+  border-color: #2563EB;
+}
+.psh-chat__rel--saved {
+  background: #E8F7EE;
+  color: #0F6A3C;
+  border-color: #16804A;
+}
+
+.psh-chat__rowwrap {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+}
+.psh-chat__rowwrap > .psh-chat__row {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.psh-chat__rowmenu {
+  flex: none;
+  width: 44px;
+  min-height: 44px;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.psh-chat__rowmenu:hover,
+.psh-chat__rowmenu:focus-visible {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.psh-chat__rowaction {
+  min-height: 44px;
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+}
+.psh-chat__rowhelp {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+/* Malengo ya kugusa: header, filters, search (simu) */
+.psh-chat .psh-chat__filter {
+  min-height: 44px;
+}
+.psh-chat .psh-chat__search {
+  min-height: 44px;
+}
+.psh-chat .psh-chat__headactions .psh-icobtn {
+  width: 44px;
+  height: 44px;
+}
+.psh-chat__thead .psh-chat__theadname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Majina yasikatwe kidogo: chip ya uhusiano inashuka mstari unaofuata inapobana */
+.psh-chat .psh-chat__rowtop {
+  flex-wrap: wrap;
+  row-gap: 2px;
+  min-width: 0;
+}
+.psh-chat .psh-chat__rowtop .psh-chat__rowname {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -82,15 +82,15 @@ CREATE TABLE statuses (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_statuses_user ON statuses(user_id, created_at DESC)
-  WHERE expires_at > now();
+-- Partial index predicates must be IMMUTABLE; expiry filtering stays in the query/RLS.
+CREATE INDEX idx_statuses_user ON statuses(user_id, created_at DESC);
 CREATE INDEX idx_statuses_expires ON statuses(expires_at);
 
 -- ── RLS ─────────────────────────────────────────────────────
 ALTER TABLE statuses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE statuses FORCE ROW LEVEL SECURITY;
 
--- SELECT: followers wanaona statuses (au wote kwa public profiles)
+-- SELECT: owner na followers tu; hakuna profile-visibility branch hapa.
 CREATE POLICY "statuses_select_followers"
   ON statuses FOR SELECT
   USING (

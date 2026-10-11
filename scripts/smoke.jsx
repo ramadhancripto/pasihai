@@ -34,7 +34,16 @@ const { default: StyleGuide } = await import('../src/pages/StyleGuide.jsx')
 const panels = await import('../src/components/panels.jsx')
 
 const repositories = await import('../src/data/repositories/index.js')
+const { default: StructuredPost } = await import('../src/components/studio/StructuredPost.jsx')
+const postContent = await import('../src/utils/postContent.js')
+const await_studio = await import('../src/components/studio/PostStudio.jsx')
 const { homeService } = await import('../src/services/homeService.js')
+const feedPanels = await import('../src/components/feed/FeedPanels.jsx')
+const { mapSupabaseStatus } = await import('../src/data/mappers/statusMapper.js')
+const { mapSupabasePost } = await import('../src/data/mappers/supabaseFeedMapper.js')
+const feedBodies = await import('../src/components/feed/bodies.jsx')
+const { STATUS_MAX_MEDIA_BYTES, StatusConfigurationError, statusErrorMessage, validateStatusDraft, validateStatusFile } = await import('../src/utils/statusMedia.js')
+const { MAX_POST_MEDIA_BYTES, POST_MEDIA_BUCKET, validatePostMediaFile } = await import('../src/utils/postMedia.js')
 const { accountService } = await import('../src/services/accountService.js')
 const { settingsService } = await import('../src/services/settingsService.js')
 const { notificationService } = await import('../src/services/notificationService.js')
@@ -47,6 +56,7 @@ const SystemQuickButton = (await import('../src/components/system/SystemQuickBut
 const FeedItem = (await import('../src/components/feed/FeedItem.jsx')).default
 const FeedList = (await import('../src/components/feed/FeedList.jsx')).default
 const { formatAge } = await import('../src/utils/time.js')
+const BottomNav = (await import('../src/components/BottomNav.jsx')).default
 const { NAV_ITEMS } = await import('../src/components/BottomNav.jsx')
 const Chat = (await import('../src/pages/Chat.jsx')).default
 const Thread = (await import('../src/components/chat/Thread.jsx')).default
@@ -88,6 +98,94 @@ function assert(condition, name, detail = '') {
    ══════════════════════════════════════════════════════════ */
 
 check('App (Home)', () => renderToString(<App />))
+check('BottomNav — status za prototype na Business', () =>
+  renderToString(<BottomNav active="home" onChange={noop} />),
+)
+check('Post Studio — Makala inarender heading/body/conclusion kwa ukubwa na rangi halisi', () => {
+  const c = postContent.createContent('article')
+  c.heading.text = 'Kichwa Kikuu'; c.heading.size = 'xl'; c.heading.color = 'plum'
+  c.body.text = 'Mwili wa makala'; c.body.size = 'lg'
+  c.conclusion.text = 'Hitimisho la makala'; c.conclusion.size = 'sm'
+  const html = renderToString(<StructuredPost content={c} />)
+  assert(html.includes('Kichwa Kikuu'), 'heading haipo')
+  assert(html.includes('font-size:28px'), 'heading xl (28px) haipo')
+  assert(html.includes('font-size:20px'), 'body lg (20px) haipo')
+  assert(html.includes('font-size:14px'), 'conclusion sm (14px) haipo')
+  assert(html.includes('#6b2c6e'), 'rangi ya heading (plum) haipo')
+  assert(html.includes('Hitimisho la makala'), 'conclusion haipo')
+  assert(!/<script|onerror=/i.test(html), 'HTML hatari imeingia')
+})
+check('Post Studio — HTML ya mtumiaji inabaki maandishi (haitekelezwi)', () => {
+  const c = postContent.createContent('article')
+  c.heading.text = 'Habari'; c.body.text = '<img src=x onerror=alert(1)>'
+  const html = renderToString(<StructuredPost content={c} />)
+  assert(html.includes('&lt;img src=x onerror=alert(1)&gt;'), 'HTML haikuescapiwa')
+  assert(!html.includes('<img src=x'), 'tag halisi ya HTML imeingia')
+})
+check('Post Studio — panel nzima inarender bila kuvunjika (hatua ya 1)', () => {
+  const { default: PostStudio } = await_studio
+  const html = renderToString(<PostStudio payload={{}} onToast={noop} onClose={noop} onPosted={noop} />)
+  assert(html.includes('Chagua aina ya chapisho') || html.includes('Aina za chapisho'), 'hatua ya aina haipo')
+  assert(html.includes('Hifadhi rasimu') && html.includes('Chapisha'), 'vitendo vya Hifadhi/Chapisha havipo')
+  assert(html.includes('Makala'), 'aina ya Makala haipo')
+})
+check('Post Studio — feed inaonyesha plainText ya envelope (si JSON)', () => {
+  const c = postContent.createContent('announcement')
+  c.heading.text = 'Tangazo'; c.body.text = 'Maelezo'
+  const plain = postContent.plainText(postContent.serializeContent(c))
+  assert(plain === 'Tangazo\n\nMaelezo', 'plainText si sahihi: ' + JSON.stringify(plain))
+})
+check('Status composer — maandishi na media ni hiari', () =>
+  renderToString(<feedPanels.StatusComposerPanel onToast={noop} onClose={noop} onCreated={noop} />),
+)
+const statusComposerMarkup = renderToString(<feedPanels.StatusComposerPanel onToast={noop} />)
+assert(
+  statusComposerMarkup.includes('accept="image/jpeg,image/png,image/webp,image/gif"')
+    && statusComposerMarkup.includes('accept="video/mp4,video/webm,video/quicktime"')
+    && /maxlength="500"/i.test(statusComposerMarkup),
+  'Status composer ina pickers za picha/video tofauti na kikomo cha maandishi',
+  'accept ya picha na video imetenganishwa; textarea ina maxlength=500',
+)
+const statusAllMarkup = renderToString(<feedPanels.StatusAllPanel onOpenMine={noop} />)
+assert(statusAllMarkup.includes('Inapakia status'), 'StatusAllPanel huanza na loading state')
+
+const viewerFixtureUser = { id: 'qa-user', name: 'QA Status', handle: '@qa-status', type: 'friend', avatarTone: 'blue' }
+const viewerFixture = {
+  id: 'status-group:qa-user',
+  userId: 'qa-user',
+  own: false,
+  user: viewerFixtureUser,
+  statuses: [{
+    id: 'qa-story-text', userId: 'qa-user', user: viewerFixtureUser,
+    text: 'Maelezo ya fixture yako ndani ya viewer.', tone: 'blue',
+    createdAt: new Date(Date.now() - 2 * 60_000).toISOString(), ago: 'dakika 2 zilizopita',
+    expiresAt: new Date(Date.now() + 60 * 60_000).toISOString(), expiresAtLabel: 'baadaye leo',
+    mediaType: null, mediaUrl: null,
+  }],
+}
+const textViewerMarkup = renderToString(<feedPanels.StatusViewerPanel group={viewerFixture} />)
+assert(
+  textViewerMarkup.includes('Maelezo ya fixture yako ndani ya viewer.')
+    && textViewerMarkup.includes('psh-status-story__caption')
+    && textViewerMarkup.includes('Maoni ya Status hayapatikani kwa sasa.'),
+  'Story viewer huweka text ndani ya story na kuonyesha wazi comments ambazo hazijatekelezwa',
+)
+const imageViewerMarkup = renderToString(<feedPanels.StatusViewerPanel group={{
+  ...viewerFixture,
+  statuses: [{ ...viewerFixture.statuses[0], id: 'qa-story-image', text: 'Maelezo juu ya picha.', mediaType: 'image', mediaUrl: 'https://fixture.invalid/status.png' }],
+}} />)
+assert(
+  imageViewerMarkup.includes('<img') && imageViewerMarkup.includes('Maelezo juu ya picha.'),
+  'Story viewer ya picha huonyesha media na maelezo pamoja',
+)
+const videoViewerMarkup = renderToString(<feedPanels.StatusViewerPanel group={{
+  ...viewerFixture,
+  statuses: [{ ...viewerFixture.statuses[0], id: 'qa-story-video', text: 'Maelezo juu ya video.', mediaType: 'video', mediaUrl: 'https://fixture.invalid/status.webm' }],
+}} />)
+assert(
+  videoViewerMarkup.includes('<video') && videoViewerMarkup.includes('Maelezo juu ya video.'),
+  'Story viewer ya video huonyesha media na maelezo pamoja',
+)
 
 check('Home — kila tab', () =>
   ['mchanganyiko', 'reels', 'friends', 'channels', 'live']
@@ -237,6 +335,110 @@ const {
   catalogRepository,
 } = repositories
 
+/* ── Status validation + mapping ──────────────────────────── */
+const textOnlyStatusDraft = validateStatusDraft({ text: '  Habari kutoka Dar  ' })
+assert(
+  textOnlyStatusDraft.text === 'Habari kutoka Dar' && textOnlyStatusDraft.mediaType === null,
+  'Status validation inaruhusu maandishi bila media',
+)
+const statusImageFile = { name: 'status.png', type: 'image/png', size: 512 }
+const mediaOnlyStatusDraft = validateStatusDraft({ text: '', file: statusImageFile })
+assert(
+  mediaOnlyStatusDraft.text === null && mediaOnlyStatusDraft.mediaType === 'image',
+  'Status validation inaruhusu picha bila maandishi',
+)
+let invalidStatusFileRejected = false
+try { validateStatusFile({ name: 'notes.txt', type: 'text/plain', size: 20 }) } catch { invalidStatusFileRejected = true }
+assert(invalidStatusFileRejected, 'Status validation inakataa file type isiyoruhusiwa')
+let oversizedStatusFileRejected = false
+try { validateStatusFile({ name: 'large.mp4', type: 'video/mp4', size: STATUS_MAX_MEDIA_BYTES + 1 }) } catch { oversizedStatusFileRejected = true }
+assert(oversizedStatusFileRejected, 'Status validation inakataa media inayozidi MB 25')
+let blankStatusRejected = false
+try { validateStatusDraft({ text: '  ' }) } catch { blankStatusRejected = true }
+assert(blankStatusRejected, 'Status validation inakataa maandishi tupu bila media')
+const statusSetupMessage = statusErrorMessage(new StatusConfigurationError())
+assert(
+  statusSetupMessage.includes('VITE_SUPABASE_MODE=live')
+    && statusSetupMessage.includes('pasihai-status-media')
+    && statusSetupMessage.includes('Hakuna Status iliyohifadhiwa'),
+  'Status error ya mock inaeleza setup inayohitajika bila kudai mafanikio',
+)
+
+/* ── Post media contract (fixture ya unit test; si upload halisi) ─ */
+const validPostImage = validatePostMediaFile({ name: 'post.png', type: 'image/png', size: 1024 }, 'image')
+const validPostVideo = validatePostMediaFile({ name: 'post.webm', type: 'video/webm', size: 4096 }, 'video')
+assert(
+  validPostImage.mediaType === 'image' && validPostVideo.mediaType === 'video',
+  'Post media validation inakubali picha/video zinazoungwa mkono',
+)
+let oversizedPostMediaRejected = false
+try {
+  validatePostMediaFile({ name: 'large.mp4', type: 'video/mp4', size: MAX_POST_MEDIA_BYTES + 1 }, 'video')
+} catch { oversizedPostMediaRejected = true }
+assert(oversizedPostMediaRejected, 'Post media validation inakataa faili linalozidi kikomo cha 50 MiB')
+
+const mappedImagePost = mapSupabasePost({
+  id: 'post-media-image', author_id: 'user-1', kind: 'image', text: 'Caption ya picha',
+  media_url: 'https://signed.example/post-image.png',
+  media_meta: { mediaType: 'image', mimeType: 'image/png', ratio: '4 / 3' },
+  created_at: '2026-10-10T08:00:00.000Z',
+})
+const mappedVideoPost = mapSupabasePost({
+  id: 'post-media-video', author_id: 'user-1', kind: 'video', text: 'Caption ya video',
+  media_url: 'https://signed.example/post-video.webm',
+  media_meta: { mediaType: 'video', mimeType: 'video/webm', ratio: '16 / 9' },
+  created_at: '2026-10-10T08:00:00.000Z',
+})
+const imageFeedMarkup = renderToString(<feedBodies.MediaBody item={mappedImagePost} />)
+const videoFeedMarkup = renderToString(<feedBodies.VideoBody item={mappedVideoPost} />)
+assert(
+  imageFeedMarkup.includes('<img') && imageFeedMarkup.includes('https://signed.example/post-image.png'),
+  'Feed body huonyesha signed URL ya picha badala ya placeholder',
+)
+assert(
+  videoFeedMarkup.includes('<video') && videoFeedMarkup.includes('https://signed.example/post-video.webm')
+    && videoFeedMarkup.includes('controls'),
+  'Feed body huonyesha video yenye controls kutoka signed URL',
+)
+
+const postMediaMigrationSql = readFileSync(join(process.cwd(), 'supabase/migrations/018_post_media_storage_rls.sql'), 'utf8')
+assert(
+  postMediaMigrationSql.includes(POST_MEDIA_BUCKET)
+    && postMediaMigrationSql.includes('ADD COLUMN IF NOT EXISTS media_path')
+    && postMediaMigrationSql.includes('post_media_insert_own')
+    && postMediaMigrationSql.includes('post_media_select_visible'),
+  'Migration 018 ina bucket ya post media na sera za Storage/RLS',
+)
+
+const mappedStatus = mapSupabaseStatus({
+  id: 'status-1', user_id: 'user-1', media_url: null, media_path: 'user-1/a.png',
+  media_type: 'image', text: 'Mchana mwema', tone: 'green',
+  created_at: '2026-10-10T08:00:00.000Z', expires_at: '2026-10-11T08:00:00.000Z',
+  author: { user_id: 'user-1', username: 'user1', display_name: 'Asha', entity_type: 'person', avatar_tone: 'blue' },
+}, { currentUserId: 'user-1', mediaUrl: 'https://signed.example/status.png' })
+assert(
+  mappedStatus.own && mappedStatus.user.name === 'Asha'
+    && mappedStatus.mediaUrl === 'https://signed.example/status.png'
+    && mappedStatus.createdAt && mappedStatus.expiresAt,
+  'Status mapper huhifadhi mwandishi, media, na muda wa kuunda/ku-expire',
+)
+assert(
+  !Object.prototype.hasOwnProperty.call(mappedStatus, 'viewed'),
+  'Status mapper haibuni viewer/read state ambayo backend haijahifadhi',
+)
+const statusMigrationSql = readFileSync(join(process.cwd(), 'supabase/migrations/017_status_media_storage_rls.sql'), 'utf8')
+const baseStatusMigrationSql = readFileSync(join(process.cwd(), 'supabase/migrations/015_live_statuses_reports.sql'), 'utf8')
+assert(
+  statusMigrationSql.includes('pasihai-status-media')
+    && statusMigrationSql.includes('status_media_select_active_visible')
+    && statusMigrationSql.includes('statuses_delete_own'),
+  'Migration ya Status ina bucket binafsi na policies za Storage/RLS',
+)
+assert(
+  !/CREATE INDEX idx_statuses_user[^;]*WHERE expires_at > now\(\)/is.test(baseStatusMigrationSql),
+  'Migration 015 haitumii now() ndani ya partial-index predicate',
+)
+
 /* ── Identity repository ─────────────────────────────────── */
 const me = await identityRepository.getCurrentUser()
 assert(me?.id === 'me' && me.friends === 15 && me.followers === 0, 'identity.getCurrentUser', `friends=${me?.friends}, followers=${me?.followers}`)
@@ -254,9 +456,9 @@ assert(directory.length === 29, 'identity.listUsers', `entities ${directory.leng
 /* ── Content repository ──────────────────────────────────── */
 const statusItems = await contentRepository.getStatuses()
 assert(
-  statusItems.length === 13 && statusItems[0].own === true && statusItems[1].userId === 'amina',
-  'content.getStatuses',
-  `${statusItems.length} status, ya kwanza ni "Yako"`,
+  Array.isArray(statusItems) && statusItems.length === 0,
+  'content.getStatuses — mock Status zimeondolewa',
+  `${statusItems.length} Status za demo`,
 )
 
 /* ── Activity repository ─────────────────────────────────── */
@@ -297,16 +499,37 @@ assert(nav.tabs.length === 5 && nav.filters.length === 9, 'homeService.getNaviga
 
 const strip = await homeService.getStatusStrip()
 assert(
-  strip.length >= 2 && strip.every((s) => s.user && s.user.name),
-  'homeService.getStatusStrip — kila status ina entity yake',
-  `${strip.length}/${strip.length} zimeunganishwa`,
+  Array.isArray(strip) && strip.length === 0,
+  'homeService.getStatusStrip — mock Status hazionyeshwi',
+  `${strip.length} groups za demo`,
 )
-assert(
-  strip.every((s) => s.own || s.saved),
-  'getStatusStrip — akaunti ambazo hazijahifadhiwa hazionekani',
-  `${strip.filter((s) => s.saved || s.own).length}/${strip.length} ni zilizohifadhiwa au zako`,
-)
-assert(strip[0].user.id === 'me' && strip.slice(1).every((s) => s.saved), 'getStatusStrip — wewe kwanza, kisha waliohifadhiwa', `${strip[0].user.name} → ${strip[1].user.name}`)
+
+// Fixture ya service test pekee: id moja inayorudiwa inabaki mara moja;
+// Status mbili tofauti za akaunti moja huunganishwa kwenye entry moja.
+const originalGetStatuses = contentRepository.getStatuses
+const statusOwnerFixture = { id: 'me', name: 'Neema Joseph', type: 'you', avatarTone: 'green' }
+const followedStatusFixture = { id: 'amina', name: 'Amina Said', type: 'friend', avatarTone: 'blue' }
+contentRepository.getStatuses = async () => [
+  { id: 'status-own-1', userId: 'me', own: true, user: statusOwnerFixture, text: 'Fixture A', createdAt: '2026-02-01T09:00:00Z', expiresAt: '2027-02-01T09:00:00Z' },
+  { id: 'status-own-1', userId: 'me', own: true, user: statusOwnerFixture, text: 'Fixture A', createdAt: '2026-02-01T09:00:00Z', expiresAt: '2027-02-01T09:00:00Z' },
+  { id: 'status-own-2', userId: 'me', own: true, user: statusOwnerFixture, text: 'Fixture B', createdAt: '2026-02-01T09:05:00Z', expiresAt: '2027-02-01T09:05:00Z' },
+  { id: 'status-friend-1', userId: 'amina', own: false, saved: true, user: followedStatusFixture, text: 'Fixture C', createdAt: '2026-02-01T09:10:00Z', expiresAt: '2027-02-01T09:10:00Z' },
+]
+try {
+  const statusGroupsFixture = await homeService.getStatusStrip()
+  const ownStatusGroups = statusGroupsFixture.filter((group) => group.own)
+  assert(
+    statusGroupsFixture.length === 2
+      && ownStatusGroups.length === 1
+      && ownStatusGroups[0].statuses.length === 2
+      && ownStatusGroups[0].label === 'Status Yako'
+      && !ownStatusGroups[0].label.includes('Fixture'),
+    'Status grouping: ID hutambua duplicate, Status nyingi za mwenye akaunti huwa entry moja',
+    `${ownStatusGroups.length} own group · ${ownStatusGroups[0]?.statuses.length} Status halisi`,
+  )
+} finally {
+  contentRepository.getStatuses = originalGetStatuses
+}
 
 /* ── Account service ─────────────────────────────────────── */
 assert((await accountService.getCurrentUser()).id === 'me', 'accountService.getCurrentUser')
@@ -504,14 +727,9 @@ assert(
 
 const statusStrip = await homeService.getStatusStrip()
 assert(
-  statusStrip.some((st) => st.live),
-  'Status: status ya LIVE ipo',
-  `${statusStrip.filter((st) => st.live).length}`,
-)
-assert(
-  statusStrip.some((st) => st.ring === 'creator'),
-  'Status: ring ya creator (gold) ipo',
-  statusStrip.find((st) => st.ring === 'creator')?.label ?? '—',
+  statusStrip.length === 0,
+  'Status: mock live/ring/viewer/reaction entries hazionyeshwi',
+  `${statusStrip.length} groups za mock`,
 )
 
 const pillHtml = renderToString(
@@ -852,6 +1070,14 @@ assert(
   NAV_ITEMS[1].label === 'Chat' && NAV_ITEMS[1].purpose === 'Mawasiliano',
   'Chat nav: jina rasmi "Chat" (si Soga)',
   `${NAV_ITEMS[1].label} · ${NAV_ITEMS[1].purpose}`,
+)
+assert(
+  NAV_ITEMS.every((item) => item.statusLabel && item.statusDescription),
+  'Top nav: kila destination ina hali inayoonekana/elezeka ya backend',
+)
+assert(
+  NAV_ITEMS[4].statusLabel === 'Bado' && /Business bado haijakamilika/.test(NAV_ITEMS[4].statusDescription),
+  'Top nav: Business inaonyeshwa wazi kuwa haijakamilika',
 )
 assert(
   !navIds.includes('soga') && !NAV_ITEMS.some((n) => /soga/i.test(n.label)),
@@ -1379,12 +1605,27 @@ const mPoll = await feedSvcM.createPost({
 assert(mPoll.kind === 'poll' && mPoll.poll?.options.length === 3, 'M1: kura inaundwa na majibu 3 (halisi)')
 assert(mPoll.id.startsWith('my-'), 'M1: chapisho langu lina id ya kikao (my-*)')
 
-const mReel = await feedSvcM.createPost({ kind: 'reel', text: 'Reel yangu' })
-assert(mReel.kind === 'reel' && mReel.media?.duration, 'M1: Reel inaundwa na media ya wima')
+let missingReelFileRejected = false
+try {
+  await feedSvcM.createPost({ kind: 'reel', text: 'Reel yangu' })
+} catch (error) {
+  missingReelFileRejected = error?.code === 'VALIDATION_ERROR'
+}
+assert(missingReelFileRejected, 'M1: reel bila faili halisi haizalishi media/mafanikio ya kubuni')
 
-const feedAfterPost = await feedSvcM.getFeed({ tab: 'mchanganyiko' })
-const reelIdx = feedAfterPost.items.findIndex((i) => i.id === mReel.id)
-assert(reelIdx >= 0, 'M1: chapisho langu linaonekana kwenye mkondo (si pinned: sheria za feed)')
+const mockMediaError = await feedSvcM.createPost({
+  kind: 'video',
+  text: 'Video ya majaribio',
+  file: { name: 'clip.mp4', type: 'video/mp4', size: 1024 },
+}).then(() => null, (error) => error)
+assert(
+  mockMediaError?.code === 'MEDIA_CONFIG_ERROR' && /VITE_SUPABASE_MODE=live/.test(mockMediaError.message),
+  'M1: mock mode inakataa media na kueleza hatua halisi ya Supabase Storage',
+)
+const mReel = (await feedSvcM.getFeed({ tab: 'reels' })).items.find((item) => item.kind === 'reel')
+assert(mReel?.id, 'M1: media ya mfano iliyopo hutumika kwa majaribio ya reactions, si kama upload mpya')
+const mTextPost = await feedSvcM.createPost({ kind: 'text', text: 'Post yangu ya maandishi' })
+assert(mTextPost.kind === 'text' && mTextPost.id.startsWith('my-'), 'M1: post ya maandishi bado inahifadhiwa kwenye mock')
 
 /* ── M2: Kura inabaki (state) ───────────────────────────────── */
 await feedSvcM.votePoll(mPoll.id, 'o1')
@@ -1413,7 +1654,7 @@ const feedHidden = await feedSvcM.getFeed({ tab: 'mchanganyiko' })
 assert(!feedHidden.items.some((i) => i.id === mPoll.id), 'M3: kuficha kunaondoa chapisho kwenye mkondo')
 
 const myItems = await feedSvcM.listMine()
-assert(myItems.length >= 1 && myItems.some((i) => i.kind === 'reel'), 'M3: listMine inarudisha machapisho yangu halisi')
+assert(myItems.length >= 1 && myItems.some((i) => i.id === mTextPost.id), 'M3: listMine inarudisha machapisho yangu yaliyohifadhiwa')
 
 /* ── M4: Kikao cha Live (anza · maliza) ─────────────────────── */
 const myLive = await feedSvcM.startLive('Sauti')
@@ -1424,10 +1665,17 @@ const liveAfter = await feedSvcM.listMyLive()
 assert(liveAfter[0]?.live?.state === 'replay', 'M4: kumaliza kikao kunabadilisha hali → Zilizopita')
 assert(JSON.stringify(await feedSvcM.listJoinedLive()).includes(myLive.id) === false, 'M4: kujiunga na kikao ni hali tofauti (joined set)')
 
-/* ── M5: Status (saa 24) ───────────────────────────────────── */
-await feedSvcM.createStatus({ text: 'Leo niko Kariakoo', tone: 'green' })
+/* ── M5: Status (saa 24) — mock mode haidai kuhifadhi ─────── */
+const mStatusCreateError = await feedSvcM.createStatus({ text: 'Leo niko Kariakoo', tone: 'green' }).then(() => null, (error) => error)
 const mStatusStrip = await homeService.getStatusStrip()
-assert(mStatusStrip[0]?.own === true, 'M5: status yangu inaonekana kwanza kwenye safu ya Status')
+const mStatusesAfterAttempt = await contentRepository.getStatuses()
+assert(
+  mStatusCreateError?.code === 'STATUS_CONFIGURATION_ERROR'
+    && /VITE_SUPABASE_MODE=live/.test(mStatusCreateError.message)
+    && mStatusStrip.length === 0
+    && mStatusesAfterAttempt.length === 0,
+  'M5: text-only Status haipati mafanikio ya mock na haisababishi entry ya uongo',
+)
 
 /* ── M6: Mapendeleo (hali ya kikao) ────────────────────────── */
 await settingsSvcM.saveUserPrefs({ contentInterests: ['Kilimo', 'Sanaa'] })
@@ -1695,7 +1943,27 @@ assert(!readFileSync(join(process.cwd(), 'src/components/panels.jsx'), 'utf8').i
 
 /* ── N12: Ukurasa mmoja — hakuna routes mpya za nav ─────── */
 const nAppSrc = readFileSync(join(process.cwd(), 'src/App.jsx'), 'utf8')
-assert(/route === 'spaces'/.test(nAppSrc), 'N12: Spaces ni route ya nav ileile (hakuna route mpya)')
+assert(/routeFromHash\(window\.location\.hash\)/.test(nAppSrc), 'N12: route ya mwanzo inasomwa kutoka hash deep link')
+assert(
+  /addEventListener\('hashchange'/.test(nAppSrc) && /addEventListener\('popstate'/.test(nAppSrc),
+  'N12: hash navigation inasawazishwa na Back/Forward',
+)
+assert(/window\.location\.hash = nextHash/.test(nAppSrc), 'N12: nav huandika route kwenye hash bila router mpya')
+assert(
+  /visitedRoutes\.has\('chat'\)[\s\S]*?hidden=\{route !== 'chat'\}/.test(nAppSrc) &&
+    /visitedRoutes\.has\('spaces'\)[\s\S]*?hidden=\{route !== 'spaces'\}/.test(nAppSrc),
+  'N12: Chat na Spaces hufichwa ili kuhifadhi component state',
+)
+const nMobileNavCss = readFileSync(join(process.cwd(), 'src/styles/visual-v7-mobile.css'), 'utf8')
+assert(
+  /psh-route:not\(\[hidden\]\)/.test(nMobileNavCss),
+  'N12: fullscreen Chat/Spaces huficha nav tu route husika ikiwa active',
+)
+assert(!/spacesReset|resetToken=/.test(nAppSrc), 'N12: kubadili tab haku-reset Spaces kwa lazima')
+const nHeaderSrc = readFileSync(join(process.cwd(), 'src/components/Header.jsx'), 'utf8')
+assert(/href="#\/home"/.test(nHeaderSrc), 'N12: brand link inaelekeza kwenye route state ya Home')
+assert(!/unread|badge=/.test(nHeaderSrc), 'N12: Header haina notification badge ya kubuni')
+assert(/route === 'spaces'/.test(nAppSrc) || /visitedRoutes\.has\('spaces'\)/.test(nAppSrc), 'N12: Spaces ni route ya nav ileile (hakuna route mpya)')
 assert(!/Hubs'|Communities'|Channels'/.test(nAppSrc), 'N12: hakuna route za Hubs/Communities/Channels kwenye nav')
 const nSpacesPageSrc = readFileSync(join(process.cwd(), 'src/pages/Spaces.jsx'), 'utf8')
 assert(/SpacePage/.test(nSpacesPageSrc) && /ChannelPage/.test(nSpacesPageSrc), 'N12: Space moja na Channel zina kurasa zao (ndani ya ukurasa mmoja)')

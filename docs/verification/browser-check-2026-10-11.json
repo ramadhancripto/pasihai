@@ -1,0 +1,156 @@
+{
+  "pass": 30,
+  "total": 30,
+  "results": [
+    {
+      "name": "390 #/home: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390 #/home: no horizontal overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "390 #/chat: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390 #/chat: no horizontal overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "390 #/gundua: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390 #/gundua: no horizontal overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "390 #/spaces: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "390 #/spaces: no horizontal overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "1280 #/home: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1280 #/home: no horizontal overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "1280 #/chat: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1280 #/chat: no horizontal overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "1280 #/gundua: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1280 #/gundua: no horizontal overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "1280 #/spaces: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "1280 #/spaces: no horizontal overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "name": "m390 chat rows render",
+      "ok": true,
+      "detail": "rows=6"
+    },
+    {
+      "name": "m390 no fabricated online dots",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "m390 no gold Saved chip",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "m390 Saved Contact chip",
+      "ok": true,
+      "detail": "[\"Saved Contact\"]"
+    },
+    {
+      "name": "m390 PASIHAI Friend chip",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "m390 row menu buttons >=44px",
+      "ok": true,
+      "detail": "[[44,44],[44,44]]"
+    },
+    {
+      "name": "m390 direct thread header shows @handle",
+      "ok": true,
+      "detail": "[\"@amina.said\"]"
+    },
+    {
+      "name": "m390 thread header no presence dot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "m390 archive removes row from inbox",
+      "ok": true,
+      "detail": "before=6 after=5 name=Amina Hassan"
+    },
+    {
+      "name": "m390 archived chat reachable in Archived panel",
+      "ok": true,
+      "detail": "Amina Hassan"
+    },
+    {
+      "name": "m390 chat: no page errors",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "d1280 no fabricated online dots",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "d1280 archive removes row",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "d1280 chat: no page errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

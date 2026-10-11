@@ -1,0 +1,37 @@
+
+> pasihai-prototype@0.1.0 db:verify
+> node supabase/verify/run-migrations.mjs . pasihai_verify && node supabase/verify/behavior-test.mjs pasihai_verify
+
+shim: OK
+OK    001_profiles.sql
+OK    002_follows.sql
+OK    003_posts.sql
+OK    004_reactions.sql
+OK    005_bookmarks.sql
+OK    006_hidden_items.sql
+OK    007_friendships.sql
+OK    007b_update_can_see_post.sql
+OK    008_blocks.sql
+OK    008b_update_is_blocked_by.sql
+OK    009_comments.sql
+OK    010_polls.sql
+OK    011_shares.sql
+OK    012_chat.sql
+OK    013_notifications.sql
+OK    014_spaces.sql
+OK    015_live_statuses_reports.sql
+OK    016_idempotency_keys.sql
+OK    017_status_media_storage_rls.sql
+OK    018_post_media_storage_rls.sql
+OK    022_post_counts_guard_fix.sql
+migrations applied: 21/21
+PASS  auth trigger creates profiles for each auth user  — alice,bob,carol
+PASS  reaction insert increments posts.reactions_count  — reactions_count=1 (expected 1)
+PASS  user can bookmark as self
+PASS  user cannot bookmark on behalf of another user  — new row violates row-level security policy for table "bookmarks"
+PASS  user C sees no bookmarks owned by B  — rows=0
+PASS  user cannot set own followers_count  — update rejected: new row violates row-level security policy for table "profiles"
+PASS  author cannot tamper posts.reactions_count directly  — reactions_count=1
+PASS  anon role cannot read bookmarks  — n=0
+
+RESULTS: 8/8 passed

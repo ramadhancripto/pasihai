@@ -158,6 +158,8 @@ check('2.6: listVotes → {}', typeof votes === 'object' && Object.keys(votes).l
 
 const statuses = await supabaseContentRepository.getStatuses()
 check('2.7: getStatuses → []', Array.isArray(statuses) && statuses.length === 0)
+const noLiveStatusDelete = await supabaseContentRepository.deleteStatus('status-not-live')
+check('2.7a: deleteStatus inarudisha deleted=false bila live backend', noLiveStatusDelete?.deleted === false)
 
 const currentUser = await supabaseIdentityRepository.getCurrentUser()
 check('2.8: getCurrentUser → null', currentUser === null)
@@ -184,6 +186,7 @@ check('3.5: hideItem → false', await supabaseContentRepository.hideItem('x') =
 check('3.6: reportItem → false', await supabaseContentRepository.reportItem('x', 'spam') === false)
 check('3.7: toggleFollow → false', await supabaseIdentityRepository.toggleFollow('x', true) === false)
 check('3.8: updateProfile → null', await supabaseIdentityRepository.updateProfile({}) === null)
+check('3.9: addStatus → null bila Supabase haijawezeshwa', await supabaseContentRepository.addStatus({ text: 'Demo' }) === null)
 
 // ── Test 4: Composition root ───────────────────────────────
 console.log('')

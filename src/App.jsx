@@ -35,9 +35,11 @@ import {
   LivePanel,
   StatusComposerPanel,
   StatusAllPanel,
+  StatusViewerPanel,
 } from './components/feed/FeedPanels.jsx'
 import { CreateSpacePanel } from './components/spaces/SpacePanels.jsx'
-import { homeService } from './services/homeService.js'
+import PostStudio from './components/studio/PostStudio.jsx'
+import CreatorStudio from './pages/CreatorStudio.jsx'
 import { feedService } from './services/feedService.js'
 import {
   DataSavedPanel,
@@ -52,6 +54,14 @@ import {
 import { syncEngine } from './utils/syncEngine.js'
 import { outboxManager } from './utils/outboxManager.js'
 
+// 'studio' ni Creator Studio: inafikiwa kutoka kwenye CreatePanel (kiingilio kimoja) na hash #/studio.
+const NAV_ROUTE_IDS = new Set([...NAV_ITEMS.map(({ id }) => id), 'studio'])
+
+function routeFromHash(hash = '') {
+  const segment = String(hash).replace(/^#\/?/, '').split(/[/?#]/, 1)[0]
+  return NAV_ROUTE_IDS.has(segment) ? segment : 'home'
+}
+
 export default function App() {
   /* ── Offline detection ─────────────────────────────────── */
   const isOnline = useOnlineStatus()
@@ -60,11 +70,13 @@ export default function App() {
   const [guide, setGuide] = useState(
     () => new URLSearchParams(window.location.search).has('guide'),
   )
-  const [route, setRoute] = useState('home')
+  const [route, setRoute] = useState(() => routeFromHash(window.location.hash))
+  const [visitedRoutes, setVisitedRoutes] = useState(
+    () => new Set([routeFromHash(window.location.hash)]),
+  )
+  /* Kuweka kurasa zilizowahi kutembelewa mounted huhifadhi hali ya local. */
   /* Space inayofunguliwa kwenye ukurasa wa Spaces (kutoka Home · Wasifu) */
   const [openSpace, setOpenSpace] = useState(null)
-  /* Kubonyeza nav "Spaces" tena kunarejesha orodha (tab ileile — nav 5) */
-  const [spacesReset, setSpacesReset] = useState(0)
   const [homeTab, setHomeTab] = useState('mchanganyiko')
   const [filter, setFilter] = useState('all')
   const [viewMode, setViewMode] = useState('auto')
@@ -76,7 +88,6 @@ export default function App() {
   /* ── Panels (stack) na taarifa za muda ────────────────── */
   const [stack, setStack] = useState([])
   const [toast, setToast] = useState(null)
-  const [seenNotifs, setSeenNotifs] = useState(false)
 
   const top = stack[stack.length - 1] || null
 
@@ -97,11 +108,8 @@ export default function App() {
     [refreshFeed, toastIt],
   )
 
-  /* Status zote: orodha halisi kutoka service. */
-  const openStatusAll = useCallback(async () => {
-    const items = await homeService.getStatusStrip()
-    openTop({ type: 'statusall', payload: items })
-  }, [openTop])
+  /* StatusAllPanel inasoma service yenyewe ili ionyeshe loading/error/empty state. */
+  const openStatusAll = useCallback(() => openTop({ type: 'statusall' }), [openTop])
 
 
   useEffect(() => {
@@ -110,7 +118,37 @@ export default function App() {
     return () => window.clearTimeout(t)
   }, [toast])
 
-  // Rudi juu kila tunapobadilisha ukurasa
+  // Hash ndiyo state ya navigation: deep links na Back/Forward husawazishwa.
+  useEffect(() => {
+    const syncRouteFromLocation = () => {
+      const nextRoute = routeFromHash(window.location.hash)
+      setRoute(nextRoute)
+      setVisitedRoutes((current) => {
+        if (current.has(nextRoute)) return current
+        const next = new Set(current)
+        next.add(nextRoute)
+        return next
+      })
+
+      // Hash za zamani/zosizojulikana zirudi kwenye route salama bila entry mpya.
+      const canonicalHash = `#/${nextRoute}`
+      if (window.location.hash && window.location.hash !== canonicalHash) {
+        const url = new URL(window.location.href)
+        url.hash = `/${nextRoute}`
+        window.history.replaceState(window.history.state, '', url)
+      }
+    }
+
+    window.addEventListener('hashchange', syncRouteFromLocation)
+    window.addEventListener('popstate', syncRouteFromLocation)
+    syncRouteFromLocation()
+    return () => {
+      window.removeEventListener('hashchange', syncRouteFromLocation)
+      window.removeEventListener('popstate', syncRouteFromLocation)
+    }
+  }, [])
+
+  // Hifadhi tab ya sasa kama inavyofanya kazi sasa: anza route mpya juu.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [route])
@@ -144,6 +182,20 @@ export default function App() {
     setGuide(on)
   }
 
+  const navigateTo = useCallback((destination) => {
+    const nextRoute = NAV_ROUTE_IDS.has(destination) ? destination : 'home'
+    setRoute(nextRoute)
+    setVisitedRoutes((current) => {
+      if (current.has(nextRoute)) return current
+      const next = new Set(current)
+      next.add(nextRoute)
+      return next
+    })
+
+    const nextHash = `#/${nextRoute}`
+    if (window.location.hash !== nextHash) window.location.hash = nextHash
+  }, [])
+
   /* ── Maudhui ya kila panel ────────────────────────────── */
   const panelDef = useMemo(() => {
     if (!top) return null
@@ -175,7 +227,7 @@ export default function App() {
               onOpenSpace={(space) => {
                 closeAll()
                 setOpenSpace({ type: space.type, id: space.id })
-                setRoute('spaces')
+                navigateTo('spaces')
               }}
             />
           ),
@@ -190,11 +242,28 @@ export default function App() {
               onToast={toastIt}
               onCreateSpace={(type) => push({ type: 'create-space', payload: { type } })}
               onCompose={(kind) => push({ type: 'compose', payload: { kind } })}
+              onStudio={() => {
+                closeAll()
+                navigateTo('studio')
+              }}
               onStatus={() => push({ type: 'status' })}
               onLive={async () => {
                 const item = await startLive('Video')
                 push({ type: 'live', payload: item })
               }}
+            />
+          ),
+        }
+      case 'studio':
+        return {
+          title: 'Post Studio',
+          subtitle: 'Aina → template → maudhui → muundo → preview',
+          body: (
+            <PostStudio
+              payload={top.payload}
+              onToast={toastIt}
+              onClose={closeAll}
+              onPosted={refreshFeed}
             />
           ),
         }
@@ -210,7 +279,7 @@ export default function App() {
               onCreated={(space) => {
                 closeAll()
                 setOpenSpace({ type: space.type, id: space.id })
-                setRoute('spaces')
+                navigateTo('spaces')
               }}
             />
           ),
@@ -264,7 +333,7 @@ export default function App() {
               onOpenItem={(item) => push({ type: 'comments', payload: item })}
               onGoReels={() => {
                 closeAll()
-                setRoute('home')
+                navigateTo('home')
                 setHomeTab('reels')
               }}
             />
@@ -359,7 +428,7 @@ export default function App() {
               onToast={toastIt}
               onOpenChat={() => {
                 closeAll()
-                setRoute('chat')
+                navigateTo('chat')
               }}
             />
           ),
@@ -408,10 +477,23 @@ export default function App() {
           back: true,
           body: (
             <StatusAllPanel
-              items={top.payload || null}
-              onToast={toastIt}
-              onOpenProfile={(id) => push({ type: 'profile', payload: id })}
+              onOpenStatus={(group) => push({ type: 'statusviewer', payload: group })}
               onOpenMine={() => push({ type: 'status' })}
+            />
+          ),
+        }
+      case 'statusviewer':
+        return {
+          title: top.payload?.own ? 'Status yako' : top.payload?.user?.name || 'Story',
+          subtitle: 'Picha, video au maandishi · muda wa saa 24',
+          back: true,
+          body: (
+            <StatusViewerPanel
+              group={top.payload}
+              onToast={toastIt}
+              onChanged={refreshFeed}
+              onClose={pop}
+              onAdd={() => push({ type: 'status' })}
             />
           ),
         }
@@ -436,12 +518,14 @@ export default function App() {
     viewMode,
     dataSaver,
     push,
+    pop,
     toastIt,
     closeAll,
     openTop,
     refreshFeed,
     startLive,
     openStatusAll,
+    navigateTo,
   ])
 
   /* ── Style guide (?guide=1) ───────────────────────────── */
@@ -452,7 +536,7 @@ export default function App() {
     return <StyleGuide onHome={() => goGuide(false)} />
   }
 
-  const activeNav = NAV_ITEMS.find((n) => n.id === route)
+  const activeNav = NAV_ITEMS.find((n) => n.id === route) ?? (route === 'studio' ? { label: 'Creator Studio' } : null)
 
   return (
     <div className="psh-app">
@@ -479,78 +563,109 @@ export default function App() {
       )}
 
       {route === 'home' ? (
-      <Header
-        unread={seenNotifs ? 0 : 3}
-        onNotifications={() => {
-          setSeenNotifs(true)
-          openTop({ type: 'notifications' })
-        }}
-        onAccount={() => openTop({ type: 'profile', payload: 'me' })}
-        onMore={() => openTop({ type: 'more' })}
-        onDataSaved={() => openTop({ type: 'datasaved' })}
-        onSystem={() => openTop({ type: 'system' })}
-      />
+        <Header
+          onNotifications={() => openTop({ type: 'notifications' })}
+          onAccount={() => openTop({ type: 'profile', payload: 'me' })}
+          onMore={() => openTop({ type: 'more' })}
+          onDataSaved={() => openTop({ type: 'datasaved' })}
+          onSystem={() => openTop({ type: 'system' })}
+        />
       ) : null}
 
       <main className={`psh-main ${route === 'chat' ? 'psh-main--wide' : ''} ${route !== 'home' ? 'psh-main--nohead' : ''}`} id="main">
-        {route === 'spaces' ? (
-          <Spaces
-            onToast={toastIt}
-            onOpenPanel={push}
-            onOpenProfile={(id) => openTop({ type: 'profile', payload: id })}
-            onOpenChat={() => setRoute('chat')}
-            onRefreshFeed={refreshFeed}
-            feedVersion={feedVersion}
-            initialSpace={openSpace}
-            onClearInitial={() => setOpenSpace(null)}
-            resetToken={spacesReset}
-          />
-        ) : route === 'chat' ? (
-          <Chat onToast={toastIt} />
-        ) : route === 'gundua' ? (
-          <Gundua onToast={toastIt} onOpenChat={() => setRoute('chat')} />
-        ) : route === 'home' ? (
-          <Home
-            homeTab={homeTab}
-            setHomeTab={setHomeTab}
-            filter={filter}
-            setFilter={setFilter}
-            viewMode={viewMode}
-            onCreate={async (what) => {
-              // Post ni moja: prompt → composer (uwasilishaji ni metadata).
-              if (what === 'menu') return openTop({ type: 'create' })
-              if (what === 'live') {
-                const item = await startLive('Video')
-                return openTop({ type: 'live', payload: item })
+        {visitedRoutes.has('home') ? (
+          <div className="psh-route" data-route="home" hidden={route !== 'home'}>
+            <Home
+              homeTab={homeTab}
+              setHomeTab={setHomeTab}
+              filter={filter}
+              setFilter={setFilter}
+              viewMode={viewMode}
+              onCreate={async (what, payload) => {
+                // Post ni moja: prompt → composer (uwasilishaji ni metadata).
+                if (what === 'menu') return openTop({ type: 'create' })
+                if (what === 'studio') return openTop({ type: 'studio', payload: payload || {} })
+                if (what === 'live') {
+                  const item = await startLive('Video')
+                  return openTop({ type: 'live', payload: item })
+                }
+                return openTop({ type: 'compose', payload: { kind: what } })
+              }}
+              onOpenStatus={(item) =>
+                item === 'me'
+                  ? openTop({ type: 'status' })
+                  : openTop({ type: 'statusviewer', payload: item })
               }
-              return openTop({ type: 'compose', payload: { kind: what } })
-            }}
-            onOpenStatus={(id) =>
-              id === 'me' ? openTop({ type: 'status' }) : openTop({ type: 'profile', payload: id })
-            }
-            onOpenAllStatus={openStatusAll}
-            onOpenProfile={(id) => openTop({ type: 'profile', payload: id })}
-            onToast={toastIt}
-            onOpenPanel={push}
-            onRefreshFeed={refreshFeed}
-            onOpenChat={() => setRoute('chat')}
-            feedVersion={feedVersion}
-            onOpenViewMode={() => openTop({ type: 'viewmode' })}
-            onOpenMore={() => openTop({ type: 'more' })}
-          />
-        ) : (
-          <PlaceholderPage pageKey={route} />
-        )}
+              onOpenAllStatus={openStatusAll}
+              onOpenProfile={(id) => openTop({ type: 'profile', payload: id })}
+              onToast={toastIt}
+              onOpenPanel={push}
+              onRefreshFeed={refreshFeed}
+              onOpenChat={() => navigateTo('chat')}
+              feedVersion={feedVersion}
+              onOpenViewMode={() => openTop({ type: 'viewmode' })}
+              onOpenMore={() => openTop({ type: 'more' })}
+            />
+          </div>
+        ) : null}
+
+        {visitedRoutes.has('chat') ? (
+          <div className="psh-route" data-route="chat" hidden={route !== 'chat'}>
+            <Chat onToast={toastIt} />
+          </div>
+        ) : null}
+
+        {visitedRoutes.has('gundua') ? (
+          <div className="psh-route" data-route="gundua" hidden={route !== 'gundua'}>
+            <Gundua onToast={toastIt} onOpenChat={() => navigateTo('chat')} />
+          </div>
+        ) : null}
+
+        {visitedRoutes.has('spaces') ? (
+          <div className="psh-route" data-route="spaces" hidden={route !== 'spaces'}>
+            <Spaces
+              onToast={toastIt}
+              onOpenPanel={push}
+              onOpenProfile={(id) => openTop({ type: 'profile', payload: id })}
+              onOpenChat={() => navigateTo('chat')}
+              onRefreshFeed={refreshFeed}
+              feedVersion={feedVersion}
+              initialSpace={openSpace}
+              onClearInitial={() => setOpenSpace(null)}
+            />
+          </div>
+        ) : null}
+
+        {visitedRoutes.has('studio') ? (
+          <div className="psh-route" data-route="studio" hidden={route !== 'studio'}>
+            <CreatorStudio
+              feedVersion={feedVersion}
+              online={isOnline}
+              onOpenPostStudio={(payload) => openTop({ type: 'studio', payload: payload || {} })}
+              onOpenStatus={() => openTop({ type: 'status' })}
+              onOpenLive={async () => {
+                try {
+                  const item = await startLive('Video')
+                  openTop({ type: 'live', payload: item })
+                } catch (err) {
+                  toastIt(err?.message || 'Live haijaanza. Jaribu tena.')
+                }
+              }}
+              onOpenPanel={push}
+              onOpenProfile={(id) => openTop({ type: 'profile', payload: id })}
+              onOpenNotifications={() => openTop({ type: 'notifications' })}
+            />
+          </div>
+        ) : null}
+
+        {visitedRoutes.has('business') ? (
+          <div className="psh-route" data-route="business" hidden={route !== 'business'}>
+            <PlaceholderPage pageKey="business" />
+          </div>
+        ) : null}
       </main>
 
-      <BottomNav
-        active={route}
-        onChange={(id) => {
-          if (id === 'spaces') setSpacesReset((n) => n + 1)
-          setRoute(id)
-          // Kurasa halisi: Home · Chat · Gundua · Spaces. Business = placeholder.
-        }}
-      />
+      <BottomNav active={route} onChange={navigateTo} />
 
       <Sheet
         open={!!panelDef}

@@ -12,12 +12,12 @@ import { IconButton } from './ui.jsx'
 import DataSavedIndicator from './system/DataSavedIndicator.jsx'
 import SystemQuickButton from './system/SystemQuickButton.jsx'
 
-export default function Header({ onNotifications, onAccount, onMore, onDataSaved, onSystem, unread = 3 }) {
+export default function Header({ onNotifications, onAccount, onMore, onDataSaved, onSystem }) {
   return (
     <header className="psh-header">
       <div className="psh-header__inner">
         <div className="psh-header__left">
-          <a className="psh-header__brand" href="#/" aria-label="Pasihai, mwanzo">
+          <a className="psh-header__brand" href="#/home" aria-label="Pasihai, mwanzo">
             <Wordmark size={60} />
           </a>
         </div>
@@ -30,7 +30,7 @@ export default function Header({ onNotifications, onAccount, onMore, onDataSaved
             <SystemQuickButton onClick={onSystem} />
           </div>
           <span className="psh-header__sep" aria-hidden="true" />
-          <IconButton label="Taarifa (notifications)" badge={unread > 0} onClick={onNotifications}>
+          <IconButton label="Taarifa (notifications)" onClick={onNotifications}>
             <IconBell size={26} />
           </IconButton>
           <IconButton label="Akaunti yangu" onClick={onAccount}>

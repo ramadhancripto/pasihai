@@ -2,6 +2,11 @@
 
 **Pasihai** ni jukwaa la kijamii lenye mawasiliano kwanza (communication-first social platform).
 
+> **Hali ya sasa (2026-10-11):** Sehemu ya "Hali ya Mradi" hapa chini ni ya zamani. Hali halisi, ushahidi na mapengo yako kwenye
+> [`docs/VERIFICATION-REPORT-2026-10-11.md`](docs/VERIFICATION-REPORT-2026-10-11.md) na
+> [`docs/MASTER-CHECKLIST-2026-10-11.md`](docs/MASTER-CHECKLIST-2026-10-11.md). Usanidi na deploy: [`docs/SETUP-AND-DEPLOY.md`](docs/SETUP-AND-DEPLOY.md).
+> Supabase halisi (test project) **haijathibitishwa bado**. Chat, Spaces, Gundua na System bado hazina backend ya live.
+
 ---
 
 ## Hali ya Mradi

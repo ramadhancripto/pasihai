@@ -270,7 +270,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 2. Settings → API
 3. Nakili:
    - **Project URL:** `https://lbcpacijbiukqcpkfktp.supabase.co`
-   - **anon public key:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+   - **anon public key:** `<SUPABASE_PUBLISHABLE_KEY_REDACTED>`
 
 ### Hatua ya 2: Unda .env.local
 
@@ -279,7 +279,7 @@ cd /home/user/pasihai
 cat > .env.local << 'EOF'
 VITE_SUPABASE_MODE=live
 VITE_SUPABASE_URL=https://lbcpacijbiukqcpkfktp.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_PUBLISHABLE_KEY=<SUPABASE_PUBLISHABLE_KEY_REDACTED>
 EOF
 ```
 

@@ -405,13 +405,16 @@ export default function Thread({
         <button type="button" className="psh-icobtn psh-chat__back" aria-label="Rudi kwenye orodha ya Chat" onClick={onBack}>
           <IconChevronLeft size={20} />
         </button>
-        <ChatAvatar tone={conv.tone} name={conv.title} icon={group ? conv.groupIcon : null} online={group ? undefined : true} />
+        {/* Presence (online/last seen) haionyeshwi: hakuna chanzo halisi cha presence bado */}
+        <ChatAvatar tone={conv.tone} name={conv.title} icon={group ? conv.groupIcon : null} />
         <span className="psh-chat__theadtext">
           <span className="psh-chat__theadname">{conv.title}</span>
           {group ? (
             <span className="psh-chat__theadsub">
               {`wanachama ${conv.members || (conv.memberIds || []).length}`}
             </span>
+          ) : conv.account?.handle ? (
+            <span className="psh-chat__theadsub">{conv.account.handle}</span>
           ) : null}
         </span>
         {/* Simu bado hazijaunganishwa kwenye mfumo: vitufe vimezimwa kwa uaminifu */}

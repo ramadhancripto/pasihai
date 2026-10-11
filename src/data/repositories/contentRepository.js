@@ -22,14 +22,16 @@
 // kimya kimya — kila kitu kinachohifadhiwa ni cha mtumiaji mwenyewe.
 // ══════════════════════════════════════════════════════════════
 
-import { statuses, posts, reels, liveSessions, postComments, spacePosts, me } from '../mock.js'
+import { posts, reels, liveSessions, postComments, spacePosts, me } from '../mock.js'
 import { mapFeed } from '../mappers/feedMapper.js'
+import { ValidationError } from '../../utils/errors.js'
+import { PostMediaConfigurationError } from '../../utils/postMedia.js'
+import { StatusConfigurationError } from '../../utils/statusMedia.js'
 
 /* ── Hali ya kikao (inapotea ukifunga app — prototype) ─────── */
 const session = {
   liked: {},        // { itemId: true }
   votes: {},        // { itemId: optionId } — kura zangu
-  myStatuses: [],   // status zangu za saa 24
   live: [],         // vikao vyangu vya moja kwa moja
   savedEntities: {}, // { entityId: { id, kind, name, subtitle } }
   joined: {},        // { liveId: true }
@@ -62,24 +64,17 @@ function snapshotOf(item) {
 
 export const mockContentRepository = {
   async getStatuses() {
-    // Status zangu zinaonekana kwanza (mara moja baada ya kuunda)
-    return [...session.myStatuses, ...statuses]
+    // Status si mock: UI ibaki empty mpaka source ya Supabase iwe live.
+    return []
   },
 
-  async addStatus(st) {
-    const item = {
-      id: `st-${session.myStatuses.length + 1}`,
-      own: true,
-      userId: me.id,
-      tone: st.tone || 'green',
-      label: st.text ? st.text.slice(0, 24) : 'Status yangu',
-      media: st.media || null,
-      seen: false,
-      at: 'sasa hivi',
-      expiresIn: 'saa 24',
-    }
-    session.myStatuses = [item, ...session.myStatuses]
-    return item
+  async addStatus() {
+    // Linda pia matumizi ya moja kwa moja ya repository dhidi ya mafanikio ya demo.
+    throw new StatusConfigurationError()
+  },
+
+  async deleteStatus(statusId) {
+    return { deleted: false, id: statusId, persistence: 'mock' }
   },
 
   async listFeed() {
@@ -104,7 +99,11 @@ export const mockContentRepository = {
     return session.myPosts.map((p) => ({ ...p }))
   },
 
-  async addPost(draft) {
+  async addPost(draft = {}) {
+    if (draft.file || draft.mediaUrl) throw new PostMediaConfigurationError()
+    if (['photo', 'image', 'video', 'reel'].includes(draft.kind)) {
+      throw new ValidationError('Chagua faili halisi la picha/video na tumia Supabase Storage kabla ya kuhifadhi post.')
+    }
     const item = {
       id: `my-${session.myPosts.length + 1}`,
       kind: draft.kind ?? 'text',

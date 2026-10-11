@@ -36,7 +36,7 @@ VITE_SUPABASE_URL=https://lbcpacijbiukqcpkfktp.supabase.co
 **Mahali pa Kupata:** Supabase Dashboard → Settings → API → Project API keys → `anon` `public`  
 **Mfano:**
 ```
-VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxiY3BhY2piaXVrcWNwa2ZrdHAiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcwMDAwMDAwMCwiZXhwIjoyMDAwMDAwMDAwfQ.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+VITE_SUPABASE_PUBLISHABLE_KEY=<SUPABASE_PUBLISHABLE_KEY_REDACTED>
 ```
 **Notes:**
 - Hii ni public key (salama kwa browser/mobile)

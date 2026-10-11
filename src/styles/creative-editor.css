@@ -1,0 +1,928 @@
+/* ══════════════════════════════════════════════════════════════
+   Creative editor — mpangilio wa desktop na mobile (si desktop iliyopunguzwa).
+   Mobile inatumia data-view (canvas | tools | layers | props) na bottom nav.
+   Vipengele vya turubai vinatumia var(--k) = 1/scale ili vishikio vibaki vya ukubwa uleule.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-cs.is-editor .psh-cs__top,
+.psh-cs.is-editor .psh-cs__nav { display: none; }
+.psh-cs.is-editor .psh-cs__mnav,
+.psh-cs.is-editor .psh-cs__sheetWrap { display: none; }
+
+.cve-root {
+  --cve-accent: #18a982;
+  --cve-ink: #1b1f1d;
+  --cve-ink-2: #3e4a46;
+  --cve-muted: #6b7770;
+  --cve-line: #e3e8e6;
+  --cve-soft: #eef1f0;
+  --cve-panel: #ffffff;
+  --cve-canvas-bg: #eef1ef;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  background: var(--cve-canvas-bg);
+  color: var(--cve-ink);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.cve-root *, .cve-root *::before, .cve-root *::after { box-sizing: border-box; }
+.cve-root button { font: inherit; color: inherit; }
+.cve-root :focus-visible { outline: 2px solid var(--cve-accent); outline-offset: 2px; }
+
+/* ── Top bar ─────────────────────────────────────────────────── */
+.cve-top {
+  flex: none;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: var(--cve-panel);
+  border-bottom: 1px solid var(--cve-line);
+}
+.cve-top__left { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.cve-top__mid { display: flex; align-items: center; gap: 2px; }
+.cve-top__right { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: flex-end; min-width: 0; }
+.cve-title {
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font: inherit;
+  font-weight: 600;
+  min-width: 0;
+  width: 100%;
+  max-width: 360px;
+}
+.cve-title:hover { border-color: var(--cve-line); }
+.cve-title:focus { border-color: var(--cve-accent); outline: none; }
+.cve-status { font-size: 12px; color: var(--cve-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.cve-status--dirty { color: #8a5a00; }
+.cve-status--error { color: #b42318; }
+.cve-status--ok { color: #0f7a5c; }
+.cve-desk-only { display: inline-flex; gap: 6px; align-items: center; }
+
+.cve-banner {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  background: #fff4df;
+  border-bottom: 1px solid #f0d9a8;
+  font-size: 13px;
+}
+.cve-banner__acts { display: inline-flex; gap: 6px; }
+
+/* ── Body: zana | flyout | turubai | sifa ──────────────────────── */
+.cve-body { flex: 1; min-height: 0; display: flex; }
+
+/* ── Maktaba ya zana (ToolLibrary) ─────────────────────────────── */
+.cve-lib {
+  flex: none;
+  width: 264px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--cve-panel);
+  border-right: 1px solid var(--cve-line);
+}
+.cve-lib__top { display: flex; flex-direction: column; gap: 8px; padding: 12px 12px 10px; border-bottom: 1px solid var(--cve-soft); }
+.cve-lib__search {
+  display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px;
+  border: 1px solid var(--cve-line); border-radius: 10px; background: #fff; color: var(--cve-muted);
+}
+.cve-lib__search:focus-within { border-color: var(--cve-accent); box-shadow: 0 0 0 3px rgba(24, 169, 130, 0.14); }
+.cve-lib__search input {
+  flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent;
+  font: inherit; font-size: 13px; color: var(--cve-ink);
+}
+.cve-lib__bar { display: flex; align-items: center; gap: 6px; }
+.cve-lib__mode { flex: 1; }
+.cve-lib__mode .cve-seg__btn { flex: 1; }
+.cve-lib__scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 8px 16px; }
+.cve-lib__group { margin-top: 6px; }
+.cve-lib__head { margin: 0; font-size: 12px; font-weight: 600; color: var(--cve-muted); }
+.cve-lib__toggle {
+  width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 6px; border: 0; border-radius: 8px;
+  background: none; color: var(--cve-ink-2); font: inherit; text-align: left; cursor: pointer;
+}
+.cve-lib__toggle:hover { background: var(--cve-soft); }
+.cve-lib__chev { flex: none; width: 16px; display: inline-flex; justify-content: center; color: var(--cve-muted); }
+.cve-lib__gid { flex: none; min-width: 14px; font-weight: 700; color: #0f7a5c; }
+.cve-lib__gtitle { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; }
+.cve-lib__count { flex: none; font-size: 11px; color: var(--cve-muted); background: var(--cve-soft); border-radius: 999px; padding: 0 7px; line-height: 18px; }
+.cve-lib__list { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.cve-lib__li { display: flex; align-items: center; gap: 2px; }
+.cve-lib__item {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 9px; padding: 7px 8px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--cve-ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+}
+.cve-lib__item:hover:not(.is-off) { background: var(--cve-soft); }
+.cve-lib__item.is-open { background: #e7f7f1; color: #0f7a5c; }
+.cve-lib__item.is-off { opacity: 0.55; cursor: not-allowed; }
+.cve-lib__item svg { flex: none; }
+.cve-lib__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cve-lib__kbd {
+  flex: none; font: 500 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--cve-muted);
+  background: #fff; border: 1px solid var(--cve-line); border-radius: 5px; padding: 3px 4px;
+}
+.cve-lib__badge { flex: none; font-size: 10px; font-weight: 600; line-height: 1.4; border-radius: 6px; padding: 1px 6px; background: var(--cve-soft); color: var(--cve-muted); white-space: nowrap; }
+.cve-lib__badge--planned { background: #f2f4f7; color: #475467; }
+.cve-lib__badge--partial { background: #fef7e0; color: #8a5a00; }
+.cve-lib__badge--service { background: #eef4ff; color: #1d4ed8; }
+.cve-lib__badge--premium { background: #fdf2fa; color: #9e2a7a; }
+.cve-lib__pin {
+  flex: none; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 8px; background: transparent; color: var(--cve-muted); cursor: pointer; opacity: 0;
+}
+.cve-lib__li:hover .cve-lib__pin, .cve-lib__pin:focus-visible, .cve-lib__pin.is-on { opacity: 1; }
+.cve-lib__pin.is-on { color: #b7791f; }
+.cve-lib__pin:hover { background: var(--cve-soft); }
+.cve-lib__empty { padding: 8px 4px; }
+.cve-lib__item:focus-visible, .cve-lib__toggle:focus-visible, .cve-lib__pin:focus-visible { outline: 2px solid var(--cve-accent); outline-offset: 2px; }
+@media (hover: none) { .cve-lib__pin { opacity: 1; } }
+
+/* ── Hamisha (menyu ya export) ──────────────────────────────────── */
+.cve-exportwrap { position: relative; }
+.cve-menu--export { right: auto; left: 0; min-width: 240px; }
+
+/* ── Vichupo vya chini (Tabaka | Kurasa | Ratiba) ───────────────── */
+.cve-tabs { display: flex; align-items: flex-end; gap: 2px; margin-left: auto; }
+.cve-tab {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 0;
+  border-bottom: 2px solid transparent; background: none; color: var(--cve-muted);
+  font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.cve-tab.is-on { color: #0f7a5c; border-bottom-color: #0f7a5c; }
+.cve-tab:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Njia za mkato ─────────────────────────────────────────────── */
+.cve-shortcuts { display: grid; gap: 6px; margin: 10px 0 0; }
+.cve-shortcuts__row { display: grid; grid-template-columns: 124px 1fr; gap: 10px; align-items: center; }
+.cve-shortcuts dt { margin: 0; }
+.cve-shortcuts dd { margin: 0; font-size: 13px; color: var(--cve-ink-2); }
+.cve-shortcuts kbd {
+  font: 500 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--cve-ink-2);
+  background: var(--cve-soft); border: 1px solid var(--cve-line); border-radius: 6px; padding: 4px 6px; white-space: nowrap;
+}
+
+/* ── Uteuzi wa vingi kwenye turubai ─────────────────────────────── */
+.cve-layer.is-sel { outline: 1.5px dashed rgba(24, 169, 130, 0.9); outline-offset: 2px; }
+
+.cve-flyout {
+  flex: none;
+  width: 264px;
+  background: var(--cve-panel);
+  border-right: 1px solid var(--cve-line);
+  overflow-y: auto;
+  padding: 12px;
+}
+.cve-flyout__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cve-flyout__head h3 { margin: 0; font-size: 15px; }
+.cve-flyout__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.cve-flyout__tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 1px solid var(--cve-line);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+.cve-flyout__tile:hover { border-color: var(--cve-accent); }
+.cve-flyout__tile img { width: 100%; height: 64px; object-fit: cover; border-radius: 8px; }
+.cve-flyout__tile--img { padding: 6px; }
+.cve-flyout__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.cve-flyout__row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid var(--cve-line);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+.cve-flyout__row:hover { border-color: var(--cve-accent); }
+.cve-flyout__row .cve-swatch-big { width: 72px; height: 40px; flex: none; }
+
+/* ── Turubai ───────────────────────────────────────────────────── */
+.cve-main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; position: relative; }
+.cve-stagebar {
+  flex: none;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.6);
+}
+.cve-stagebar__mode { display: inline-flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; white-space: nowrap; }
+.cve-zoom { display: inline-flex; align-items: center; gap: 2px; }
+.cve-zoom__val { min-width: 60px; justify-content: center; font-variant-numeric: tabular-nums; }
+
+.cve-viewport {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  display: flex;
+  padding: 24px;
+  touch-action: pan-x pan-y pinch-zoom;
+  overscroll-behavior: contain;
+}
+.cve-page {
+  position: relative;
+  flex: none;
+  margin: auto;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+.cve-doc {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  overflow: hidden;
+  background-color: #fff;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cve-layer {
+  position: absolute;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cve-layer.is-locked { cursor: default; }
+.cve-layer__content { position: absolute; inset: 0; }
+.cve-text {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.cve-img { position: relative; width: 100%; height: 100%; pointer-events: none; }
+.cve-img img { display: block; }
+.cve-layer svg { pointer-events: none; }
+.cve-sel {
+  position: absolute;
+  inset: calc(-2px * var(--k));
+  border: calc(1.5px * var(--k)) solid var(--cve-accent);
+  pointer-events: none;
+}
+.cve-handle {
+  position: absolute;
+  width: calc(12px * var(--k));
+  height: calc(12px * var(--k));
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: calc(2px * var(--k)) solid var(--cve-accent);
+  border-radius: calc(3px * var(--k));
+  padding: 0;
+  z-index: 2;
+  touch-action: none;
+}
+.cve-rot {
+  position: absolute;
+  left: 50%;
+  top: calc(-30px * var(--k));
+  width: calc(14px * var(--k));
+  height: calc(14px * var(--k));
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: calc(2px * var(--k)) solid var(--cve-accent);
+  border-radius: 50%;
+  padding: 0;
+  z-index: 2;
+  cursor: grab;
+  touch-action: none;
+}
+.cve-rot__stem {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: calc(1.5px * var(--k));
+  height: calc(22px * var(--k));
+  background: var(--cve-accent);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.cve-guide { position: absolute; background: #e5487a; pointer-events: none; z-index: 1000; }
+.cve-guide--v { top: 0; bottom: 0; width: calc(1px * var(--k)); }
+.cve-guide--h { left: 0; right: 0; height: calc(1px * var(--k)); }
+.cve-inline-edit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-shadow: 0 0 0 calc(2px * var(--k)) var(--cve-accent);
+  background-clip: padding-box;
+}
+.cve-mselbar {
+  display: none;
+}
+
+/* ── Sifa ─────────────────────────────────────────────────────── */
+.cve-props {
+  flex: none;
+  width: 300px;
+  background: var(--cve-panel);
+  border-left: 1px solid var(--cve-line);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px;
+}
+.cve-props__inner { display: flex; flex-direction: column; }
+.cve-props__head { padding-bottom: 6px; }
+.cve-props__title { font-size: 16px; margin: 2px 0 6px; overflow-wrap: anywhere; }
+.cve-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--cve-muted); }
+.cve-group { border-bottom: 1px solid var(--cve-soft); padding: 2px 0; }
+.cve-group__head {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: 0;
+  padding: 8px 0;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.cve-group__body { display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; }
+.cve-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cve-field__label { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 12px; color: var(--cve-ink-2); }
+.cve-field__sub { font-size: 11px; color: var(--cve-muted); }
+.cve-slider { gap: 2px; }
+.cve-slider__num { display: inline-flex; align-items: center; gap: 4px; }
+.cve-range { width: 100%; accent-color: var(--cve-accent); margin: 2px 0; }
+.cve-num { width: 72px; }
+.cve-unit { font-size: 11px; color: var(--cve-muted); }
+.cve-input {
+  width: 100%;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid #d5dbd8;
+  border-radius: 9px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+}
+.cve-input:disabled { background: var(--cve-soft); color: var(--cve-muted); }
+.cve-input--sm { padding: 4px 6px; font-size: 13px; }
+.cve-input--hex { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: lowercase; }
+.cve-input.is-error { border-color: #b42318; }
+.cve-textarea { resize: vertical; min-height: 64px; line-height: 1.4; }
+.cve-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cve-hint { font-size: 12px; color: #5b6763; margin: 0; line-height: 1.4; }
+.cve-muted { color: var(--cve-muted); font-size: 12px; font-style: normal; }
+.cve-error { color: #b42318; font-size: 12px; margin: 0; }
+.cve-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--cve-soft); color: var(--cve-ink-2); white-space: nowrap; }
+.cve-chip--warn { background: #fff4df; color: #8a5a00; }
+.cve-dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: 13px; }
+.cve-dl dt { color: var(--cve-muted); }
+.cve-dl dd { margin: 0; overflow-wrap: anywhere; }
+.cve-presets, .cve-actions, .cve-toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+.cve-align { display: flex; flex-direction: column; gap: 6px; }
+.cve-align__row { display: flex; flex-wrap: wrap; gap: 4px; }
+.cve-resetrow { padding: 8px 0; }
+.cve-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #d5dbd8;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cve-toggle.is-on { background: #e7f7f1; border-color: var(--cve-accent); color: #0f7a5c; }
+.cve-toggle:disabled { opacity: 0.5; }
+.cve-seg { display: inline-flex; border: 1px solid #d5dbd8; border-radius: 10px; overflow: hidden; align-self: flex-start; }
+.cve-seg__btn { padding: 6px 10px; background: #fff; border: 0; border-right: 1px solid var(--cve-soft); cursor: pointer; font-size: 13px; min-width: 36px; }
+.cve-seg__btn:last-child { border-right: 0; }
+.cve-seg__btn.is-on { background: #e7f7f1; color: #0f7a5c; font-weight: 600; }
+
+/* ── Rangi ────────────────────────────────────────────────────── */
+.cve-color { gap: 6px; }
+.cve-color__row { display: flex; align-items: center; gap: 6px; }
+.cve-color__native { width: 38px; height: 34px; padding: 0; border: 1px solid #d5dbd8; border-radius: 8px; background: none; cursor: pointer; flex: none; }
+.cve-color__saved { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.cve-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.cve-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 0;
+  cursor: pointer;
+}
+.cve-swatch.is-on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--cve-accent); }
+.cve-swatch-wrap { position: relative; display: inline-block; }
+
+/* Mitindo ya rangi (kundi G): orodha ya safu, kila safu ina jina, vipande vya rangi, na vitufe. */
+.cve-style-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.cve-style-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 4px 0; border-top: 1px solid var(--cve-line, rgba(0,0,0,.08)); }
+.cve-style-row__name { flex: 1 1 96px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.cve-style-row__sw { display: inline-flex; }
+.cve-style-row__sw i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,.15); margin-left: -3px; }
+.cve-style-row__sw i:first-child { margin-left: 0; }
+/* Hali ya makundi ya display tu (F, K, L, M, N). */
+.cve-planned-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.cve-planned-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; font-size: 13px; }
+.cve-row { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Mstari wa Back wa simu: unaonekana kwenye sheet ya Sifa tu (desktop hutumia drawer). */
+.cve-mback { display: none; margin: -12px -12px 8px; padding: 6px 8px; border-bottom: 1px solid var(--cve-line); background: var(--cve-panel); position: sticky; top: -12px; z-index: 2; }
+.cve-mback .cve-btn { min-height: 44px; font-weight: 600; }
+.cve-planned-list small { flex-basis: 100%; color: var(--cve-muted, #6b7280); font-size: 12px; line-height: 1.4; }
+@media (max-width: 720px) {
+  .cve-style-row .cve-btn { min-height: 44px; min-width: 44px; }
+}
+.cve-swatch-x {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--cve-ink);
+  color: #fff;
+  font-size: 11px;
+  line-height: 16px;
+  padding: 0;
+  cursor: pointer;
+}
+.cve-swatch-big { display: block; height: 56px; border-radius: 10px; border: 1px solid var(--cve-line); }
+
+/* ── Font ─────────────────────────────────────────────────────── */
+.cve-font { position: relative; }
+.cve-font__btn { text-align: left; cursor: pointer; font-size: 14px; }
+.cve-font__pop {
+  position: absolute;
+  z-index: 5;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #d5dbd8;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cve-font__list { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.cve-font__opt {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 15px;
+}
+.cve-font__opt:hover, .cve-font__opt.is-on { background: #e7f7f1; }
+.cve-font__sample { font-size: 18px; color: var(--cve-ink-2); flex-basis: 100%; }
+
+/* ── Vifungo ──────────────────────────────────────────────────── */
+.cve-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid #d5dbd8;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cve-btn:hover:not(:disabled) { background: var(--cve-soft); }
+.cve-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cve-btn--primary { background: #0f7a5c; border-color: #0f7a5c; color: #fff; }
+.cve-btn--primary:hover:not(:disabled) { background: #0c6a4f; }
+.cve-btn--ghost { background: transparent; border-color: transparent; }
+.cve-btn--danger { color: #b42318; }
+.cve-btn--sm { min-height: 30px; padding: 4px 8px; font-size: 12px; }
+.cve-iconbtn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  flex: none;
+}
+.cve-iconbtn:hover:not(:disabled) { background: var(--cve-soft); }
+.cve-iconbtn:disabled { opacity: 0.35; cursor: not-allowed; }
+.cve-iconbtn[aria-pressed="true"] { color: #b42318; }
+.cve-linkbtn { background: none; border: 0; color: #0f7a5c; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 4px; font-size: 13px; }
+.cve-ico { flex: none; }
+
+/* ── Tabaka ───────────────────────────────────────────────────── */
+.cve-bottom {
+  flex: none;
+  max-height: 220px;
+  display: flex;
+  flex-direction: column;
+  background: var(--cve-panel);
+  border-top: 1px solid var(--cve-line);
+}
+.cve-bottom.is-closed { max-height: none; }
+.cve-bottom__head { display: flex; padding: 2px 8px; border-bottom: 1px solid var(--cve-soft); }
+.cve-bottom__body { overflow-y: auto; padding: 6px 8px; }
+.cve-layers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.cve-layers__empty { padding: 8px; }
+.cve-layer-row { display: flex; align-items: center; gap: 4px; padding: 3px 4px; border-radius: 10px; border: 1px solid transparent; }
+.cve-layer-row:hover { background: #f7f9f8; }
+.cve-layer-row.is-sel { background: #e7f7f1; border-color: var(--cve-accent); }
+.cve-layer-row.is-hidden { opacity: 0.55; }
+.cve-layer-row__pick { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: none; border: 0; text-align: left; padding: 4px; cursor: pointer; }
+.cve-layer-row__meta { display: flex; flex-direction: column; min-width: 0; }
+.cve-layer-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.cve-layer-row__type { font-size: 11px; color: var(--cve-muted); }
+.cve-layer-row__acts { display: inline-flex; flex: none; }
+.cve-thumb {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--cve-soft);
+  background: #f7f9f8;
+  overflow: hidden;
+}
+.cve-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cve-thumb--text { font-weight: 700; font-size: 14px; }
+.cve-thumb--shape > span { width: 70%; height: 70%; display: block; }
+
+/* ── Mobile nav (inaonekana kwenye mobile tu) ─────────────────── */
+.cve-mnav {
+  display: none;
+  flex: none;
+  background: var(--cve-panel);
+  border-top: 1px solid var(--cve-line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.cve-mnav__btn {
+  flex: 1;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: 0;
+  font-size: 11px;
+  color: var(--cve-muted);
+  cursor: pointer;
+}
+.cve-mnav__btn.is-on { color: #0f7a5c; font-weight: 600; }
+.cve-mnav__btn { min-width: 0; padding: 4px 2px; }
+.cve-mnav__btn > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10.5px; }
+
+/* ── Toast, busy, menu, modal ─────────────────────────────────── */
+.cve-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  max-width: min(520px, calc(100vw - 24px));
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--cve-ink);
+  color: #fff;
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 90;
+  pointer-events: none;
+}
+.cve-toast:empty { display: none; }
+.cve-busy {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  z-index: 90;
+}
+.cve-more { position: relative; }
+.cve-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--cve-line);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  padding: 6px;
+  z-index: 70;
+}
+.cve-menu button { text-align: left; background: none; border: 0; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+.cve-menu button:hover:not(:disabled) { background: var(--cve-soft); }
+.cve-menu button:disabled { opacity: 0.45; cursor: not-allowed; }
+.cve-menu .is-danger { color: #b42318; }
+
+.cve-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(16, 24, 22, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.cve-dialog {
+  width: min(520px, 100%);
+  max-height: 88dvh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cve-dialog__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cve-dialog__head h2 { font-size: 17px; margin: 0; }
+.cve-dialog__acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.cve-dialog p { margin: 0; line-height: 1.5; }
+.cve-preview { display: flex; justify-content: center; background: var(--cve-canvas-bg); border-radius: 12px; padding: 8px; max-height: 60dvh; overflow: auto; }
+.cve-preview img { max-width: 100%; height: auto; display: block; background: #fff; }
+
+/* ── Visual-only helpers ─────────────────────────────────────── */
+.cve-sr-file { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+.cve-danger { color: #b42318 !important; }
+
+/* ── Create hub (CreativeHub) ─────────────────────────────────── */
+.cve-modes { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.cve-mode {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--cve-line);
+  border-radius: 14px;
+  background: #fff;
+}
+.cve-mode.is-planned { opacity: 0.7; }
+.cve-mode__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; }
+.cve-mode__title { font-weight: 600; }
+.cve-mode .cve-grid2 { margin-top: 4px; }
+.cve-mode .cve-field__label { font-size: 12px; }
+.cve-mode .psh-btn { align-self: flex-start; margin-top: auto; }
+.cve-projects { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cve-project {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--cve-line);
+  border-radius: 12px;
+}
+.cve-project__meta { display: flex; flex-direction: column; min-width: 0; }
+.cve-project__acts { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cve-project__confirm { display: inline-flex; gap: 6px; }
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE (≤ 820px): mpangilio halisi wa kugusa
+   ══════════════════════════════════════════════════════════════ */
+.cve-hide-sm { display: inline; }
+.cve-hide-xs { display: inline; }
+
+@media (max-width: 820px) {
+  .cve-hide-sm { display: none; }
+  .cve-desk-only { display: none; }
+  .cve-status { display: none; }
+  .cve-top { height: 52px; padding: 0 6px; gap: 4px; }
+  .cve-top__left { flex: 1; }
+  .cve-title { font-size: 15px; max-width: none; }
+  .cve-top__right { flex: none; gap: 2px; }
+  .cve-top__mid { display: none; }
+  .cve-body { flex-direction: column; min-height: 0; }
+  .cve-mnav { display: flex; }
+  .cve-lib { width: 100%; flex: 1; border-right: 0; }
+  .cve-lib:has(+ .cve-flyout) { flex: 0 0 42%; }
+  .cve-lib__item, .cve-lib__toggle { min-height: 44px; }
+  .cve-lib__pin { width: 40px; height: 40px; }
+  .cve-flyout { width: 100%; flex: 1; border-right: 0; min-height: 0; }
+  .cve-flyout--sheet { border-top: 0; }
+  .cve-flyout__grid { grid-template-columns: repeat(3, 1fr); }
+  .cve-props { width: 100%; flex: 1; border-left: 0; min-height: 0; }
+  .cve-main { flex: 1; }
+  .cve-stagebar { height: 40px; padding: 0 8px; }
+  .cve-viewport { padding: 12px; }
+  .cve-bottom { max-height: none; }
+  .cve-bottom__head { display: none; }
+  .cve-bottom__body { flex: 1; padding: 8px; }
+
+  /* Mionekano ya mobile: kila mtazamo unachukua skrini nzima, hakuna kuteleza kwa ukurasa mzima. */
+  .cve-root[data-view="canvas"] .cve-lib,
+  .cve-root[data-view="canvas"] .cve-flyout,
+  .cve-root[data-view="canvas"] .cve-props,
+  .cve-root[data-view="canvas"] .cve-bottom,
+  .cve-root[data-view="tools"] .cve-main,
+  .cve-root[data-view="tools"] .cve-props,
+  .cve-root[data-view="tools"] .cve-bottom,
+  .cve-root[data-view="props"] .cve-lib,
+  .cve-root[data-view="props"] .cve-flyout,
+  .cve-root[data-view="props"] .cve-main,
+  .cve-root[data-view="props"] .cve-bottom,
+  .cve-root[data-view="layers"] .cve-main,
+  .cve-root[data-view="layers"] .cve-lib,
+  .cve-root[data-view="layers"] .cve-flyout,
+  .cve-root[data-view="layers"] .cve-props { display: none; }
+  .cve-root[data-view="props"] .cve-props,
+  .cve-root[data-view="layers"] .cve-bottom { display: flex; }
+  .cve-root[data-view="canvas"] .cve-main { display: flex; }
+  .cve-root[data-view="tools"] .cve-lib { display: flex; }
+  .cve-root[data-view="tools"] .cve-body { display: flex; }
+  .cve-root[data-view="layers"] .cve-body { display: none; }
+  .cve-root[data-view="layers"] .cve-bottom { flex: 1; display: flex; min-height: 0; }
+  .cve-root[data-view="props"] .cve-body { display: flex; min-height: 0; }
+  .cve-root[data-view="props"] .cve-props { flex: 1; }
+
+  .cve-mselbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    padding: 6px 8px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    z-index: 20;
+  }
+  .cve-mselbar__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: 13px; }
+  .cve-toast { bottom: 76px; }
+  .cve-dialog { width: calc(100vw - 24px); }
+  .cve-grid2 { grid-template-columns: 1fr 1fr; }
+  .cve-props .cve-group__head { min-height: 44px; }
+  .cve-props { flex-direction: column; }
+  .cve-mback { display: block; }
+  .cve-seg__btn { min-height: 40px; min-width: 44px; }
+}
+
+@media (max-width: 480px) {
+  .cve-hide-xs { display: none; }
+  .cve-title { font-size: 14px; }
+  .cve-btn { min-width: 40px; padding: 7px 8px; }
+  .cve-flyout__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Vidole: malengo makubwa zaidi, vishikio vikubwa zaidi. */
+@media (pointer: coarse) {
+  .cve-btn, .cve-iconbtn, .cve-toggle, .cve-seg__btn, .cve-linkbtn, .cve-font__opt { min-height: 44px; }
+  .cve-iconbtn { width: 44px; height: 44px; }
+  .cve-layer-row__acts .cve-iconbtn { width: 40px; height: 40px; }
+  .cve-handle { width: calc(22px * var(--k)); height: calc(22px * var(--k)); border-width: calc(2px * var(--k)); }
+  .cve-handle::before { content: ''; position: absolute; inset: calc(-11px * var(--k)); }
+  .cve-rot { width: calc(26px * var(--k)); height: calc(26px * var(--k)); top: calc(-40px * var(--k)); }
+  .cve-rot__stem { height: calc(30px * var(--k)); }
+  .cve-range { height: 28px; }
+  .cve-swatch { width: 32px; height: 32px; }
+  .cve-swatch-x { width: 22px; height: 22px; line-height: 22px; }
+  .cve-input { min-height: 40px; font-size: 16px; }
+  .cve-textarea { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cve-root * { transition: none !important; animation: none !important; }
+}
+
+/* ── Gallery ya Create (MASTER §2) ───────────────────────────── */
+.cve-gallery {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+}
+.cve-gallery__tile {
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-2, #d9e3de);
+  border-radius: 10px;
+  background: var(--bg, #fff);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.cve-gallery__tile:hover:not(:disabled) { border-color: var(--c-green, #18a982); }
+.cve-gallery__tile:focus-visible { outline: 2px solid var(--c-green, #18a982); outline-offset: 2px; }
+.cve-gallery__tile:disabled { opacity: 0.6; cursor: not-allowed; }
+.cve-gallery__tile > svg { flex: none; }
+.cve-gallery__text { display: grid; min-width: 0; flex: 1; }
+.cve-gallery__text strong { font-size: 14px; font-weight: 600; }
+.cve-gallery__hint { font-size: 12px; color: var(--t-2, #66736e); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cve-gallery__st { font-size: 11px; color: var(--t-2, #66736e); white-space: nowrap; }
+.cve-anchor { height: 0; scroll-margin-top: 72px; }
+
+/* ── Rail ya kushoto (desktop) — MASTER §3 ───────────────────── */
+.cve-rail {
+  flex: 0 0 84px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--cve-panel);
+  border-right: 1px solid var(--cve-line);
+  padding: 6px 4px;
+}
+.cve-rail__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.cve-rail__btn {
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 2px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--cve-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.cve-rail__btn:hover { background: rgba(23, 32, 29, 0.05); }
+.cve-rail__btn.is-on { color: #0f7a5c; border-color: #18a982; background: #eef9f5; font-weight: 600; }
+.cve-rail__btn:focus-visible { outline: 2px solid #18a982; outline-offset: 1px; }
+.cve-rail__label { font-size: 10px; line-height: 1.1; text-align: center; }
+@media (max-width: 820px) { .cve-rail { display: none; } }
+
+/* ── Back ya drawer ya kundi: inarudi kwenye turubai ───────────── */
+.cve-lib__back {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--cve-line);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.cve-lib__back:hover { background: rgba(23, 32, 29, 0.05); }
+.cve-lib__back:focus-visible { outline: 2px solid #18a982; outline-offset: -2px; }

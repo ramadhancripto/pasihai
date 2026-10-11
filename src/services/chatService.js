@@ -49,14 +49,18 @@ async function withMembers(item) {
 export const chatService = {
   /* ── Inbox: orodha + hali ya mfumo ───────────────────────── */
   async getInbox(filter = 'zote') {
-    const [conversations, filters, connection, brief] = await Promise.all([
+    const [conversations, filters, connection, brief, archived] = await Promise.all([
       chatRepository.listConversations(),
       chatRepository.getFilters(),
       systemRepository.getConnection(),
       systemService.getDataSavedBrief(),
+      chatRepository.listArchived(),
     ])
 
-    const list = await Promise.all(conversations.map(withMembers))
+    /* Archived: haziondoki kwenye orodha kuu (zinapatikana kupitia panel ya Archived).
+       Hazifutwi, na kuziweka archived hakutoki kwenye kikundi. */
+    const archivedIds = new Set(archived.map((c) => c.id))
+    const list = await Promise.all(conversations.filter((c) => !archivedIds.has(c.id)).map(withMembers))
     const filtered =
       filter === 'direct'
         ? list.filter((c) => c.type === 'direct')
@@ -116,7 +120,7 @@ export const chatService = {
         relayDetail: relay.detail,
       },
       /* Nota ya sera — inaonekana kwenye thread pale inapohitajika */
-      policyNote: !localMeshUp && !relayEnabled ? 'Internet Relay imezimwa · Local Mesh haipo karibu' : '',
+      policyNote: !localMeshUp && !relay.enabled ? 'Internet Relay imezimwa · Local Mesh haipo karibu' : '',
     }
   },
 
@@ -248,12 +252,25 @@ export const chatService = {
   },
 
   async getMore() {
-    const [menu, settings, requests] = await Promise.all([
+    const [menu, settings, requests, archived, blocked] = await Promise.all([
       chatRepository.getMoreMenu(),
       chatRepository.getSettings(),
       chatRepository.getRequests(),
+      chatRepository.listArchived(),
+      chatRepository.listBlocked(),
     ])
-    return { menu, settings, pending: requests.filter((r) => r.state === 'pending').length }
+    const pending = requests.filter((r) => r.state === 'pending').length
+    /* Hints ni hesabu halisi kutoka kwenye data — si namba zilizoandikwa kwa mkono */
+    const hints = {
+      archived: archived.length ? String(archived.length) : '',
+      blocked: blocked.length ? String(blocked.length) : '',
+      requests: pending ? `${pending} mpya` : '',
+    }
+    return {
+      menu: menu.map((m) => (m.id in hints ? { ...m, hint: hints[m.id] } : m)),
+      settings,
+      pending,
+    }
   },
 
   async markAllRead() {

@@ -19,10 +19,134 @@
 // ══════════════════════════════════════════════════════════════
 
 import { supabase, isSupabaseLive } from '../../lib/supabaseClient.js'
-import { mapSupabaseFeed, mapSupabasePost } from '../mappers/supabaseFeedMapper.js'
-import { parseSupabaseError, NetworkError } from '../../utils/errors.js'
+import { mapSupabaseFeed } from '../mappers/supabaseFeedMapper.js'
+import { mapSupabaseStatus } from '../mappers/statusMapper.js'
+import {
+  AuthError,
+  NetworkError,
+  PASIHAIError,
+  RLSError,
+  SchemaError,
+  ValidationError,
+  parseSupabaseError,
+} from '../../utils/errors.js'
+import {
+  getPostMediaExtension,
+  POST_MEDIA_BUCKET,
+  POST_MEDIA_SIGNED_URL_TTL,
+  PostMediaConfigurationError,
+  validatePostMediaFile,
+} from '../../utils/postMedia.js'
+import { validateStatusDraft } from '../../utils/statusMedia.js'
 import { offlineActions } from '../../utils/offlineActions.js'
 import { contentCache } from '../../utils/contentCache.js'
+
+const STATUS_MEDIA_BUCKET = 'pasihai-status-media'
+const STATUS_SIGNED_URL_TTL = 24 * 60 * 60
+const STATUS_TONES = new Set(['green', 'blue', 'gold', 'plum'])
+const STATUS_SELECT = 'id, user_id, media_url, media_path, media_type, text, tone, created_at, expires_at, author:profiles!statuses_user_id_fkey(user_id, username, display_name, entity_type, avatar_tone, verified)'
+
+function statusStorageError(error, context) {
+  if (error instanceof PASIHAIError) return error
+  const message = typeof error?.message === 'string' ? error.message : String(error || '')
+  const upload = context === 'addStatus.upload'
+  if (error?.status === 404 || error?.statusCode === '404' || /bucket.{0,40}(not found|does not exist)/i.test(message)) {
+    return new SchemaError(
+      `Bucket binafsi ya Status pasihai-status-media haipo. Inahitajika migration 017_status_media_storage_rls.sql na sera za Storage.${upload ? ' Upload imeshindikana; hakuna Status iliyohifadhiwa.' : ' Media ya Status haikuweza kusomwa.'}`,
+      { context, originalError: error },
+    )
+  }
+  if (/row-level security|permission denied|not authorized|unauthorized/i.test(message)) {
+    return new RLSError(
+      `Supabase Storage imekataa Status media (${context}). Hakikisha sera za migration 017 zimewekwa kwenye bucket pasihai-status-media.${upload ? ' Hakuna Status iliyohifadhiwa.' : ' Media ya Status haikuweza kusomwa.'}`,
+      { context, originalError: error },
+    )
+  }
+  return parseSupabaseError(error, context)
+}
+
+function postStorageError(error, context) {
+  if (error instanceof PASIHAIError) return error
+  const message = typeof error?.message === 'string' ? error.message : String(error || '')
+  if (error?.status === 404 || error?.statusCode === '404' || /bucket.{0,40}(not found|does not exist)/i.test(message)) {
+    return new SchemaError(
+      `Bucket ya post media “${POST_MEDIA_BUCKET}” haipo. Tumia supabase/migrations/018_post_media_storage_rls.sql kwenye Supabase.`,
+      { context, originalError: error },
+    )
+  }
+  if (/row-level security|permission denied|not authorized|unauthorized/i.test(message)) {
+    return new RLSError(
+      `Supabase Storage imekataa media (${context}). Hakikisha migration 018 na sera za bucket ${POST_MEDIA_BUCKET} zimetumika.`,
+      { context, originalError: error },
+    )
+  }
+  return handleError(error, context)
+}
+
+function makePostMediaPath(userId, file) {
+  const extension = getPostMediaExtension(file)
+  if (!extension) throw new ValidationError('Aina ya faili haikubaliki kwa post media.')
+  const randomId = globalThis.crypto?.randomUUID?.()
+    || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+  return `${userId}/${randomId}.${extension}`
+}
+
+async function signPostMediaRow(row, context) {
+  if (!row?.media_path) return row
+  const storage = supabase?.storage
+  if (!storage) throw new NetworkError('Supabase Storage client haijasanidiwa.')
+  const { data, error } = await storage
+    .from(POST_MEDIA_BUCKET)
+    .createSignedUrl(row.media_path, POST_MEDIA_SIGNED_URL_TTL)
+  if (error) throw postStorageError(error, context)
+  if (!data?.signedUrl) {
+    throw new NetworkError(`Supabase haikurudisha signed URL ya post media (${context}).`)
+  }
+  return { ...row, media_url: data.signedUrl }
+}
+
+async function signPostMediaRows(rows, context) {
+  return Promise.all((rows || []).map((row) => signPostMediaRow(row, context)))
+}
+
+function makeStatusMediaName(file) {
+  const extensionByType = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+    'video/mp4': 'mp4',
+    'video/webm': 'webm',
+    'video/quicktime': 'mov',
+  }
+  const extension = extensionByType[file.type]
+  const randomId = globalThis.crypto?.randomUUID?.()
+    || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+  return `${randomId}.${extension}`
+}
+
+function statusUrlTtl(expiresAt) {
+  const remaining = Math.floor((Date.parse(expiresAt) - Date.now()) / 1000)
+  return Math.max(1, Math.min(STATUS_SIGNED_URL_TTL, remaining))
+}
+
+async function requireStatusUser(context) {
+  const { data, error } = await supabase.auth.getUser()
+  if (error) throw parseSupabaseError(error, context)
+  if (!data?.user) throw new AuthError('Ingia ili kuendelea na status.')
+  return data.user
+}
+
+function throwStatusError(error, context) {
+  if (error instanceof PASIHAIError) throw error
+  if (context === 'addStatus' && error?.code === '23502') {
+    throw new SchemaError(
+      'Status haijahifadhiwa: schema bado inahitaji migration 017_status_media_storage_rls.sql (media_url/media_type ziwe nullable kwa text-only Status); migration 015_live_statuses_reports.sql ndiyo hutengeneza statuses na RLS.',
+      { context, originalError: error },
+    )
+  }
+  throw handleError(error, context)
+}
 
 /* ── Error Helper ───────────────────────────────────────────── */
 function handleError(error, context) {
@@ -53,7 +177,8 @@ export const supabaseContentRepository = {
         throw parseSupabaseError(error, 'listFeed')
       }
 
-      const feed = mapSupabaseFeed({ posts: data || [] })
+      const postRows = await signPostMediaRows(data || [], 'listFeed.media')
+      const feed = mapSupabaseFeed({ posts: postRows })
       
       // Hifadhi kwenye cache kwa offline access
       await contentCache.cacheFeed(feed)
@@ -96,7 +221,8 @@ export const supabaseContentRepository = {
       throw parseSupabaseError(error, 'listMyPosts')
     }
 
-    return mapSupabaseFeed({ posts: data || [] })
+    const postRows = await signPostMediaRows(data || [], 'listMyPosts.media')
+    return mapSupabaseFeed({ posts: postRows })
   },
 
   /* ── READ: Items zilizofichwa ───────────────────────────── */
@@ -181,8 +307,39 @@ export const supabaseContentRepository = {
 
   /* ── READ: Status/Stories ───────────────────────────────── */
   async getStatuses() {
-    // Phase A haina statuses table — rudisha empty array
-    return []
+    if (!isSupabaseLive) return []
+    if (!supabase) throw new NetworkError('Supabase client haijasanidiwa')
+
+    try {
+      const user = await requireStatusUser('getStatuses')
+      const { data, error } = await supabase
+        .from('statuses')
+        .select(STATUS_SELECT)
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(100)
+
+      if (error) throw error
+
+      return await Promise.all((data || []).map(async (row) => {
+        let mediaUrl = null
+        if (row.media_path) {
+          if (!supabase?.storage) {
+            throw new SchemaError('Supabase Storage client haijaandaliwa kwa Status media.')
+          }
+          const expiresIn = statusUrlTtl(row.expires_at)
+          const { data: signed, error: signingError } = await supabase.storage
+            .from(STATUS_MEDIA_BUCKET)
+            .createSignedUrl(row.media_path, expiresIn)
+          if (signingError) throw statusStorageError(signingError, 'getStatuses.media')
+          if (!signed?.signedUrl) throw new Error('Supabase haikurudisha kiungo cha muda cha media.')
+          mediaUrl = signed.signedUrl
+        }
+        return mapSupabaseStatus(row, { currentUserId: user.id, mediaUrl })
+      }))
+    } catch (error) {
+      throwStatusError(error, 'getStatuses')
+    }
   },
 
   /* ── READ: Space posts ──────────────────────────────────── */
@@ -493,96 +650,164 @@ export const supabaseContentRepository = {
   },
 
   /* ── WRITE: Create post ──────────────────────────────────── */
-  async addPost(draft, options = {}) {
+  async addPost(draft = {}, options = {}) {
+    const file = draft.file || null
+    const requestedKind = draft.kind ?? 'text'
+    const normalizedKind = requestedKind === 'post'
+      ? 'text'
+      : requestedKind === 'photo'
+        ? 'photo'
+        : requestedKind
+    const expectedType = normalizedKind === 'image'
+      ? 'image'
+      : normalizedKind === 'video' || normalizedKind === 'reel'
+        ? 'video'
+        : null
+    const fileDetails = file ? validatePostMediaFile(file, expectedType) : null
+
+    if (file && !isSupabaseLive) throw new PostMediaConfigurationError()
+    if (!file && ['photo', 'image', 'video', 'reel'].includes(normalizedKind)) {
+      throw new ValidationError(
+        normalizedKind === 'video' || normalizedKind === 'reel'
+          ? 'Chagua faili la video kabla ya kuchapisha.'
+          : 'Chagua faili la picha kabla ya kuchapisha.',
+      )
+    }
     if (!isSupabaseLive) return null
-    if (!supabase) {
-      throw new NetworkError('Supabase client haijasanidiwa')
+    if (!supabase?.auth || !supabase?.storage) {
+      throw new NetworkError('Supabase client/Storage haijasanidiwa; hakikisha credentials za live zipo.')
     }
 
-    // Jaribu kuandika kwenye server
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return null
-
-      // Determine kind from draft
-      let kind = 'text'
-      if (draft.mediaUrl) {
-        if (draft.mediaType === 'video') kind = 'video'
-        else if (draft.mediaType === 'image') kind = 'image'
-        else if (draft.mediaType === 'audio') kind = 'audio'
+    let uploadedPath = null
+    let postInserted = false
+    const removeUnattachedMedia = async () => {
+      if (!uploadedPath) return
+      try {
+        const { error } = await supabase.storage.from(POST_MEDIA_BUCKET).remove([uploadedPath])
+        if (error) console.warn('[ContentRepo:addPost] Uploaded media cleanup failed.')
+      } catch {
+        console.warn('[ContentRepo:addPost] Uploaded media cleanup failed.')
       }
-      if (draft.pollQuestion) kind = 'poll'
-      if (draft.kind) kind = draft.kind
+      uploadedPath = null
+    }
 
-      // Andaa data ya INSERT
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser()
+      if (authError) throw parseSupabaseError(authError, 'addPost.auth')
+      const user = authData?.user
+      if (!user) {
+        if (file) throw new AuthError('Ingia kwenye akaunti yako kabla ya kupakia picha au video.')
+        return null
+      }
+
+      let kind = normalizedKind === 'photo' ? 'image' : normalizedKind
+      if (draft.pollQuestion) kind = 'poll'
+      if (file) kind = normalizedKind === 'reel' ? 'reel' : fileDetails.mediaType
+      const mediaMeta = { ...(draft.mediaMeta || {}) }
+      let mediaUrl = draft.mediaUrl || null
+
+      if (file) {
+        const mediaPath = makePostMediaPath(user.id, file)
+        const storage = supabase.storage.from(POST_MEDIA_BUCKET)
+        const { error: uploadError } = await storage.upload(mediaPath, file, {
+          cacheControl: String(POST_MEDIA_SIGNED_URL_TTL),
+          contentType: fileDetails.mimeType,
+          upsert: false,
+        })
+        if (uploadError) throw postStorageError(uploadError, 'addPost.upload')
+        uploadedPath = mediaPath
+
+        const signedRow = await signPostMediaRow({ media_path: mediaPath }, 'addPost.sign')
+        mediaUrl = signedRow.media_url
+        Object.assign(mediaMeta, {
+          mediaType: fileDetails.mediaType,
+          mimeType: fileDetails.mimeType,
+          size: fileDetails.size,
+          ratio: kind === 'reel' ? '9 / 16' : fileDetails.mediaType === 'video' ? '16 / 9' : '4 / 3',
+        })
+      }
+
       const insertData = {
         author_id: user.id,
         kind,
         text: draft.text || null,
-        media_url: draft.mediaUrl || null,
-        media_meta: draft.mediaMeta || {},
+        media_url: file ? null : mediaUrl,
+        media_path: uploadedPath,
+        media_meta: mediaMeta,
         poll_question: draft.pollQuestion || null,
         visibility: draft.visibility || 'public',
       }
+      if (options.idempotencyKey) insertData.idempotency_key = options.idempotencyKey
 
-      // Ongeza idempotency_key kama ipo (kuzuia duplicates)
-      if (options.idempotencyKey) {
-        insertData.idempotency_key = options.idempotencyKey
-      }
-
+      const selectColumns = 'id, kind, text, media_url, media_path, media_meta, poll_question, visibility, created_at'
       const { data: post, error } = await supabase
         .from('posts')
         .insert(insertData)
-        .select('id, kind, text, media_url, visibility, created_at')
+        .select(selectColumns)
         .single()
 
       if (error) {
-        // Angalia kama ni duplicate (idempotency conflict)
         if (error.code === '23505' && options.idempotencyKey) {
-          // Duplicate detected - jaribu kupata post iliyopo
-          console.log('[ContentRepo] Duplicate detected, fetching existing post')
-          const { data: existing } = await supabase
+          const { data: existing, error: existingError } = await supabase
             .from('posts')
-            .select('id, kind, text, media_url, visibility, created_at')
+            .select('id, kind, text, media_url, media_path, media_meta, visibility, created_at')
             .eq('idempotency_key', options.idempotencyKey)
             .single()
-          
+          if (existingError) throw parseSupabaseError(existingError, 'addPost.idempotency')
           if (existing) {
+            await removeUnattachedMedia()
+            const signedExisting = await signPostMediaRow(existing, 'addPost.idempotency.media')
             return {
-              id: existing.id,
-              kind: existing.kind,
-              text: existing.text,
-              mediaUrl: existing.media_url,
-              visibility: existing.visibility,
-              createdAt: existing.created_at,
+              id: signedExisting.id,
+              kind: signedExisting.kind,
+              text: signedExisting.text,
+              mediaUrl: signedExisting.media_url,
+              mediaMeta: signedExisting.media_meta || {},
+              visibility: signedExisting.visibility,
+              createdAt: signedExisting.created_at,
             }
           }
         }
+        if (/media_path|column/i.test(error.message || '')) {
+          throw new SchemaError(
+            'Schema ya post media haijawekwa. Tumia supabase/migrations/018_post_media_storage_rls.sql kwenye Supabase.',
+            { originalError: error },
+          )
+        }
         throw parseSupabaseError(error, 'addPost')
       }
+      if (!post) throw new Error('Database haikurudisha chapisho lililohifadhiwa.')
+      postInserted = true
 
       const result = {
         id: post.id,
         kind: post.kind,
         text: post.text,
-        mediaUrl: post.media_url,
+        mediaUrl: mediaUrl || post.media_url,
+        mediaMeta: post.media_meta || mediaMeta,
         visibility: post.visibility,
         createdAt: post.created_at,
       }
-
-      // Hifadhi kwenye cache
-      await contentCache.cachePost(result)
-
-      return result
-    } catch (err) {
-      // Kama ni network error na sio syncMode, andika offline
-      if (!options.skipOffline && (err instanceof NetworkError || (typeof navigator !== 'undefined' && !navigator.onLine))) {
-        console.log('[ContentRepo] Network error, using offline actions')
-        const offlinePost = await offlineActions.addPost(draft)
-        return offlinePost
+      try {
+        await contentCache.cachePost(result)
+      } catch {
+        console.warn('[ContentRepo:addPost] Post saved; local cache update failed.')
       }
-      // Rudisha error kama sio network error au ni syncMode
-      throw err
+      return result
+    } catch (error) {
+      if (uploadedPath && !postInserted) await removeUnattachedMedia()
+      if (file && (error instanceof NetworkError || (typeof navigator !== 'undefined' && !navigator.onLine))) {
+        throw new NetworkError(
+          'Mtandao haupatikani; picha/video haikutumwa na hakuna post iliyohifadhiwa. Unganisha mtandao kisha jaribu tena.',
+          { originalError: error },
+        )
+      }
+      // Faili za media haziwekwi kwenye offline queue: bila upload, hakuna post ya mafanikio.
+      if (!file && !options.skipOffline && (error instanceof NetworkError || (typeof navigator !== 'undefined' && !navigator.onLine))) {
+        console.log('[ContentRepo] Network error, using offline actions')
+        return offlineActions.addPost(draft)
+      }
+      throw error
     }
   },
 
@@ -784,37 +1009,132 @@ export const supabaseContentRepository = {
   },
 
   /* ── WRITE: Add status/story ─────────────────────────────── */
-  async addStatus(st) {
-    if (!isSupabaseLive || !supabase) return null
+  async addStatus(st = {}) {
+    if (!isSupabaseLive) return null
+    if (!supabase) throw new NetworkError('Supabase client haijasanidiwa')
+
+    const draft = validateStatusDraft(st)
+    const tone = st.tone || 'green'
+    if (!STATUS_TONES.has(tone)) throw new ValidationError('Rangi ya status haikubaliki.')
+
+    const user = await requireStatusUser('addStatus')
+    if (st.file && !supabase?.storage) {
+      throw new SchemaError('Supabase Storage client haijaandaliwa kwa Status media.')
+    }
+    const mediaPath = st.file ? `${user.id}/${makeStatusMediaName(st.file)}` : null
+    let uploaded = false
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return null
+      if (st.file) {
+        const { error: uploadError } = await supabase.storage
+          .from(STATUS_MEDIA_BUCKET)
+          .upload(mediaPath, st.file, {
+            cacheControl: String(STATUS_SIGNED_URL_TTL),
+            contentType: st.file.type,
+            upsert: false,
+          })
+        if (uploadError) throw statusStorageError(uploadError, 'addStatus.upload')
+        uploaded = true
+      }
 
       const { data: status, error } = await supabase
         .from('statuses')
         .insert({
           user_id: user.id,
-          media_url: st.mediaUrl,
-          media_type: st.mediaType || 'image',
-          text: st.text || null,
+          media_url: null,
+          media_path: mediaPath,
+          media_type: draft.mediaType,
+          text: draft.text,
+          tone,
         })
-        .select('id, user_id, media_url, media_type, text, created_at')
+        .select(STATUS_SELECT)
         .single()
 
       if (error) throw error
+      if (!status) throw new Error('Database haikurudisha status iliyohifadhiwa.')
+
+      let mediaUrl = null
+      let mediaWarning = false
+      if (mediaPath) {
+        try {
+          const { data: signed, error: signingError } = await supabase.storage
+            .from(STATUS_MEDIA_BUCKET)
+            .createSignedUrl(mediaPath, statusUrlTtl(status.expires_at))
+          if (signingError) throw signingError
+          mediaUrl = signed?.signedUrl || null
+          mediaWarning = !mediaUrl
+        } catch (signingError) {
+          // Upload na database row vimeshafaulu; kusaini upya kutajaribiwa kwenye read.
+          mediaWarning = true
+          console.warn('[ContentRepo:addStatus] Status saved; media URL will be retried on read.')
+        }
+      }
 
       return {
-        id: status.id,
-        userId: status.user_id,
-        mediaUrl: status.media_url,
-        mediaType: status.media_type,
-        text: status.text,
-        createdAt: status.created_at,
+        ...mapSupabaseStatus(status, { currentUserId: user.id, mediaUrl }),
+        mediaWarning,
       }
-    } catch (err) {
-      handleError(err, 'addStatus')
-      return null
+    } catch (error) {
+      if (uploaded && mediaPath) {
+        try {
+          const { error: cleanupError } = await supabase.storage
+            .from(STATUS_MEDIA_BUCKET)
+            .remove([mediaPath])
+          if (cleanupError) console.warn('[ContentRepo:addStatus] Uploaded status media cleanup failed.')
+        } catch {
+          console.warn('[ContentRepo:addStatus] Uploaded status media cleanup failed.')
+        }
+      }
+      throwStatusError(error, 'addStatus')
+    }
+  },
+
+  /* ── WRITE: Delete own status ─────────────────────────────── */
+  async deleteStatus(statusId) {
+    if (!isSupabaseLive) return { deleted: false, id: statusId }
+    if (!supabase) throw new NetworkError('Supabase client haijasanidiwa')
+    if (!statusId) return { deleted: false, id: statusId }
+
+    const user = await requireStatusUser('deleteStatus')
+    try {
+      const { data: status, error: lookupError } = await supabase
+        .from('statuses')
+        .select('id, user_id, media_path')
+        .eq('id', statusId)
+        .maybeSingle()
+      if (lookupError) throw lookupError
+      if (!status) return { deleted: false, id: statusId, persistence: 'supabase' }
+      if (status.user_id !== user.id) throw new RLSError('Unaweza kufuta status yako mwenyewe tu.')
+
+      const { data: deleted, error: deleteError } = await supabase
+        .from('statuses')
+        .delete()
+        .eq('id', statusId)
+        .eq('user_id', user.id)
+        .select('id')
+        .maybeSingle()
+      if (deleteError) throw deleteError
+      if (!deleted) throw new RLSError('Status haikupatikana au huna ruhusa ya kuifuta.')
+
+      let mediaCleanupPending = false
+      if (status.media_path) {
+        try {
+          const { error: cleanupError } = await supabase.storage
+            .from(STATUS_MEDIA_BUCKET)
+            .remove([status.media_path])
+          mediaCleanupPending = Boolean(cleanupError)
+        } catch {
+          mediaCleanupPending = true
+        }
+        if (mediaCleanupPending) {
+          // Database row imefutwa; Storage policy inazuia tena kusoma faili orphan.
+          console.warn('[ContentRepo:deleteStatus] Status row deleted; media cleanup is pending.')
+        }
+      }
+
+      return { deleted: true, id: statusId, persistence: 'supabase', mediaCleanupPending }
+    } catch (error) {
+      throwStatusError(error, 'deleteStatus')
     }
   },
 }

@@ -53,6 +53,7 @@ const supabaseRepos = {
   identity: null,
   chat: null,
   activity: null,
+  friendship: null,
 }
 
 const loadPromises = {
@@ -60,6 +61,7 @@ const loadPromises = {
   identity: null,
   chat: null,
   activity: null,
+  friendship: null,
 }
 
 async function loadSupabaseRepo(name) {
@@ -71,6 +73,7 @@ async function loadSupabaseRepo(name) {
       identity: () => import('./supabaseIdentityRepository.js').then(m => m.supabaseIdentityRepository),
       chat: () => import('./supabaseChatRepository.js').then(m => m.supabaseChatRepository),
       activity: () => import('./supabaseActivityRepository.js').then(m => m.supabaseActivityRepository),
+      friendship: () => import('./supabaseFriendshipRepository.js').then(m => m.supabaseFriendshipRepository),
     }
     
     loadPromises[name] = loaders[name]().then(repo => {
@@ -137,10 +140,37 @@ export const identityRepository = createRepositoryProxy(mockIdentityRepository, 
 export const chatRepository = createRepositoryProxy(mockChatRepository, 'chat')
 export const activityRepository = createRepositoryProxy(mockActivityRepository, 'activity')
 
+/* Gundua: friend requests/marafiki ni live (friendships) katika live mode.
+   Methods nyingine za Gundua (discovery, vikundi, vyumba) bado ni mock —
+   zimeandikwa kwenye ripoti kama mapungufu, hazijaigwa kama live. */
+const LIVE_GUNDUA_METHODS = new Set([
+  'addFriend',
+  'respondFriend',
+  'cancelFriend',
+  'getFriendRequests',
+  'getFriends',
+])
+
+function createGunduaRepository(mockRepo) {
+  if (!checkIsLive()) return mockRepo
+  return new Proxy(mockRepo, {
+    get(target, prop) {
+      if (LIVE_GUNDUA_METHODS.has(prop)) {
+        return async (...args) => {
+          const repo = await loadSupabaseRepo('friendship')
+          if (!repo) throw new Error('Friendship repository imeshindwa kupakia. Jaribu tena.')
+          return repo[prop](...args)
+        }
+      }
+      return target[prop]
+    },
+  })
+}
+
 // Hizi bado ni mock pekee (Supabase repos hazijaandaliwa bado)
 export const catalogRepository = mockCatalogRepository
 export const systemRepository = mockSystemRepository
-export const gunduaRepository = mockGunduaRepository
+export const gunduaRepository = createGunduaRepository(mockGunduaRepository)
 export const spacesRepository = mockSpacesRepository
 
 /* ── Mode export (kwa debugging) ─────────────────────────── */
@@ -149,11 +179,13 @@ export const REPOSITORY_MODE = checkIsLive() ? 'supabase' : 'mock'
 /* ── Helper: Subiri Supabase repos zipakie (kwa testing) ── */
 export async function waitForSupabaseRepos() {
   if (!checkIsLive()) return
-  
-  await Promise.all([
-    loadSupabaseRepo('content'),
-    loadSupabaseRepo('identity'),
-    loadSupabaseRepo('chat'),
-    loadSupabaseRepo('activity'),
-  ])
+
+  const names = ['content', 'identity', 'chat', 'activity', 'friendship']
+  const results = await Promise.all(names.map((name) => loadSupabaseRepo(name)))
+  // loadSupabaseRepo hurudisha null kwenye kushindwa (haitupi). Hapa tunapiga error wazi
+  // badala ya kuruhusu UI ifanye kazi kwa repository isiyopakiwa.
+  const failed = names.filter((_, i) => !results[i])
+  if (failed.length) {
+    throw new Error(`Supabase repositories zimeshindwa kupakia: ${failed.join(', ')}. Angalia mtandao au build.`)
+  }
 }

@@ -44,7 +44,10 @@ import {
   IconShield,
   IconSpaces,
   IconHub,
+  IconArchive,
+  IconMoreVertical as IconRowMore,
 } from '../components/icons.jsx'
+import '../styles/chat-direct.css'
 
 /* ── Hali ya kifaa → rangi ya doa ───────────────────────────── */
 const DOT = {
@@ -64,6 +67,7 @@ export default function Chat({ onToast }) {
   const [stack, setStack] = useState([]) // mrundi wa panels — Back inarudi kwenye iliyotangulia
   const [guard, setGuard] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [rowMenuId, setRowMenuId] = useState(null)
 
   const refresh = useCallback(() => setKey((k) => k + 1), [])
 
@@ -170,6 +174,15 @@ export default function Chat({ onToast }) {
     refresh()
   }
 
+  /* Archive kutoka kwenye orodha: haifuti historia wala kumtoa mtu kwenye kikundi. */
+  const archiveFromList = async (c) => {
+    await chatService.archiveConversation(c.id, true)
+    close()
+    if (activeId === c.id) setActiveId(null)
+    onToast?.(`“${c.title}” imehifadhiwa kwenye Archived — haijafutwa`)
+    refresh()
+  }
+
   const createGroup = async ({ name, members, tone }) => {
     const created = await chatService.createGroup({ name, members, tone })
     close()
@@ -262,6 +275,33 @@ export default function Chat({ onToast }) {
           back: true,
           body: <NotificationsBody view={settings} onToast={onToast} />,
         }
+      case 'rowmenu': {
+        const target = conversations.find((c) => c.id === rowMenuId)
+        return {
+          title: target?.title || 'Mazungumzo',
+          subtitle: 'Vitendo vya mazungumzo',
+          body: (
+            <div className="psh-panelstack">
+              {target ? (
+                <button
+                  type="button"
+                  className="psh-btn psh-btn--primary psh-chat__rowaction"
+                  onClick={() => archiveFromList(target)}
+                >
+                  <IconArchive size={18} /> Hifadhi (Archive)
+                </button>
+              ) : null}
+              <p className="psh-chat__rowhelp">
+                Archive huondoa mazungumzo kwenye orodha kuu. Historia inabaki, haifutwi, na
+                haikutoi kwenye kikundi. Yanapatikana kwenye “Chats zilizohifadhiwa”.
+              </p>
+              <button type="button" className="psh-btn psh-chat__rowaction" onClick={close}>
+                Ghairi
+              </button>
+            </div>
+          ),
+        }
+      }
       case 'archived':
         return {
           title: 'Chats zilizohifadhiwa',
@@ -316,7 +356,7 @@ export default function Chat({ onToast }) {
       default:
         return null
     }
-  }, [panel, settings, guard, thread, onToast]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [panel, settings, guard, thread, onToast, rowMenuId, conversations, activeId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="psh-col">
@@ -393,40 +433,53 @@ export default function Chat({ onToast }) {
 
           <div className="psh-chat__list">
             {conversations.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                className={`psh-chat__row ${activeId === c.id ? 'is-active' : ''}`}
-                onClick={() => openConversation(c.id)}
-              >
-                <ChatAvatar
-                  tone={c.tone}
-                  name={c.title}
-                  icon={c.type === 'group' ? c.groupIcon : null}
-                  online={c.type === 'direct' ? true : undefined}
-                />
-                <span className="psh-chat__rowmain">
-                  <span className="psh-chat__rowtop">
-                    <span className="psh-chat__rowname">{c.title}</span>
-                    {c.relationship === 'saved' ? (
-                      <span className="psh-chip psh-chip--gold">Saved</span>
-                    ) : c.type === 'group' ? (
-                      <span className="psh-chip psh-chip--soft">Kikundi</span>
-                    ) : null}
-                  </span>
-                  {c.parentContext ? (
-                    <span className="psh-chat__context">
-                      {c.parentContext.type === 'hub' ? <IconHub size={12} /> : <IconSpaces size={12} />}
-                      Kikundi · {c.parentContext.label}
+              <div key={c.id} className="psh-chat__rowwrap">
+                <button
+                  type="button"
+                  className={`psh-chat__row ${activeId === c.id ? 'is-active' : ''}`}
+                  onClick={() => openConversation(c.id)}
+                >
+                  <ChatAvatar
+                    tone={c.tone}
+                    name={c.title}
+                    icon={c.type === 'group' ? c.groupIcon : null}
+                  />
+                  <span className="psh-chat__rowmain">
+                    <span className="psh-chat__rowtop">
+                      <span className="psh-chat__rowname">{c.title}</span>
+                      {c.type === 'direct' && c.relationship === 'saved' ? (
+                        <span className="psh-chat__rel psh-chat__rel--saved">Saved Contact</span>
+                      ) : c.type === 'direct' && c.relationship === 'friend' ? (
+                        <span className="psh-chat__rel psh-chat__rel--friend">PASIHAI Friend</span>
+                      ) : c.type === 'group' ? (
+                        <span className="psh-chip psh-chip--soft">Kikundi</span>
+                      ) : null}
                     </span>
-                  ) : null}
-                  <span className="psh-chat__rowtext">{c.last?.text}</span>
-                </span>
-                <span className="psh-chat__rowmeta">
-                  <span className="psh-chat__rowtime">{c.last?.at || c.updatedAt}</span>
-                  {c.unread ? <span className="psh-chat__unread">{c.unread}</span> : null}
-                </span>
-              </button>
+                    {c.parentContext ? (
+                      <span className="psh-chat__context">
+                        {c.parentContext.type === 'hub' ? <IconHub size={12} /> : <IconSpaces size={12} />}
+                        Kikundi · {c.parentContext.label}
+                      </span>
+                    ) : null}
+                    <span className="psh-chat__rowtext">{c.last?.text}</span>
+                  </span>
+                  <span className="psh-chat__rowmeta">
+                    <span className="psh-chat__rowtime">{c.last?.at || c.updatedAt}</span>
+                    {c.unread ? <span className="psh-chat__unread">{c.unread}</span> : null}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className="psh-chat__rowmenu"
+                  aria-label={`Vitendo vya ${c.title}`}
+                  onClick={() => {
+                    setRowMenuId(c.id)
+                    go('rowmenu')
+                  }}
+                >
+                  <IconRowMore size={18} />
+                </button>
+              </div>
             ))}
 
             {conversations.length === 0 ? (

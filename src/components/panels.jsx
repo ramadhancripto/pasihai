@@ -4,7 +4,7 @@
 // Mapendeleo ya mkondo, Mapendeleo ya maudhui, Zilizohifadhiwa)
 // ══════════════════════════════════════════════════════════════
 
-import { useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { useAuth } from '../lib/AuthContext.jsx'
 import { isSupabaseLive } from '../lib/supabaseClient.js'
 import { accountService } from '../services/accountService.js'
@@ -14,6 +14,13 @@ import { gunduaService } from '../services/gunduaService.js'
 import { chatService } from '../services/chatService.js'
 import { systemService } from '../services/systemService.js'
 import { notificationService } from '../services/notificationService.js'
+import {
+  getPostMediaType,
+  postMediaErrorMessage,
+  POST_IMAGE_ACCEPT,
+  POST_VIDEO_ACCEPT,
+  validatePostMediaFile,
+} from '../utils/postMedia.js'
 import { settingsService } from '../services/settingsService.js'
 import useAsyncData from '../hooks/useAsyncData.js'
 import {
@@ -228,8 +235,12 @@ export function FriendsConnections({ onToast }) {
   const run = async (person, fn, msg) => {
     setBusyId(person.id)
     try {
-      await fn()
-      onToast?.(msg)
+      const res = await fn()
+      // Ujumbe wa mafanikio unafuata matokeo halisi ya backend (changed), si kitendo tu.
+      onToast?.(res?.changed === false ? res.hint || 'Hakuna mabadiliko' : msg)
+      refresh()
+    } catch (err) {
+      onToast?.(err?.message || 'Imeshindikana. Jaribu tena.')
       refresh()
     } finally {
       setBusyId(null)
@@ -667,6 +678,7 @@ export function ProfilePanel({ userId = 'me', onToast, onInteract, onOpenItem, o
 /* ── Create ───────────────────────────────────────────────── */
 
 export const CREATE_ITEMS = [
+  { id: 'studio', label: 'Creator Studio', Icon: IconSpark, hint: 'Machapisho, media, takwimu na zaidi' },
   { id: 'post', label: 'Chapisho', Icon: IconPlus, hint: 'Maandishi' },
   { id: 'photo', label: 'Picha', Icon: IconPhoto, hint: '' },
   { id: 'video', label: 'Video', Icon: IconVideo, hint: '' },
@@ -685,7 +697,7 @@ export const CREATE_SPACE_ITEMS = [
   { id: 'channel', label: 'Channel', Icon: IconMegaphone },
 ]
 
-export function CreatePanel({ onToast, onCompose, onStatus, onLive, onCreateSpace }) {
+export function CreatePanel({ onToast, onCompose, onStatus, onLive, onCreateSpace, onStudio }) {
   return (
     <div className="psh-create">
       <p className="psh-create__lead">
@@ -702,6 +714,7 @@ export function CreatePanel({ onToast, onCompose, onStatus, onLive, onCreateSpac
                 // Kila aina ina njia yake halisi ya kuunda (hali ya kikao).
                 if (id === 'story' || id === 'status') return onStatus?.()
                 if (id === 'live') return onLive?.()
+                if (id === 'studio') return onStudio?.()
                 return onCompose?.(id)
               }}
             >
@@ -747,7 +760,7 @@ export function CreatePanel({ onToast, onCompose, onStatus, onLive, onCreateSpac
 
 const COMPOSE_KINDS = {
   text: { label: 'Chapisho', placeholder: 'Nini kinaendelea?', hint: 'Maandishi' },
-  photo: { label: 'Picha', placeholder: 'Eleza picha yako…', hint: 'Picha moja' },
+  photo: { label: 'Media', placeholder: 'Eleza picha au video yako…', hint: 'Picha au video moja' },
   image: { label: 'Picha', placeholder: 'Eleza picha yako…', hint: 'Picha moja' },
   video: { label: 'Video', placeholder: 'Eleza video yako…', hint: 'Video' },
   reel: { label: 'Reel', placeholder: 'Andika maelezo mafupi…', hint: 'Video fupi ya wima' },
@@ -755,46 +768,134 @@ const COMPOSE_KINDS = {
   audio: { label: 'Sauti', placeholder: 'Eleza sauti yako…', hint: 'Sauti' },
 }
 
+function formatComposerMediaSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return ''
+  return bytes < 1024 * 1024
+    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 export function ComposerPanel({ kind = 'text', onToast, onClose, onPosted }) {
   const meta = COMPOSE_KINDS[kind] || COMPOSE_KINDS.text
   const [text, setText] = useState('')
   const [options, setOptions] = useState(['', ''])
   const [picked, setPicked] = useState(null)
+  const [file, setFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState('')
+  const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const imageInputId = useId()
+  const videoInputId = useId()
   const view = useAsyncData(() => systemService.getDeliveryOptions(), [])
 
-  if (!view) return null
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl('')
+      return undefined
+    }
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [file])
+
+  if (!view) {
+    return (
+      <div className="psh-panelstack">
+        <p className="psh-compose-media__state" role="status" aria-busy="true">
+          Inapakia chaguo za chapisho…
+        </p>
+      </div>
+    )
+  }
 
   const isPoll = kind === 'poll'
+  const supportsMedia = ['text', 'post', 'photo', 'image', 'video', 'reel'].includes(kind)
+  const allowsImage = ['text', 'post', 'photo', 'image'].includes(kind)
+  const allowsVideo = ['text', 'post', 'photo', 'video', 'reel'].includes(kind)
+  const isDedicatedMediaPost = ['photo', 'image', 'video', 'reel'].includes(kind)
+  const mediaType = file ? getPostMediaType(file) : null
   const filled = options.filter((o) => o.trim())
-  const ready = isPoll ? Boolean(text.trim() && filled.length >= 2) : Boolean(text.trim())
+  const ready = isPoll
+    ? Boolean(text.trim() && filled.length >= 2)
+    : isDedicatedMediaPost
+      ? Boolean(file)
+      : Boolean(text.trim() || file)
 
   const selected = view.options.find((o) => o.id === picked) || view.options.find((o) => o.id === view.recommended)
   const queuedNow = !!selected?.queues
 
-  const submit = async () => {
-    if (!ready) return
-    setBusy(true)
-
-    const post = await feedService.createPost({
-      kind,
-      text: text.trim(),
-      options: isPoll ? filled : undefined,
-    })
-    const short = text.trim().slice(0, 42)
-    const res = await systemService.queueFromDelivery(
-      selected.id,
-      short ? `Chapisho: “${short}${text.trim().length > 42 ? '…' : ''}”` : 'Chapisho jipya',
-    )
-    setBusy(false)
-    onToast(
-      res.queued
-        ? `${selected.label}: kimeundwa — kiko kwenye foleni (Waiting for sync)`
-        : `${selected.label}: kimechapishwa — kinaonekana kwenye mkondo`,
-    )
-    onPosted?.(post)
-    onClose?.()
+  const chooseFile = (event, expectedType) => {
+    const chosenFile = event.currentTarget.files?.[0]
+    event.currentTarget.value = ''
+    if (!chosenFile) return
+    try {
+      validatePostMediaFile(chosenFile, expectedType)
+      setFile(chosenFile)
+      setError('')
+    } catch (validationError) {
+      setError(postMediaErrorMessage(validationError))
+    }
   }
+
+  const removeFile = () => {
+    setFile(null)
+    setError('')
+  }
+
+  const submit = async () => {
+    if (!ready || busy) return
+    setBusy(true)
+    setError('')
+    const caption = text.trim()
+
+    try {
+      const post = await feedService.createPost({
+        kind,
+        text: caption,
+        file: file || undefined,
+        mediaType: mediaType || undefined,
+        options: isPoll ? filled : undefined,
+      })
+      if (!post?.id) {
+        throw new Error('Chapisho halijahifadhiwa: mfumo haukurudisha kitambulisho cha post.')
+      }
+
+      let delivery = null
+      let deliveryWarning = false
+      if (selected?.id) {
+        try {
+          const short = caption.slice(0, 42)
+          delivery = await systemService.queueFromDelivery(
+            selected.id,
+            short ? `Chapisho: “${short}${caption.length > 42 ? '…' : ''}”` : 'Chapisho jipya',
+          )
+        } catch {
+          // Post tayari imehifadhiwa; usiite upload/post iliyofaulu kuwa imeshindwa.
+          deliveryWarning = true
+        }
+      }
+
+      onPosted?.(post)
+      onToast?.(
+        deliveryWarning
+          ? 'Chapisho limehifadhiwa; hali ya delivery haikupatikana.'
+          : delivery?.queued
+            ? `${selected.label}: kimeundwa — kiko kwenye foleni (Waiting for sync)`
+            : `${selected?.label || 'Chapisho'}: limehifadhiwa na linaonekana kwenye mkondo`,
+      )
+      onClose?.()
+    } catch (submitError) {
+      setError(postMediaErrorMessage(submitError))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const emptyMediaPrompt = allowsImage && allowsVideo
+    ? 'Hakuna media iliyochaguliwa. Chagua picha au video kuiona hapa.'
+    : allowsVideo
+      ? 'Hakuna video iliyochaguliwa. Chagua video kuiona hapa.'
+      : 'Hakuna picha iliyochaguliwa. Chagua picha kuiona hapa.'
 
   return (
     <div className="psh-panelstack">
@@ -817,6 +918,91 @@ export function ComposerPanel({ kind = 'text', onToast, onClose, onPosted }) {
           placeholder={meta.placeholder}
         />
       </label>
+
+      {supportsMedia ? (
+        <section className="psh-compose-media" aria-label="Picha au video ya chapisho">
+          <div className="psh-compose-media__pickers">
+            {allowsImage ? (
+              <>
+                <input
+                  id={imageInputId}
+                  className="u-sr"
+                  type="file"
+                  accept={POST_IMAGE_ACCEPT}
+                  aria-label="Chagua faili la picha"
+                  disabled={busy}
+                  onChange={(event) => chooseFile(event, 'image')}
+                />
+                <label
+                  className="psh-btn psh-btn--soft psh-btn--sm psh-compose-media__picker"
+                  htmlFor={imageInputId}
+                  aria-disabled={busy || undefined}
+                  onClick={(event) => { if (busy) event.preventDefault() }}
+                >
+                  <IconPhoto size={16} />
+                  {file && mediaType === 'image' ? 'Badilisha picha' : 'Chagua picha'}
+                </label>
+              </>
+            ) : null}
+            {allowsVideo ? (
+              <>
+                <input
+                  id={videoInputId}
+                  className="u-sr"
+                  type="file"
+                  accept={POST_VIDEO_ACCEPT}
+                  aria-label="Chagua faili la video"
+                  disabled={busy}
+                  onChange={(event) => chooseFile(event, 'video')}
+                />
+                <label
+                  className="psh-btn psh-btn--soft psh-btn--sm psh-compose-media__picker"
+                  htmlFor={videoInputId}
+                  aria-disabled={busy || undefined}
+                  onClick={(event) => { if (busy) event.preventDefault() }}
+                >
+                  <IconVideo size={16} />
+                  {file && mediaType === 'video' ? 'Badilisha video' : 'Chagua video'}
+                </label>
+              </>
+            ) : null}
+          </div>
+
+          {file && previewUrl ? (
+            <div className="psh-compose-media__preview" aria-label="Preview ya media uliyochagua">
+              {mediaType === 'video' ? (
+                <video
+                  src={previewUrl}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  aria-label="Preview ya video uliyochagua"
+                />
+              ) : (
+                <img src={previewUrl} alt={`Preview ya picha: ${file.name}`} />
+              )}
+              <div className="psh-compose-media__fileline">
+                <span title={file.name}>{file.name} · {formatComposerMediaSize(file.size)}</span>
+                <Button size="sm" variant="quiet" disabled={busy} onClick={removeFile}>
+                  Ondoa
+                </Button>
+              </div>
+            </div>
+          ) : file ? (
+            <p className="psh-compose-media__state" role="status" aria-busy="true">
+              Inatayarisha preview ya media…
+            </p>
+          ) : (
+            <div className="psh-compose-media__empty" role="status">
+              <IconPhoto size={18} />
+              <IconVideo size={18} />
+              <p>{emptyMediaPrompt}</p>
+            </div>
+          )}
+        </section>
+      ) : null}
+
+      {error ? <p className="psh-compose__error" role="alert">{error}</p> : null}
 
       {isPoll ? (
         <>

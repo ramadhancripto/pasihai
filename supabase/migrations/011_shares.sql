@@ -18,7 +18,9 @@ CREATE TABLE shares (
 );
 
 CREATE INDEX idx_shares_post ON shares(post_id, created_at DESC);
-CREATE INDEX idx_shares_user ON shares(user_id) WHERE created_at > now() - interval '30 days';
+-- Partial index with now() in the predicate is not allowed (now() is not IMMUTABLE),
+-- so the migration could never apply. Plain composite index instead.
+CREATE INDEX idx_shares_user ON shares(user_id, created_at DESC);
 
 -- ── Trigger: update shares_count on posts ───────────────────
 CREATE OR REPLACE FUNCTION update_share_count()
