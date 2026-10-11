@@ -13,6 +13,7 @@ import StructuredPost from '../studio/StructuredPost.jsx'
 // ══════════════════════════════════════════════════════════════
 
 import { useState } from 'react'
+import { useVideoAutoplay } from '../../hooks/useVideoAutoplay.js'
 import { MediaFrame, Waveform, Chip, Avatar } from '../ui.jsx'
 import {
   IconPlay,
@@ -30,12 +31,36 @@ import {
 } from '../icons.jsx'
 
 /* ── Prima: maandishi ya chapisho ─────────────────────────── */
+const TEXT_TRUNCATE_LIMIT = 280
+
 function FeedText({ text }) {
+  const [expanded, setExpanded] = useState(false)
   if (!text) return null
   // Chapisho lenye muundo (Makala, Tangazo, Nukuu) lina envelope yenye marker.
   const structured = parseContent(text)
   if (structured) return <StructuredPost content={structured} />
-  return <p className="psh-feedtext">{text}</p>
+  const needsTruncate = text.length > TEXT_TRUNCATE_LIMIT && !expanded
+  return (
+    <p className="psh-feedtext">
+      {needsTruncate ? text.slice(0, TEXT_TRUNCATE_LIMIT) : text}
+      {needsTruncate && (
+        <>
+          ...{' '}
+          <button type="button" className="psh-feedtext__more" onClick={() => setExpanded(true)}>
+            Zaidi
+          </button>
+        </>
+      )}
+      {expanded && text.length > TEXT_TRUNCATE_LIMIT && (
+        <>
+          {' '}
+          <button type="button" className="psh-feedtext__more" onClick={() => setExpanded(false)}>
+            Fupi
+          </button>
+        </>
+      )}
+    </p>
+  )
 }
 
 /* ── Prima: media yenye play/duration ─────────────────────── */
@@ -118,13 +143,14 @@ export function MediaBody({ item, onToast, onCta }) {
 
 /* ── 3. Video-first: media kwanza, maelezo baadaye ────────── */
 export function VideoBody({ item, onCta }) {
+  const { containerRef } = useVideoAutoplay()
   return (
-    <>
+    <div ref={containerRef}>
       <div className="psh-feedmedia psh-feedmedia--first">
         <MediaWithOverlay media={item.media} icon={IconPlay} />
       </div>
       <FeedText text={item.text} />
-    </>
+    </div>
   )
 }
 
@@ -339,9 +365,10 @@ export function LiveActivityBody({ item, onOpenLive }) {
 
 /* ── 8. Reel — kadi compact kwenye Mchanganyiko ───────────── */
 export function ReelBody({ item }) {
+  const { containerRef } = useVideoAutoplay()
   const media = item.media ?? {}
   return (
-    <div className="psh-reel">
+    <div className="psh-reel" ref={containerRef}>
       <span
         className={`psh-reel__thumb psh-reel__thumb--tone-${media.tone ?? 'green'}`}
         aria-hidden={media.url ? undefined : 'true'}
@@ -352,6 +379,7 @@ export function ReelBody({ item }) {
             src={media.url}
             controls
             playsInline
+            muted
             preload="metadata"
             aria-label={item.text ? `Video ya Reel: ${item.text}` : 'Video ya Reel'}
           />

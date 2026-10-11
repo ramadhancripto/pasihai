@@ -182,3 +182,73 @@ html[data-chrome='hidden'] .psh-nav {
 .psh-status__row {
   padding-left: 0;
 }
+
+/* ── 7. Status Viewer: skrini nzima simu ───────────────────── */
+@media (max-width: 640px) {
+  .psh-status-viewer__stage {
+    width: 100vw;
+    height: calc(100dvh - 140px);
+    max-height: none;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .psh-status-viewer__progress {
+    width: 100%;
+    padding: 0 8px;
+  }
+  .psh-status-viewer__head {
+    width: 100%;
+    padding: 0 8px;
+  }
+  .psh-status-viewer__nav {
+    width: 100%;
+    padding: 0 8px;
+  }
+}
+
+/* ── 8. Feed: margins ndogo simu, bottom nav haifunyi ───────── */
+@media (max-width: 640px) {
+  .psh-feeditem {
+    padding: var(--s-3);
+    border-radius: 12px;
+  }
+  .psh-feedmedia {
+    margin-left: calc(var(--s-3) * -1);
+    margin-right: calc(var(--s-3) * -1);
+    border-radius: 0;
+  }
+  .psh-feedmedia .psh-media {
+    border-radius: 0;
+  }
+  /* Bottom nav clearance */
+  .psh-col--main,
+  .psh-feed {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom) + 16px);
+  }
+}
+
+/* ── 9. Feed text: wrapping kamili ─────────────────────────── */
+.psh-feedtext {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ── 10. More/Less: cheo cha maandishi marefu ──────────────── */
+.psh-feedtext--truncated {
+  position: relative;
+}
+.psh-feedtext__more {
+  display: inline;
+  color: var(--pg-dark, #22875f);
+  cursor: pointer;
+  font-weight: 500;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+.psh-feedtext__more:hover {
+  text-decoration: underline;
+}

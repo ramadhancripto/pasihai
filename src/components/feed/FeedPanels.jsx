@@ -759,6 +759,16 @@ export function StatusViewerPanel({ group, onToast, onChanged, onClose, onAdd })
 
   useEffect(() => { setMediaError(false) }, [status?.id])
 
+  // Auto-advance timer for image statuses (5 seconds, like stories)
+  useEffect(() => {
+    if (isVideo) return // video handles via onEnded
+    const timer = setTimeout(() => {
+      if (index < statuses.length - 1) setIndex((c) => c + 1)
+      else onClose?.()
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [index, isVideo, statuses.length, onClose])
+
   const deleteCurrentStatus = async () => {
     if (!status?.id || !group?.own || busy) return
     setBusy(true)
@@ -845,9 +855,15 @@ export function StatusViewerPanel({ group, onToast, onChanged, onClose, onAdd })
                 src={mediaUrl}
                 controls
                 playsInline
+                autoPlay
+                muted
                 preload="metadata"
                 aria-label={`Video ya Status ya ${name}`}
                 onError={() => setMediaError(true)}
+                onEnded={() => {
+                  if (index < statuses.length - 1) setIndex((c) => c + 1)
+                  else onClose?.()
+                }}
               />
             ) : (
               <img
