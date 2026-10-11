@@ -30,6 +30,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [authEvent, setAuthEvent] = useState(null) // 'PASSWORD_RECOVERY' | 'SIGNED_IN' | ...
 
   // Initialize: check for existing session
   useEffect(() => {
@@ -59,6 +60,7 @@ export function AuthProvider({ children }) {
       if (!mounted) return
 
       console.log('[AuthContext] Auth event:', event)
+      setAuthEvent(event)
       setSession(newSession)
       setUser(newSession?.user || null)
     })
@@ -112,15 +114,26 @@ export function AuthProvider({ children }) {
     return { success: true }
   }, [])
 
+  // Update password (after recovery)
+  const updatePassword = useCallback(async (newPassword) => {
+    const result = await authService.updatePassword(newPassword)
+    if (result.error) {
+      return { success: false, error: result.error }
+    }
+    return { success: true }
+  }, [])
+
   const value = {
     user,
     session,
     loading,
     isAuthenticated: !!user,
+    authEvent,
     signIn,
     signUp,
     signOut,
     resetPassword,
+    updatePassword,
   }
 
   return (

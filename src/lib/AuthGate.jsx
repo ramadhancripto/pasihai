@@ -48,11 +48,16 @@ function ConfigError({ problems }) {
 }
 
 export function AuthGate({ children }) {
-  const { loading: authLoading, isAuthenticated } = useAuth()
+  const { loading: authLoading, isAuthenticated, authEvent } = useAuth()
   const [repo, setRepo] = useState({ status: 'idle', error: null })
   const [attempt, setAttempt] = useState(0)
 
-  const needsRepos = isSupabaseLive && !authLoading && isAuthenticated
+  // PASSWORD_RECOVERY: mtumiaji amefika kupitia link ya kurejesha nenosiri.
+  // Lazima tuonyeshe Login (yenye fomu ya nenosiri jipya) badala ya App,
+  // hata kama tayari yuko "authenticated" kupitia recovery session.
+  const isPasswordRecovery = isSupabaseLive && authEvent === 'PASSWORD_RECOVERY'
+
+  const needsRepos = isSupabaseLive && !authLoading && isAuthenticated && !isPasswordRecovery
 
   // Hooks zote ziko juu ya returns zenye masharti.
   useEffect(() => {
@@ -90,8 +95,9 @@ export function AuthGate({ children }) {
     )
   }
 
-  // Katika live mode, onyesha Login ikiwa hajaingia
-  if (!isAuthenticated) {
+  // Katika live mode, onyesha Login ikiwa hajaingia AU ikiwa ni password recovery
+  // (mtumiaji amefika kupitia link ya kurejesha — lazima aone fomu ya nenosiri jipya)
+  if (!isAuthenticated || isPasswordRecovery) {
     return <Login />
   }
 

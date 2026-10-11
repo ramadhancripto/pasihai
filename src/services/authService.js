@@ -185,6 +185,31 @@ export const authService = {
   },
 
   /**
+   * Sasisha nenosiri (baada ya kurejesha kupitia email).
+   * @param {string} newPassword - Nenosiri jipya
+   * @returns {Promise<{error: string|null}>}
+   */
+  async updatePassword(newPassword) {
+    if (!isSupabaseLive || !supabase) {
+      return {
+        error: 'Supabase haijasanidiwa. Tafadhali weka credentials kwenye .env.local'
+      }
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      })
+      if (error) {
+        return { error: formatAuthError(error) }
+      }
+      return { error: null }
+    } catch (err) {
+      return { error: formatAuthError(err) }
+    }
+  },
+
+  /**
    * Tuma email ya kurejesha password.
    * @param {string} email - Barua pepe
    * @returns {Promise<{error: string|null}>}
