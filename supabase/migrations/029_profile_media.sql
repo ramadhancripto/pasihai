@@ -28,33 +28,57 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- ── 3. RLS policies kwa Storage ──────────────────────────────
 -- Mtu yeyote aweze kusoma profile media (public bucket)
-CREATE POLICY "profile_media_select"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'profile-media');
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE policyname = 'profile_media_select' AND tablename = 'objects'
+  ) THEN
+    CREATE POLICY "profile_media_select"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'profile-media');
+  END IF;
+END $$;
 
 -- Mtumiaji aweze kupakia media yake mwenyewe
-CREATE POLICY "profile_media_insert"
-ON storage.objects FOR INSERT
-WITH CHECK (
-  bucket_id = 'profile-media'
-  AND (storage.foldername(name))[1] = auth.uid()::text
-);
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE policyname = 'profile_media_insert' AND tablename = 'objects'
+  ) THEN
+    CREATE POLICY "profile_media_insert"
+    ON storage.objects FOR INSERT
+    WITH CHECK (
+      bucket_id = 'profile-media'
+      AND (storage.foldername(name))[1] = auth.uid()::text
+    );
+  END IF;
+END $$;
 
 -- Mtumiaji aweze kusasisha media yake mwenyewe
-CREATE POLICY "profile_media_update"
-ON storage.objects FOR UPDATE
-USING (
-  bucket_id = 'profile-media'
-  AND (storage.foldername(name))[1] = auth.uid()::text
-);
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE policyname = 'profile_media_update' AND tablename = 'objects'
+  ) THEN
+    CREATE POLICY "profile_media_update"
+    ON storage.objects FOR UPDATE
+    USING (
+      bucket_id = 'profile-media'
+      AND (storage.foldername(name))[1] = auth.uid()::text
+    );
+  END IF;
+END $$;
 
 -- Mtumiaji aweze kufuta media yake mwenyewe
-CREATE POLICY "profile_media_delete"
-ON storage.objects FOR DELETE
-USING (
-  bucket_id = 'profile-media'
-  AND (storage.foldername(name))[1] = auth.uid()::text
-);
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE policyname = 'profile_media_delete' AND tablename = 'objects'
+  ) THEN
+    CREATE POLICY "profile_media_delete"
+    ON storage.objects FOR DELETE
+    USING (
+      bucket_id = 'profile-media'
+      AND (storage.foldername(name))[1] = auth.uid()::text
+    );
+  END IF;
+END $$;
 
 -- ── 4. RLS kwa profiles — hakikisha cover_url inasomeka ──────
 -- Profiles tayari ina RLS ya SELECT (public) — cover_url itapatikana

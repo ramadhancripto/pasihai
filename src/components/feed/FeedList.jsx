@@ -22,7 +22,7 @@ import useAsyncData from '../../hooks/useAsyncData.js'
 import FeedItem from './FeedItem.jsx'
 import VideoReelViewer from '../video/VideoReelViewer.jsx'
 import { Avatar, EntityAction } from '../ui.jsx'
-import { IconInfo, IconSpark, IconArrowRight, IconCheck, IconLive } from '../icons.jsx'
+import { IconInfo, IconSpark, IconArrowRight, IconCheck } from '../icons.jsx'
 
 /* Hali za vikao vya Live (zile zile za feedService: live · upcoming · replay) */
 const LIVE_SEGMENTS = [
@@ -206,8 +206,8 @@ export default function FeedList({
                 className={`psh-liveseg__pill ${isActive ? 'is-active' : ''}`}
                 onClick={() => setSegment(s.id)}
               >
-                {s.id === 'live' ? (
-                  <IconLive size={14} />
+                {s.id === 'live' && isActive ? (
+                  <span className="psh-liveseg__dot" aria-hidden="true" />
                 ) : null}
                 {s.label} ({segmentCounts[s.id]})
               </button>

@@ -9,7 +9,7 @@ import { useEffect, useState, useRef } from 'react'
 import { homeService } from '../../services/homeService.js'
 import { statusErrorMessage } from '../../utils/statusMedia.js'
 import { Avatar } from '../ui.jsx'
-import { IconArrowRight, IconPlay, IconPlus, IconLive } from '../icons.jsx'
+import { IconArrowRight, IconPlay, IconPlus } from '../icons.jsx'
 
 const CREATE_STATUS_SLOT = {
   id: 'status-create-slot',
@@ -127,8 +127,7 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
                   ) : null}
                   {!item.own && item.live ? (
                     <span className="psh-status__live" aria-hidden="true">
-                      <IconLive size={10} />
-                      <span>LIVE</span>
+                      <span className="psh-status__livedot" />
                     </span>
                   ) : null}
                 </span>

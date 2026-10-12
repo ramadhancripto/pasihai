@@ -30,7 +30,6 @@ import {
   IconShield,
   IconSpark,
   IconTag,
-  IconLive,
 } from '../icons.jsx'
 
 /* ── 1. MAONI ─────────────────────────────────────────────── */
@@ -355,7 +354,7 @@ export function LivePanel({ item, onToast, onChanged, onOpenProfile }) {
     <div className="psh-livepanel">
       <div className="psh-livepanel__head">
         <span className={`psh-live__badge psh-live__badge--${live.state === 'live' ? 'live' : live.state === 'upcoming' ? 'upcoming' : 'replay'}`}>
-          {live.state === 'live' ? <IconLive size={14} /> : null}
+          {live.state === 'live' ? <span className="psh-live__dot" aria-hidden="true" /> : null}
           {stateLabel}
         </span>
         <span className="psh-live__mode">{live.mode}</span>

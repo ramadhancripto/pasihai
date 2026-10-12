@@ -487,9 +487,7 @@ body {
 }
 
 /* ══ 9. HALI ZA MFUMO — chanya / taarifa / hatari ════════════ */
+.psh-status__livedot,
 .psh-status__live {
-  background: #c62828;
-}
-.psh-status__livedot {
-  background: #fff;
+  background: var(--pg-red);
 }

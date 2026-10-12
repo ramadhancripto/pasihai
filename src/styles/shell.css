@@ -310,36 +310,6 @@
   }
 }
 
-/* ── Full-screen Sheet (Status viewer, preview) ── */
-.psh-sheet__panel--full {
-  max-height: 100dvh;
-  height: 100dvh;
-  border-radius: 0;
-  background: #000;
-}
-.psh-sheet__panel--full .psh-sheet__grip { display: none; }
-.psh-sheet__panel--full .psh-sheet__head {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.65), transparent);
-  color: #fff;
-  padding-top: 10px;
-}
-.psh-sheet__panel--full .psh-sheet__title { color: #fff; }
-.psh-sheet__panel--full .psh-sheet__sub { color: rgba(255,255,255,0.65); }
-.psh-sheet__panel--full .psh-sheet__body { padding: 0; overflow: hidden; }
-.psh-sheet__panel--full .psh-icobtn { color: #fff; }
-@media (min-width: 768px) {
-  .psh-sheet__panel--full {
-    max-width: 100%;
-    max-height: 100dvh;
-    border-radius: 0;
-  }
-}
-
 @keyframes psh-fade {
   from {
     opacity: 0;
