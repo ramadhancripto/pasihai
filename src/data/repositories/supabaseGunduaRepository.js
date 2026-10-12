@@ -23,7 +23,7 @@ function handleError(error, context) {
 /* ── Static data (same as mock — app config, not user data) ── */
 
 const MODES = [
-  { id: 'mchanganyiko', label: 'Mchanganyiko', icon: 'grid', hint: 'Vitu vyote vilivyochanganywa' },
+  { id: 'mchanganyiko', label: 'All', icon: 'grid', hint: 'Vitu vyote vilivyochanganywa' },
   { id: 'people', label: 'Watu', icon: 'users', hint: 'Watu wa kugundua' },
   { id: 'businesses', label: 'Biashara', icon: 'store', hint: 'Biashara na huduma' },
   { id: 'channels', label: 'Channels', icon: 'megaphone', hint: 'Channels za kufuata' },
