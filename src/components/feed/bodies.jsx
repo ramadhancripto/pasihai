@@ -143,12 +143,29 @@ export function MediaBody({ item, onToast, onCta }) {
 
 /* ── 3. Video-first: media kwanza, maelezo baadaye ────────── */
 export function VideoBody({ item, onCta }) {
-  const { containerRef } = useVideoAutoplay()
+  const { containerRef, toggleMute, isMuted, isLoading, hasError, retry } = useVideoAutoplay()
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="psh-video-wrap">
       <div className="psh-feedmedia psh-feedmedia--first">
         <MediaWithOverlay media={item.media} icon={IconPlay} />
       </div>
+      {/* Sound toggle — browser autoplay policy: start muted, user taps to unmute */}
+      <div className="psh-video-controls">
+        <button
+          type="button"
+          className="psh-video-ctrl psh-video-ctrl--mute"
+          onClick={toggleMute}
+          aria-label={isMuted ? 'Washa sauti' : 'Zima sauti'}
+        >
+          {isMuted ? '🔇' : '🔊'}
+        </button>
+      </div>
+      {isLoading && <div className="psh-video-loading" aria-label="Inapakia video" />}
+      {hasError && (
+        <button type="button" className="psh-video-retry" onClick={retry}>
+          Jaribu tena
+        </button>
+      )}
       <FeedText text={item.text} />
     </div>
   )
@@ -365,7 +382,7 @@ export function LiveActivityBody({ item, onOpenLive }) {
 
 /* ── 8. Reel — kadi compact kwenye Mchanganyiko ───────────── */
 export function ReelBody({ item }) {
-  const { containerRef } = useVideoAutoplay()
+  const { containerRef, toggleMute, isMuted } = useVideoAutoplay()
   const media = item.media ?? {}
   return (
     <div className="psh-reel" ref={containerRef}>
@@ -381,6 +398,7 @@ export function ReelBody({ item }) {
             playsInline
             muted
             preload="metadata"
+            poster={media.poster}
             aria-label={item.text ? `Video ya Reel: ${item.text}` : 'Video ya Reel'}
           />
         ) : (
@@ -391,6 +409,17 @@ export function ReelBody({ item }) {
             {media.duration ? <span className="psh-reel__dur">{media.duration}</span> : null}
           </>
         )}
+        {/* Sound toggle overlay for reel */}
+        {media.url ? (
+          <button
+            type="button"
+            className="psh-video-ctrl psh-video-ctrl--reel"
+            onClick={toggleMute}
+            aria-label={isMuted ? 'Washa sauti' : 'Zima sauti'}
+          >
+            {isMuted ? '🔇' : '🔊'}
+          </button>
+        ) : null}
       </span>
 
       <div className="psh-reel__meta">

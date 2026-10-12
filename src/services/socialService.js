@@ -2,7 +2,9 @@
 // PASIHAI — SOCIAL SERVICE
 //
 // Huduma za uhusiano: omba urafiki, fuata, unganika.
-// Inatumia Supabase tables: follows, friendships.
+// Inatumia Supabase tables: follows, friendships, notifications.
+//
+// Kila social action inatengeneza notification kwa target user.
 // ══════════════════════════════════════════════════════════════
 
 import { supabase, isSupabaseLive } from '../lib/supabaseClient.js'
@@ -15,8 +17,46 @@ async function requireUser(context) {
 }
 
 /**
+ * Tengeneza notification kwa target user.
+ * Inatumia moja kwa moja Supabase — haihitaji service nyingine.
+ */
+async function createNotification(targetUserId, type, actorId, postId, title, body) {
+  if (!targetUserId || !type || !title) return
+  try {
+    await supabase.from('notifications').insert({
+      user_id: targetUserId,
+      type,
+      actor_id: actorId,
+      post_id: postId || null,
+      title,
+      body: body || null,
+    })
+  } catch (err) {
+    // Notification failure haiwezi kuzuia social action
+    console.warn('[socialService] Notification imeshindikana:', err.message)
+  }
+}
+
+/**
+ * Pata jina la mtumiaji (kwa notification text).
+ */
+async function getActorName(userId) {
+  try {
+    const { data } = await supabase
+      .from('profiles')
+      .select('display_name, username')
+      .eq('user_id', userId)
+      .single()
+    return data?.display_name || data?.username || 'Mtumiaji'
+  } catch {
+    return 'Mtumiaji'
+  }
+}
+
+/**
  * Tuma ombi la urafiki kwa mtu mwingine.
  * Imeandikwa kwenye jedwali la friendships.
+ * Notification inatengenezwa kwa mpokeaji.
  */
 export async function sendFriendRequest(targetUserId) {
   const user = await requireUser('Omba urafiki')
@@ -36,12 +76,25 @@ export async function sendFriendRequest(targetUserId) {
     .from('friendships')
     .insert({ requester_id: user.id, addressee_id: targetUserId, status: 'pending' })
   if (error) throw new Error(`Ombi halikufanikiwa: ${error.message}`)
+
+  // Tengeneza notification kwa mpokeaji
+  const actorName = await getActorName(user.id)
+  await createNotification(
+    targetUserId,
+    'friend_request',
+    user.id,
+    null,
+    `${actorName} ametuma ombi la urafiki`,
+    `${actorName} anataka kuwa rafiki yako`
+  )
+
   return { sent: true }
 }
 
 /**
  * Fuata mtu/channel (follow).
  * Imeandikwa kwenye jedwali la follows.
+ * Notification inatengenezwa kwa anayefuatwa.
  */
 export async function followUser(targetUserId) {
   const user = await requireUser('Kufuata')
@@ -51,6 +104,18 @@ export async function followUser(targetUserId) {
   if (error && error.code !== '23505') {
     throw new Error(`Kufuata kulishindikana: ${error.message}`)
   }
+
+  // Tengeneza notification
+  const actorName = await getActorName(user.id)
+  await createNotification(
+    targetUserId,
+    'follow',
+    user.id,
+    null,
+    `${actorName} ameanza kukufuata`,
+    null
+  )
+
   return { following: true }
 }
 
@@ -74,4 +139,31 @@ export async function unfollowUser(targetUserId) {
  */
 export async function connectUser(targetUserId) {
   return sendFriendRequest(targetUserId)
+}
+
+/**
+ * Kubali ombi la urafiki.
+ * Notification inatengenezwa kwa mtumaji wa ombi.
+ */
+export async function acceptFriendRequest(friendshipId, requesterId) {
+  const user = await requireUser('Kubali urafiki')
+  const { error } = await supabase
+    .from('friendships')
+    .update({ status: 'accepted' })
+    .eq('id', friendshipId)
+    .eq('addressee_id', user.id)
+  if (error) throw new Error(`Kubali kulishindikana: ${error.message}`)
+
+  // Notification kwa mtumaji wa ombi
+  const actorName = await getActorName(user.id)
+  await createNotification(
+    requesterId,
+    'friend_accepted',
+    user.id,
+    null,
+    `${actorName} amekubali ombi lako la urafiki`,
+    null
+  )
+
+  return { accepted: true }
 }

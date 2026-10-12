@@ -296,6 +296,7 @@ export function MediaFrame({
   showCaption = true,
   mediaUrl,
   mediaType = 'image',
+  poster,
 }) {
   const hasMedia = Boolean(mediaUrl)
   return (
@@ -312,7 +313,9 @@ export function MediaFrame({
             src={mediaUrl}
             controls
             playsInline
+            muted
             preload="metadata"
+            poster={poster}
             aria-label={caption || 'Video ya chapisho'}
           />
         ) : (

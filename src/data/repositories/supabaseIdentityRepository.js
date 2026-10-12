@@ -467,4 +467,155 @@ export const supabaseIdentityRepository = {
       return false
     }
   },
+
+  /**
+   * Pakia profile picture (avatar).
+   * Inatumia Supabase Storage bucket 'profile-media'.
+   * @param {File} file - Faili la picha
+   * @returns {Promise<{url: string}|null>} - URL ya picha iliyopakiwa
+   */
+  async uploadAvatar(file) {
+    if (!isSupabaseLive || !supabase) return null
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return null
+
+      // Validation
+      const maxSize = 5 * 1024 * 1024 // 5MB
+      if (file.size > maxSize) throw new Error('Picha ni kubwa sana (max 5MB)')
+      if (!file.type.startsWith('image/')) throw new Error('Faili si picha')
+
+      const ext = file.name.split('.').pop() || 'jpg'
+      const path = `${user.id}/avatar.${ext}`
+
+      // Upload
+      const { error: uploadError } = await supabase.storage
+        .from('profile-media')
+        .upload(path, file, { upsert: true })
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('profile-media')
+        .getPublicUrl(path)
+
+      const url = urlData?.publicUrl
+      if (!url) throw new Error('URL haipatikani')
+
+      // Update profile
+      await this.updateProfile({ avatarUrl: url })
+
+      return { url }
+    } catch (err) {
+      handleError(err, 'uploadAvatar')
+      return null
+    }
+  },
+
+  /**
+   * Pakia cover/background ya profile.
+   * @param {File} file - Faili la picha
+   * @returns {Promise<{url: string}|null>} - URL ya picha iliyopakiwa
+   */
+  async uploadCover(file) {
+    if (!isSupabaseLive || !supabase) return null
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return null
+
+      // Validation
+      const maxSize = 10 * 1024 * 1024 // 10MB
+      if (file.size > maxSize) throw new Error('Picha ni kubwa sana (max 10MB)')
+      if (!file.type.startsWith('image/')) throw new Error('Faili si picha')
+
+      const ext = file.name.split('.').pop() || 'jpg'
+      const path = `${user.id}/cover.${ext}`
+
+      // Upload
+      const { error: uploadError } = await supabase.storage
+        .from('profile-media')
+        .upload(path, file, { upsert: true })
+      if (uploadError) throw uploadError
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('profile-media')
+        .getPublicUrl(path)
+
+      const url = urlData?.publicUrl
+      if (!url) throw new Error('URL haipatikani')
+
+      // Update profile — cover_url field (from migration 029)
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ cover_url: url })
+        .eq('user_id', user.id)
+      if (updateError) throw updateError
+
+      return { url }
+    } catch (err) {
+      handleError(err, 'uploadCover')
+      return null
+    }
+  },
+
+  /**
+   * Futa profile picture.
+   */
+  async deleteAvatar() {
+    if (!isSupabaseLive || !supabase) return false
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return false
+
+      // Futa kutoka storage
+      const { data: files } = await supabase.storage
+        .from('profile-media')
+        .list(user.id)
+      if (files) {
+        for (const f of files) {
+          if (f.name.startsWith('avatar')) {
+            await supabase.storage.from('profile-media').remove([`${user.id}/${f.name}`])
+          }
+        }
+      }
+
+      // Ondoa URL kutoka profile
+      await this.updateProfile({ avatarUrl: null })
+      return true
+    } catch (err) {
+      handleError(err, 'deleteAvatar')
+      return false
+    }
+  },
+
+  /**
+   * Futa cover/background.
+   */
+  async deleteCover() {
+    if (!isSupabaseLive || !supabase) return false
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return false
+
+      const { data: files } = await supabase.storage
+        .from('profile-media')
+        .list(user.id)
+      if (files) {
+        for (const f of files) {
+          if (f.name.startsWith('cover')) {
+            await supabase.storage.from('profile-media').remove([`${user.id}/${f.name}`])
+          }
+        }
+      }
+
+      await supabase.from('profiles').update({ cover_url: null }).eq('user_id', user.id)
+      return true
+    } catch (err) {
+      handleError(err, 'deleteCover')
+      return false
+    }
+  },
 }

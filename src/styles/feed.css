@@ -258,6 +258,75 @@
   color: var(--c-green-700);
 }
 
+/* ── Video Controls ───────────────────────────────────────── */
+.psh-video-wrap {
+  position: relative;
+}
+.psh-video-controls {
+  position: absolute;
+  bottom: 52px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+}
+.psh-video-ctrl {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background var(--dur-1) var(--ease);
+}
+.psh-video-ctrl:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+.psh-video-ctrl--reel {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+}
+.psh-video-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: psh-spin 0.8s linear infinite;
+  z-index: 3;
+}
+@keyframes psh-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+.psh-video-retry {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: var(--fs-13);
+  cursor: pointer;
+}
+
 /* ── Social Bar (buttons za uhusiano kwa wageni) ──────────── */
 .psh-feed-social {
   display: flex;
