@@ -258,6 +258,76 @@
   color: var(--c-green-700);
 }
 
+/* ── Social Bar (buttons za uhusiano kwa wageni) ──────────── */
+.psh-feed-social {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.psh-feed-social__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--t-2);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
+}
+.psh-feed-social__btn:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+  border-color: var(--line-2);
+}
+.psh-feed-social__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.psh-feed-social__btn--friend {
+  background: var(--c-green);
+  border-color: var(--c-green);
+  color: #fff;
+}
+.psh-feed-social__btn--friend:hover {
+  background: var(--c-green-600, #1a8c5a);
+  border-color: var(--c-green-600, #1a8c5a);
+  color: #fff;
+}
+.psh-feed-social__btn--follow {
+  background: var(--c-blue-soft);
+  border-color: transparent;
+  color: var(--c-blue-700);
+}
+.psh-feed-social__btn--follow:hover {
+  background: var(--c-blue);
+  color: #fff;
+}
+.psh-feed-social__btn--connect {
+  background: var(--bg);
+  border-color: var(--line);
+  color: var(--t-1);
+}
+.psh-feed-social__btn--connect:hover {
+  background: var(--bg-hover);
+  border-color: var(--line-2);
+}
+.psh-feed-social__btn--msg {
+  background: transparent;
+  border-color: transparent;
+  color: var(--c-green-700);
+}
+.psh-feed-social__btn--msg:hover {
+  background: var(--c-green-soft);
+}
+
 /* ── Live Activity (si chapisho la kawaida) ───────────────── */
 .psh-live {
   display: grid;

@@ -11,6 +11,8 @@
 //
 //   ♡ 24   💬 5   ↗ Shiriki   [hifadhi]   ─── actions
 //
+//   [Omba Urafiki] [Kufuata] [Ujumbe]      ─── social actions (kwa wageni)
+//
 // Separation ni ya hila (mstari mmoja), si giant card. Hakuna shadow kubwa,
 // hakuna gradient, hakuna glassmorphism.
 // ══════════════════════════════════════════════════════════════
@@ -18,6 +20,7 @@
 import { Identity, Chip, EntityPill } from '../ui.jsx'
 import { BODIES } from './bodies.jsx'
 import FeedActions from './FeedActions.jsx'
+import FeedSocialBar from './FeedSocialBar.jsx'
 import { formatAge } from '../../utils/time.js'
 
 export default function FeedItem({
@@ -32,11 +35,25 @@ export default function FeedItem({
   onVote,
   onOpenLive,
   onCta,
+  onFollow,
+  onFriendRequest,
+  onConnect,
+  onMessage,
+  socialState = {},
 }) {
   const Body = BODIES[item.kind]
   if (!Body || !item.entity) return null
 
   const showTime = item.kind !== 'liveActivity' || item.live?.state === 'imepangwa'
+
+  /* Social buttons: ona tu kwa mtu ambaye si rafiki, si wewe mwenyewe */
+  const rel = item.relationship || item.entity?.relationship || 'none'
+  const isSelf = item.entity?.type === 'you'
+  const isFriend = rel === 'Rafiki' || rel === 'saved' || rel === 'friend'
+  const isChannel = item.entity?.type === 'channel'
+  const isHub = item.entity?.type === 'hub'
+  const isPerson = !isSelf && !isChannel && !isHub
+  const showSocial = isPerson && !isFriend
 
   return (
     <article
@@ -84,6 +101,18 @@ export default function FeedItem({
         onOpenShare={() => onOpenShare?.(item)}
         onOpenMenu={() => onOpenMenu?.(item)}
       />
+
+      {showSocial && (
+        <FeedSocialBar
+          entity={item.entity}
+          state={socialState[item.entity?.id] || {}}
+          onFollow={() => onFollow?.(item.entity)}
+          onFriendRequest={() => onFriendRequest?.(item.entity)}
+          onConnect={() => onConnect?.(item.entity)}
+          onMessage={() => onMessage?.(item.entity)}
+          onToast={onToast}
+        />
+      )}
     </article>
   )
 }

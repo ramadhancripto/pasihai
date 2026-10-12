@@ -89,6 +89,53 @@ export default function FeedList({
     })
   const refresh = () => onRefreshFeed?.()
 
+  /* ── Social actions (omoba urafiki, kufuata, unganika, ujumbe) ── */
+  const [socialState, setSocialState] = useState({})
+
+  const handleFollow = async (entity) => {
+    try {
+      const { followUser } = await import('../../services/socialService.js')
+      const result = await followUser(entity.id)
+      setSocialState((s) => ({ ...s, [entity.id]: { ...s[entity.id], following: result.following } }))
+      onToast?.(result.following ? 'Umeanza kufuata' : 'Umeacha kufuata')
+      refresh()
+    } catch (e) {
+      onToast?.('Imeshindikana kufuata')
+    }
+  }
+
+  const handleFriendRequest = async (entity) => {
+    try {
+      const { sendFriendRequest } = await import('../../services/socialService.js')
+      await sendFriendRequest(entity.id)
+      setSocialState((s) => ({ ...s, [entity.id]: { ...s[entity.id], friendRequested: true } }))
+      onToast?.('Ombi la urafiki limetumwa')
+    } catch (e) {
+      onToast?.('Imeshindikana kutuma ombi')
+    }
+  }
+
+  const handleConnect = async (entity) => {
+    try {
+      const { connectUser } = await import('../../services/socialService.js')
+      await connectUser(entity.id)
+      setSocialState((s) => ({ ...s, [entity.id]: { ...s[entity.id], connected: true } }))
+      onToast?.('Ombi la kuunganishwa limetumwa')
+    } catch (e) {
+      onToast?.('Imeshindikana kuunganika')
+    }
+  }
+
+  const handleMessage = async (entity) => {
+    try {
+      await chatService.startDirect(entity.id)
+      onToast?.(`Mazungumzo na ${entity.name || 'mtumiaji'} yamefunguliwa`)
+      onOpenChat?.()
+    } catch (e) {
+      onToast?.('Imeshindikana kuanzisha mazungumzo')
+    }
+  }
+
   /* CTA ya chapisho: kila kimoja kinafanya kitu halisi.
      · Biashara (wasiliana) → mazungumzo ya Chat yanafunguliwa
      · Nyingine (makala · warsha) → chapisho linafunguliwa na maoni yake */
@@ -209,6 +256,11 @@ export default function FeedList({
               onOpenShare={(it) => onOpenPanel?.({ type: 'share', payload: it })}
               onOpenMenu={(it) => onOpenPanel?.({ type: 'postmenu', payload: it })}
               onCta={openCta}
+              onFollow={handleFollow}
+              onFriendRequest={handleFriendRequest}
+              onConnect={handleConnect}
+              onMessage={handleMessage}
+              socialState={socialState}
             />
           ))}
         </div>

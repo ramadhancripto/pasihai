@@ -563,3 +563,19 @@ export const IconBolt = (p) => (
     <path d="M13.4 3.4 5.8 13.2h5.2l-.9 7.4 7.7-9.9h-5.2z" />
   </S>
 )
+
+export const IconFollow = (p) => (
+  <S {...p}>
+    <circle cx="9" cy="7" r="4" />
+    <path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2" />
+    <path d="M20 8v6M17 11h6" />
+  </S>
+)
+
+export const IconConnect = (p) => (
+  <S {...p}>
+    <path d="M15 7h3a5 5 0 0 1 0 10h-3" />
+    <path d="M9 17H6a5 5 0 0 1 0-10h3" />
+    <line x1="8" y1="12" x2="16" y2="12" />
+  </S>
+)

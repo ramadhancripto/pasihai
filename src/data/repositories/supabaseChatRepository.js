@@ -64,15 +64,20 @@ function mapConversation(row, participants = [], lastMessage = null, currentUser
     lastReadAt: p.last_read_at,
   }))
 
-  // For direct conversations, derive title from the other participant
+  // For direct conversations, derive title and tone from the other participant
   let title = row.title
   let accountId = null
+  let tone = 'green'
   if (row.type === 'direct' && currentUserId) {
     const other = participants.find(p => p.user_id !== currentUserId)
     if (other) {
       title = other.profiles?.display_name || other.profiles?.username || 'Mazungumzo'
       accountId = other.user_id
+      tone = other.profiles?.avatar_tone || 'green'
     }
+  }
+  if (row.type === 'group') {
+    tone = row.tone || 'blue'
   }
 
   // Compute unread count: messages after last_read_at from other senders
@@ -87,25 +92,42 @@ function mapConversation(row, participants = [], lastMessage = null, currentUser
     }
   }
 
+  // Format last message time
+  const lastAt = lastMessage?.created_at
+    ? new Date(lastMessage.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    : ''
+
+  // Format updatedAt
+  const updatedAtFormatted = row.updated_at
+    ? new Date(row.updated_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    : ''
+
   return {
     id: row.id,
     type: row.type || 'direct',
     title: title || 'Mazungumzo',
+    tone,
     accountId,
     participants: mappedParticipants,
     members: mappedParticipants.length,
     unread,
+    // UI uses c.last?.text and c.last?.at — not c.lastMessage
+    last: lastMessage ? {
+      id: lastMessage.id,
+      text: lastMessage.text || '',
+      senderId: lastMessage.sender_id,
+      at: lastAt,
+    } : null,
+    // Also keep lastMessage for backward compat
     lastMessage: lastMessage ? {
       id: lastMessage.id,
       text: lastMessage.text || '',
       senderId: lastMessage.sender_id,
       createdAt: lastMessage.created_at,
-      at: lastMessage.created_at
-        ? new Date(lastMessage.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-        : '',
+      at: lastAt,
     } : null,
     createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    updatedAt: updatedAtFormatted,
     relationship: 'none',
   }
 }
