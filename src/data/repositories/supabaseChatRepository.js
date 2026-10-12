@@ -272,15 +272,7 @@ export const supabaseChatRepository = {
         .eq('user_id', user.id)
 
       const conversation = mapConversation(conv, participants || [], null)
-      conversation.messages = (messages || []).reverse().map(m => ({
-        id: m.id,
-        text: m.text || '',
-        senderId: m.sender_id,
-        mediaUrl: m.media_url,
-        mediaType: m.media_type,
-        replyToId: m.reply_to_id,
-        createdAt: m.created_at,
-      }))
+      conversation.messages = (messages || []).reverse().map(m => toUiMessage(m, user.id))
 
       return conversation
     } catch (err) {

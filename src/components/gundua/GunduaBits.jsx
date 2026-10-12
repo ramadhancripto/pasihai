@@ -172,12 +172,6 @@ export function PersonCard({ p, onOpen, onMore, onAdd, onAccept, onDecline, onCh
             <button type="button" className="psh-gu-btn psh-gu-btn--primary" onClick={() => onAdd(p)}>
               <IconPersonAdd size={15} /> Omba Urafiki
             </button>
-            <button type="button" className="psh-gu-btn psh-gu-btn--ghost" onClick={() => onFollow?.(p)}>
-              Kufuata
-            </button>
-            <button type="button" className="psh-gu-btn psh-gu-btn--ghost" onClick={() => onConnect?.(p)}>
-              Unganika
-            </button>
             <button type="button" className="psh-gu-btn psh-gu-btn--ghost" onClick={() => onChat(p)}>
               <IconComment size={15} /> Ujumbe
             </button>
@@ -189,14 +183,9 @@ export function PersonCard({ p, onOpen, onMore, onAdd, onAccept, onDecline, onCh
           </button>
         ) : null}
         {state === 'sent' ? (
-          <>
-            <span className="psh-gu-chip-wait">
-              <IconCheck size={13} /> Ombi limetumwa
-            </span>
-            <button type="button" className="psh-gu-btn psh-gu-btn--ghost" onClick={() => onFollow?.(p)}>
-              Kufuata
-            </button>
-          </>
+          <span className="psh-gu-chip-wait">
+            <IconCheck size={13} /> Ombi limetumwa
+          </span>
         ) : null}
         {state === 'received' ? (
           <>

@@ -115,17 +115,6 @@ export default function FeedList({
     }
   }
 
-  const handleConnect = async (entity) => {
-    try {
-      const { connectUser } = await import('../../services/socialService.js')
-      await connectUser(entity.id)
-      setSocialState((s) => ({ ...s, [entity.id]: { ...s[entity.id], connected: true } }))
-      onToast?.('Ombi la kuunganishwa limetumwa')
-    } catch (e) {
-      onToast?.('Imeshindikana kuunganika')
-    }
-  }
-
   const handleMessage = async (entity) => {
     try {
       const res = await chatService.startDirect(entity.id)
@@ -262,7 +251,6 @@ export default function FeedList({
               onCta={openCta}
               onFollow={handleFollow}
               onFriendRequest={handleFriendRequest}
-              onConnect={handleConnect}
               onMessage={handleMessage}
               socialState={socialState}
             />

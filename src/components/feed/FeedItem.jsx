@@ -37,7 +37,6 @@ export default function FeedItem({
   onCta,
   onFollow,
   onFriendRequest,
-  onConnect,
   onMessage,
   socialState = {},
 }) {
@@ -46,14 +45,14 @@ export default function FeedItem({
 
   const showTime = item.kind !== 'liveActivity' || item.live?.state === 'imepangwa'
 
-  /* Social buttons: ona tu kwa mtu ambaye si rafiki, si wewe mwenyewe */
+  /* Social buttons: ona tu kwa mtu/channel ambaye si rafiki, si wewe mwenyewe */
   const rel = item.relationship || item.entity?.relationship || 'none'
   const isSelf = item.entity?.type === 'you'
   const isFriend = rel === 'Rafiki' || rel === 'saved' || rel === 'friend'
   const isChannel = item.entity?.type === 'channel'
   const isHub = item.entity?.type === 'hub'
   const isPerson = !isSelf && !isChannel && !isHub
-  const showSocial = isPerson && !isFriend
+  const showSocial = !isSelf && !isFriend && !isHub
 
   return (
     <article
@@ -108,7 +107,6 @@ export default function FeedItem({
           state={socialState[item.entity?.id] || {}}
           onFollow={() => onFollow?.(item.entity)}
           onFriendRequest={() => onFriendRequest?.(item.entity)}
-          onConnect={() => onConnect?.(item.entity)}
           onMessage={() => onMessage?.(item.entity)}
           onToast={onToast}
         />

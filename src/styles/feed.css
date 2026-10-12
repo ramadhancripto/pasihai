@@ -75,6 +75,19 @@
   white-space: pre-line;
   max-width: 62ch;
 }
+.psh-feedtext__more {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--c-green-700);
+  font-size: var(--fs-14);
+  font-weight: 600;
+  cursor: pointer;
+}
+.psh-feedtext__more:hover {
+  text-decoration: underline;
+}
 .psh-feedtext + .psh-feedmedia,
 .psh-feedtext + .psh-audio,
 .psh-feedtext + .psh-live,
