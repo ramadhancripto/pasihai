@@ -8,15 +8,15 @@ import { useEffect, useState, useRef } from 'react'
 
 import { homeService } from '../../services/homeService.js'
 import { statusErrorMessage } from '../../utils/statusMedia.js'
-import { Avatar, Button } from '../ui.jsx'
-import { IconArrowRight, IconPlay, IconPlus } from '../icons.jsx'
+import { Avatar } from '../ui.jsx'
+import { IconArrowRight, IconPlay, IconPlus, IconLive } from '../icons.jsx'
 
 const CREATE_STATUS_SLOT = {
   id: 'status-create-slot',
   userId: 'me',
   own: true,
   isCreateSlot: true,
-  label: 'Status Yako',
+  label: '',
   statuses: [],
 }
 
@@ -36,9 +36,6 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
     homeService.getStatusStrip()
       .then((nextItems) => {
         if (!active) return
-        if (nextItems.some((item) => !item.user)) {
-          throw new Error('Taarifa za baadhi ya waandishi wa status hazikupatikana.')
-        }
         setItems(nextItems)
       })
       .catch((loadError) => {
@@ -51,7 +48,6 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
     return () => { active = false }
   }, [version, retryKey])
 
-  // Handle horizontal wheel scroll
   const handleWheel = (e) => {
     const el = scrollRef.current
     if (!el) return
@@ -63,21 +59,27 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
 
   if (loading) {
     return (
-      <section className="psh-status" aria-label="Status na Stories">
-        <p className="psh-status__state" role="status" aria-live="polite">Inapakia status…</p>
+      <section className="psh-status" aria-label="Status">
+        <div className="psh-status__row psh-status__row--skeleton">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="psh-status__item psh-status__item--skel" />
+          ))}
+        </div>
       </section>
     )
   }
 
   if (error) {
     return (
-      <section className="psh-status" aria-label="Status na Stories">
-        <div className="psh-status__state psh-status__state--error" role="alert">
-          <span>{error}</span>
-          <Button variant="ghost" size="sm" onClick={() => setRetryKey((key) => key + 1)}>
-            Jaribu tena
-          </Button>
-        </div>
+      <section className="psh-status" aria-label="Status">
+        <button
+          type="button"
+          className="psh-status__retry"
+          onClick={() => setRetryKey((key) => key + 1)}
+          aria-label="Jaribu tena"
+        >
+          <IconPlay size={16} />
+        </button>
       </section>
     )
   }
@@ -87,17 +89,12 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
   const rowItems = hasOwnGroup ? activeItems : [CREATE_STATUS_SLOT, ...activeItems]
 
   return (
-    <section className="psh-status" aria-label="Status na Stories">
-      {activeItems.length === 0 ? (
-        <p className="psh-status__empty-note" role="status">
-          Hakuna status hai zinazoonekana sasa. Hapa ndipo Status yako halisi itaonekana baada ya kuhifadhiwa.
-        </p>
-      ) : null}
+    <section className="psh-status" aria-label="Status">
       <ul className="psh-status__row" ref={scrollRef} onWheel={handleWheel} dir="ltr">
         {rowItems.map((item) => {
           const user = item.user
           const ringTone = item.own ? 'own' : ringForUser(user, item)
-          const name = item.own ? 'Status Yako' : item.label || user?.name || 'Status'
+          const name = item.own ? '' : item.label || user?.name || ''
           const viewed = !item.own && item.viewed
 
           return (
@@ -106,63 +103,40 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
               className={`psh-status__item ${viewed ? 'psh-status__item--viewed' : ''}`}
               data-status-own={item.own ? 'true' : 'false'}
               data-status-id={item.latestStatusId || ''}
-              data-status-viewed={viewed ? 'true' : 'false'}
             >
               <button
                 type="button"
                 className="psh-status__btn"
                 onClick={() => (item.isCreateSlot ? onOpenStatus?.('me') : onOpenStatus?.(item))}
-                aria-label={item.isCreateSlot
-                  ? 'Unda status yako'
-                  : item.own
-                    ? `Tazama status zako ${item.statusCount > 1 ? `(${item.statusCount})` : ''}`.trim()
-                    : `Tazama status ya ${user?.name || 'mtumiaji'}${item.live ? ' (ana hewani)' : ''}`}
+                aria-label={item.isCreateSlot ? 'Unda status' : `Status ya ${name}`}
               >
-                {/* Media preview card */}
                 <span className={`psh-status__card psh-status__card--tone-${ringTone}`}>
                   {item.isCreateSlot ? (
                     <span className="psh-status__createcard" aria-hidden="true">
-                      <IconPlus size={28} />
+                      <IconPlus size={24} />
                     </span>
                   ) : item.mediaPreview ? (
-                    <img
-                      className="psh-status__thumb"
-                      src={item.mediaPreview}
-                      alt=""
-                      loading="lazy"
-                    />
+                    <img className="psh-status__thumb" src={item.mediaPreview} alt="" loading="lazy" />
                   ) : (
                     <span className={`psh-status__gradient psh-status__gradient--${ringTone}`} aria-hidden="true">
                       <Avatar user={user} size={40} shape="circle" badge={false} />
                     </span>
                   )}
-                  {/* Video indicator */}
                   {item.hasVideo ? (
                     <span className="psh-status__video" aria-hidden="true"><IconPlay size={14} /></span>
                   ) : null}
-                  {/* Live indicator */}
                   {!item.own && item.live ? (
                     <span className="psh-status__live" aria-hidden="true">
-                      <span className="psh-status__livedot" /> LIVE
+                      <IconLive size={10} />
+                      <span>LIVE</span>
                     </span>
                   ) : null}
                 </span>
 
-                {/* Avatar + name below card */}
-                <span className="psh-status__foot">
-                  <span className={`psh-status__ring psh-status__ring--${ringTone}`}>
-                    <span className="psh-status__inner">
-                      <Avatar user={user} size={28} shape="circle" badge={false} />
-                    </span>
-                  </span>
+                {name ? (
                   <span className={`psh-status__name ${viewed ? 'is-viewed' : ''}`}>
-                    {item.isCreateSlot ? 'Ongeza' : name}
+                    {name}
                   </span>
-                </span>
-                {item.isCreateSlot ? null : item.statusCount > 1 ? (
-                  <span className="psh-status__ago">{item.statusCount} Status</span>
-                ) : item.ago ? (
-                  <span className="psh-status__ago">{item.ago}</span>
                 ) : null}
               </button>
             </li>
@@ -170,12 +144,9 @@ export default function StatusRow({ onOpenStatus, onOpenAll, version = 0 }) {
         })}
 
         <li className="psh-status__item psh-status__item--more">
-          <button type="button" className="psh-status__btn" onClick={onOpenAll}>
+          <button type="button" className="psh-status__btn" onClick={onOpenAll} aria-label="Zote">
             <span className="psh-status__card psh-status__card--more">
-              <span className="psh-status__moreicon"><IconArrowRight size={20} /></span>
-            </span>
-            <span className="psh-status__foot">
-              <span className="psh-status__name">Zote</span>
+              <span className="psh-status__moreicon"><IconArrowRight size={18} /></span>
             </span>
           </button>
         </li>

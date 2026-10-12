@@ -62,7 +62,21 @@ import {
   IconRadar,
   IconTimer,
   IconShield,
+  IconDatabase,
+  IconSwap,
 } from '../components/icons.jsx'
+
+/* ── Moon/Sun icons ──────────────────────────────────────── */
+const IconMoon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+)
+const IconSun = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+  </svg>
+)
 
 /* ── Switch ───────────────────────────────────────────────── */
 
@@ -367,8 +381,20 @@ export function ProfilePanel({ userId = 'me', onToast, onInteract, onOpenItem, o
     <div className="psh-profile">
       <div className="psh-profile__hero">
         <span className="psh-profile__cover" aria-hidden="true" />
+        {isMe ? (
+          <button type="button" className="psh-profile__coverBtn" aria-label="Badilisha background">
+            <IconPhoto size={16} />
+          </button>
+        ) : null}
         <div className="psh-profile__top">
-          <Avatar user={user} size={78} badge />
+          <div className="psh-profile__avatarWrap">
+            <Avatar user={user} size={78} badge />
+            {isMe ? (
+              <button type="button" className="psh-profile__avatarBtn" aria-label="Badilisha picha ya profaili">
+                <IconPhoto size={14} />
+              </button>
+            ) : null}
+          </div>
           <div className="psh-profile__meta">
             <h3 className="psh-profile__name">{user.name}</h3>
             <p className="psh-profile__line">
@@ -401,8 +427,6 @@ export function ProfilePanel({ userId = 'me', onToast, onInteract, onOpenItem, o
       {isMe && user.followers === 0 ? (
         <p className="psh-profile__note">
           <IconInfo size={16} />
-          Huna followers bado — na hilo ni sawa. Home yako ina maana kamili kwa marafiki,
-          channels na Spaces.
         </p>
       ) : null}
 
@@ -1090,7 +1114,7 @@ export function ComposerPanel({ kind = 'text', spaceId = null, onToast, onClose,
 
 /* ── More (Home pekee) ────────────────────────────────────── */
 
-export function MorePanel({ viewMode, onOpenPanel, onViewMode, onToast, dataSaver, setDataSaver, onRefresh }) {
+export function MorePanel({ viewMode, onOpenPanel, onViewMode, onToast, dataSaver, setDataSaver, onRefresh, isDark, onToggleTheme }) {
   // Labels za muonekano zinatoka kwa settings service.
   const modes = useAsyncData(() => settingsService.getViewModes(), [])
   const [busy, setBusy] = useState(null)
@@ -1101,12 +1125,47 @@ export function MorePanel({ viewMode, onOpenPanel, onViewMode, onToast, dataSave
   return (
     <ul className="psh-menu">
       <li>
+        <button type="button" className="psh-menu__row" onClick={onToggleTheme}>
+          <span className="psh-menu__icon">
+            {isDark ? <IconSun size={20} /> : <IconMoon size={20} />}
+          </span>
+          <span className="psh-menu__text">
+            <span className="psh-menu__label">{isDark ? 'Mandhari ya mwanga' : 'Mandhari ya giza'}</span>
+          </span>
+        </button>
+      </li>
+      <li>
+        <button type="button" className="psh-menu__row" onClick={() => onOpenPanel('datasaved')}>
+          <span className="psh-menu__icon">
+            <IconDatabase size={20} />
+          </span>
+          <span className="psh-menu__text">
+            <span className="psh-menu__label">Data Saved</span>
+          </span>
+          <IconArrowRight size={18} />
+        </button>
+      </li>
+      <li>
+        <button type="button" className="psh-menu__row" onClick={() => onOpenPanel('system')}>
+          <span className="psh-menu__icon">
+            <IconSwap size={20} />
+          </span>
+          <span className="psh-menu__text">
+            <span className="psh-menu__label">System</span>
+          </span>
+          <IconArrowRight size={18} />
+        </button>
+      </li>
+
+      <li className="psh-menu__sep" aria-hidden="true" />
+
+      <li>
         <button type="button" className="psh-menu__row" onClick={() => onOpenPanel('viewmode')}>
           <span className="psh-menu__icon">
             <IconEye size={20} />
           </span>
           <span className="psh-menu__text">
-            <span className="psh-menu__label">Muonekano (View mode)</span>
+            <span className="psh-menu__label">Muonekano</span>
             <span className="psh-menu__hint">{vm?.label}</span>
           </span>
           <IconArrowRight size={18} />
@@ -1118,8 +1177,7 @@ export function MorePanel({ viewMode, onOpenPanel, onViewMode, onToast, dataSave
             <IconSliders size={20} />
           </span>
           <span className="psh-menu__text">
-            <span className="psh-menu__label">Mapendeleo ya mkondo</span>
-            <span className="psh-menu__hint">Mpangilio na kile kinachoonekana</span>
+            <span className="psh-menu__label">Mapendeleo</span>
           </span>
           <IconArrowRight size={18} />
         </button>
@@ -1184,25 +1242,6 @@ export function MorePanel({ viewMode, onOpenPanel, onViewMode, onToast, dataSave
             </span>
           </span>
         </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          className="psh-menu__row"
-          onClick={() => onOpenPanel('system')}
-        >
-          <span className="psh-menu__icon">
-            <IconSettings size={20} />
-          </span>
-          <span className="psh-menu__text">
-            <span className="psh-menu__label">Mipangilio ya kifaa</span>
-            <span className="psh-menu__hint">System · Relay · Sync · Hifadhi</span>
-          </span>
-        </button>
-      </li>
-      <li className="psh-menu__note">
-        <IconInfo size={16} />
-        Hii ni menyu ya Home pekee — si urambazaji wa jumla. Urambazaji mkuu uko chini.
       </li>
     </ul>
   )
@@ -1456,8 +1495,7 @@ export function SavedPanel({ onToast, onOpenItem, onGoReels }) {
   return (
     <div className="psh-panelstack">
       <p className="psh-panelstack__lead">
-        Umehifadhi vitu {saved.length + (places || []).length}. Hifadhi ni yako pekee — mtu
-        mwingine haoni.
+        {saved.length + (places || []).length}
       </p>
 
       {(places || []).length ? (

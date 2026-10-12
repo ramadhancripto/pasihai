@@ -310,6 +310,36 @@
   }
 }
 
+/* ── Full-screen Sheet (Status viewer, preview) ── */
+.psh-sheet__panel--full {
+  max-height: 100dvh;
+  height: 100dvh;
+  border-radius: 0;
+  background: #000;
+}
+.psh-sheet__panel--full .psh-sheet__grip { display: none; }
+.psh-sheet__panel--full .psh-sheet__head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.65), transparent);
+  color: #fff;
+  padding-top: 10px;
+}
+.psh-sheet__panel--full .psh-sheet__title { color: #fff; }
+.psh-sheet__panel--full .psh-sheet__sub { color: rgba(255,255,255,0.65); }
+.psh-sheet__panel--full .psh-sheet__body { padding: 0; overflow: hidden; }
+.psh-sheet__panel--full .psh-icobtn { color: #fff; }
+@media (min-width: 768px) {
+  .psh-sheet__panel--full {
+    max-width: 100%;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+}
+
 @keyframes psh-fade {
   from {
     opacity: 0;
@@ -342,31 +372,38 @@
 /* ── Toast ────────────────────────────────────────────────── */
 .psh-toast {
   position: fixed;
-  left: 50%;
-  bottom: calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));
+  right: 12px;
+  bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom));
   z-index: var(--z-toast);
-  transform: translateX(-50%);
-  max-width: min(92vw, 420px);
-  padding: 10px 16px;
-  font-size: var(--fs-13);
-  font-weight: 500;
-  color: var(--t-1);
-  background: var(--bg);
+  max-width: 44px;
+  max-height: 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 0;
+  color: var(--c-green);
+  background: var(--bg-elevated, var(--bg-hover));
   border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  box-shadow: var(--sh-3);
+  border-radius: var(--r-full);
+  box-shadow: var(--sh-2);
   animation: psh-toast-in var(--dur-2) var(--ease);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+.psh-toast::after {
+  content: '✓';
+  font-size: 18px;
+  font-weight: 700;
+}
+.psh-toast > * {
+  display: none;
 }
 @keyframes psh-toast-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 8px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* ── Kiungo cha maendeleo (desktop pekee) ─────────────────── */

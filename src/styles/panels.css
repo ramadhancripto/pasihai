@@ -144,6 +144,7 @@
 .psh-profile__hero {
   display: grid;
   gap: var(--s-3);
+  position: relative;
 }
 .psh-profile__cover {
   display: block;
@@ -151,12 +152,48 @@
   border-radius: var(--r-md);
   background: var(--c-green-soft);
 }
+.psh-profile__coverBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 0;
+  background: var(--bg-elevated, var(--bg-hover));
+  color: var(--t-2);
+  cursor: pointer;
+  z-index: 2;
+}
 .psh-profile__top {
   display: flex;
   align-items: flex-end;
   gap: var(--s-3);
   margin-top: -48px;
   padding-left: var(--s-2);
+}
+.psh-profile__avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.psh-profile__avatarBtn {
+  position: absolute;
+  bottom: 0;
+  right: -4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+  background: var(--bg-elevated, var(--bg-hover));
+  color: var(--t-2);
+  cursor: pointer;
+  z-index: 2;
 }
 .psh-profile__meta {
   padding-bottom: 4px;

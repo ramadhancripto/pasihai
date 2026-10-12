@@ -102,32 +102,31 @@ export function SpaceCard({ s, onOpen, onJoin, busy = false }) {
             ) : null}
             <span className="psh-spc__count">
               <IconPeople size={12} />
-              {s.membersLabel} {s.type === 'channel' ? 'wafuatiliaji' : 'wanachama'}
+              {s.membersLabel}
             </span>
           </p>
         </button>
         <VisibilityBadge visibility={s.visibility} label={s.visibilityLabel} />
 
         <div className="psh-spc__acts">
-          <button type="button" className="psh-spc__open" onClick={() => onOpen?.(s)}>
-            Fungua
+          <button type="button" className="psh-spc__open" onClick={() => onOpen?.(s)} aria-label="Fungua">
             <IconArrowRight size={15} />
           </button>
           {s.joined ? (
             <span className="psh-spc__done">
               <IconCheck size={13} strokeWidth={2.2} />
-              {s.owned ? 'Umiliki wako' : 'Umejiunga'}
             </span>
           ) : s.requested ? (
-            <span className="psh-spc__pending">Ombi limetumwa</span>
+            <span className="psh-spc__pending"><IconCheck size={13} /></span>
           ) : (
             <button
               type="button"
               className="psh-btn psh-btn--sm psh-btn--primary"
               onClick={() => onJoin?.(s)}
               disabled={busy}
+              aria-label={s.joinLabel}
             >
-              {busy ? 'Inatuma…' : s.joinLabel}
+              <IconPlus size={13} />
             </button>
           )}
         </div>
@@ -184,7 +183,6 @@ export function ChannelCard({ c, onOpen, onFollow, busy = false }) {
           ) : c.joined ? (
             <span className="psh-spc__done">
               <IconCheck size={13} strokeWidth={2.2} />
-              Unafuatilia
             </span>
           ) : (
             <button
@@ -192,8 +190,9 @@ export function ChannelCard({ c, onOpen, onFollow, busy = false }) {
               className="psh-btn psh-btn--sm psh-btn--primary"
               onClick={() => onFollow?.(c)}
               disabled={busy}
+              aria-label="Fuata"
             >
-              Fuata
+              <IconFollow size={13} />
             </button>
           )}
         </div>
@@ -234,11 +233,10 @@ export function SpaceHeader({ s, onBack, onJoin, onLeave, busy = false }) {
           <span>{s.handle}</span>
         </p>
         <p className="psh-sph__meta">
-          <Chip tone="soft">{s.membersLabel} {s.type === 'channel' ? 'wafuatiliaji' : 'wanachama'}</Chip>
-          {s.category ? <Chip tone="neutral">{s.category}</Chip> : null}
+          <Chip tone="soft">{s.membersLabel}</Chip>
           {s.place?.mji ? (
             <Chip tone="neutral">
-              <IconMapPin size={12} /> {s.place.mji}
+              <IconMapPin size={12} />
             </Chip>
           ) : null}
           <VisibilityBadge visibility={s.visibility} label={s.visibilityLabel} />
@@ -249,27 +247,25 @@ export function SpaceHeader({ s, onBack, onJoin, onLeave, busy = false }) {
         {s.membership?.owned ? (
           <span className="psh-sph__rel">
             <IconStar size={14} />
-            {s.type === 'channel' ? 'Channel yako' : 'Wewe ni msimamizi'}
           </span>
         ) : s.membership?.joined ? (
           <>
             <span className="psh-sph__rel">
               <IconCheck size={14} strokeWidth={2.2} />
-              {s.type === 'channel' ? 'Unafuatilia' : 'Umejiunga'}
             </span>
             <button
               type="button"
               className="psh-btn psh-btn--sm psh-btn--ghost"
               onClick={onLeave}
               disabled={busy}
+              aria-label="Ondoa/Toka"
             >
-              {s.type === 'channel' ? 'Ondoa ufuatiliaji' : 'Toka'}
+              ✕
             </button>
           </>
         ) : s.membership?.requested ? (
           <span className="psh-sph__rel psh-sph__rel--pending">
             <IconShield size={14} />
-            Ombi limetumwa — linasubiri wasimamizi
           </span>
         ) : (
           <button
@@ -277,9 +273,10 @@ export function SpaceHeader({ s, onBack, onJoin, onLeave, busy = false }) {
             className="psh-btn psh-btn--primary"
             onClick={onJoin}
             disabled={busy}
+            aria-label={s.joinLabel}
             data-sp-join
           >
-            {busy ? 'Inatuma…' : s.joinLabel}
+            <IconPlus size={14} />
           </button>
         )}
       </div>
@@ -324,7 +321,7 @@ export function MembersBlock({ team = [], members = [], lead, onOpenProfile, tit
               {lead.name}
               <span className="psh-spw__role psh-spw__role--owner">{lead.role}</span>
             </p>
-            <p className="psh-spw__leadMeta">{lead.handle} · anasimamia nafasi hii</p>
+            <p className="psh-spw__leadMeta">{lead.handle}</p>
           </div>
         </div>
       ) : null}
@@ -511,16 +508,13 @@ export function StatGrid({ stats, type = 'place' }) {
 
 /* ── Hali tupu (§47) ───────────────────────────────────────── */
 
-export function SpaceEmpty({ title, text, onAction, actionLabel }) {
+export function SpaceEmpty({ onAction }) {
   return (
     <div className="psh-spe">
       <IconHub size={22} />
-      <p className="psh-spe__title">{title}</p>
-      {text ? <p className="psh-spe__text">{text}</p> : null}
       {onAction ? (
-        <button type="button" className="psh-btn psh-btn--sm psh-btn--primary" onClick={onAction}>
+        <button type="button" className="psh-btn psh-btn--sm psh-btn--primary" onClick={onAction} aria-label="Unda Space">
           <IconPlus size={15} />
-          {actionLabel}
         </button>
       ) : null}
     </div>

@@ -118,7 +118,6 @@ export default function Spaces({
     if (top.key === 'create') {
       return {
         title: 'Unda Space',
-        subtitle: 'Hatua 3: aina · maelezo · muonekano',
         back: stack.length > 1,
         body: (
           <CreateSpacePanel
@@ -183,10 +182,10 @@ export default function Spaces({
         <button
           type="button"
           className="psh-btn psh-btn--sm psh-btn--primary"
+          aria-label="Unda Space"
           onClick={() => push({ key: 'create' })}
         >
           <IconPlus size={15} />
-          Unda Space
         </button>
       </header>
 
@@ -196,13 +195,9 @@ export default function Spaces({
           className="psh-spaces__input"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Tafuta hub, jumuiya au channel…"
+          placeholder="Tafuta…"
           aria-label="Tafuta Spaces"
         />
-        <button type="submit" className="psh-spaces__searchBtn">
-          <IconSearchSmall size={16} />
-          Tafuta
-        </button>
       </form>
 
       <div className="psh-spaces__tabs" role="tablist" aria-label="Aina za Spaces">
@@ -271,18 +266,13 @@ export default function Spaces({
         </div>
       ) : page.empty ? (
         <SpaceEmpty
-          title={page.empty.title}
-          text={page.empty.text}
           onAction={() => push({ key: 'create' })}
-          actionLabel="Unda Space"
         />
       ) : (
         sections.map((sec) => (
           <section key={sec.id} className="psh-spaces__section" aria-label={sec.title}>
             <SectionHead
               title={sec.title}
-              hint={sec.hint}
-              actionLabel={sec.items.length > 4 ? 'Zote' : undefined}
               onAction={sec.items.length > 4 ? () => setFilter(sec.id === 'mine' ? 'mine' : 'all') : undefined}
             />
             {sec.layout === 'rail' ? (

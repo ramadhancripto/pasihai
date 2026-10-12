@@ -30,6 +30,7 @@ import {
   IconShield,
   IconSpark,
   IconTag,
+  IconLive,
 } from '../icons.jsx'
 
 /* ── 1. MAONI ─────────────────────────────────────────────── */
@@ -61,7 +62,7 @@ export function CommentsPanel({ item, onToast, onCommentAdded }) {
   return (
     <div className="psh-cmts">
       <p className="psh-cmts__lead">
-        <IconComment size={15} /> Maoni ya <b>{item.entity?.name}</b> — yanaonekana kwa wote wanaoona chapisho hiki.
+        <IconComment size={15} />
       </p>
 
       {item.text ? <p className="psh-cmts__post">{plainText(item.text)}</p> : null}
@@ -70,7 +71,7 @@ export function CommentsPanel({ item, onToast, onCommentAdded }) {
         <p className="psh-cmts__empty">Inapakia maoni…</p>
       ) : list.length === 0 ? (
         <p className="psh-cmts__empty">
-          <IconSpark size={16} /> Hakuna maoni bado. Kuwa wa kwanza kuchangia.
+          <IconSpark size={16} />
         </p>
       ) : (
         <ul className="psh-cmts__list">
@@ -101,7 +102,7 @@ export function CommentsPanel({ item, onToast, onCommentAdded }) {
           aria-label="Andika maoni"
         />
         <Button variant="primary" onClick={send} loading={busy} disabled={!text.trim()} loadingLabel="Inatuma">
-          Tuma
+          <IconShare size={14} />
         </Button>
       </form>
     </div>
@@ -181,7 +182,7 @@ export function SharePanel({ item, onToast, onOpenChat }) {
         </li>
       </ul>
 
-      <h3 className="psh-share__h">Tuma kwenye Chat</h3>
+      <h3 className="psh-share__h"><IconShare size={14} /> kwenye Chat</h3>
       {!conversations ? (
         <p className="psh-cmts__empty">Inapakia mazungumzo…</p>
       ) : (
@@ -201,7 +202,7 @@ export function SharePanel({ item, onToast, onOpenChat }) {
                   onClick={() => sendToChat(c)}
                   icon={done ? <IconCheck size={15} /> : null}
                 >
-                  {done ? 'Imetumwa' : 'Tuma'}
+                  {done ? 'Imetumwa' : '<IconShare size={14} />'}
                 </Button>
               </li>
             )
@@ -354,7 +355,7 @@ export function LivePanel({ item, onToast, onChanged, onOpenProfile }) {
     <div className="psh-livepanel">
       <div className="psh-livepanel__head">
         <span className={`psh-live__badge psh-live__badge--${live.state === 'live' ? 'live' : live.state === 'upcoming' ? 'upcoming' : 'replay'}`}>
-          {live.state === 'live' ? <span className="psh-live__dot" aria-hidden="true" /> : null}
+          {live.state === 'live' ? <IconLive size={14} /> : null}
           {stateLabel}
         </span>
         <span className="psh-live__mode">{live.mode}</span>
@@ -456,6 +457,7 @@ export function StatusComposerPanel({ onToast, onClose, onCreated }) {
   const [previewUrl, setPreviewUrl] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [previewing, setPreviewing] = useState(false)
 
   useEffect(() => {
     if (!file) {
@@ -510,6 +512,31 @@ export function StatusComposerPanel({ onToast, onClose, onCreated }) {
 
   const canPost = Boolean(text.trim() || file)
   const previewIsVideo = file?.type.startsWith('video/')
+
+  // ── Full-screen preview before publishing ──
+  if (previewing) {
+    return (
+      <div className="psh-status-preview">
+        <div className={`psh-status-preview__stage psh-status-story--${tone}`}>
+          <div className={`psh-status-story ${!previewUrl && !text?.trim() ? '' : previewUrl ? 'psh-status-story--media' : 'psh-status-story--text'}`}>
+            {previewUrl && !previewIsVideo ? (
+              <img className="psh-status-story__media" src={previewUrl} alt="Preview" />
+            ) : null}
+            {previewUrl && previewIsVideo ? (
+              <video className="psh-status-story__media" src={previewUrl} playsInline muted preload="metadata" />
+            ) : null}
+            {text?.trim() ? (
+              <p className="psh-status-story__caption">{text.trim()}</p>
+            ) : null}
+          </div>
+        </div>
+        <div className="psh-status-preview__actions">
+          <Button variant="ghost" onClick={() => setPreviewing(false)}>Rudi</Button>
+          <Button variant="primary" loading={busy} loadingLabel="Inahifadhi…" onClick={post}>Chapisha</Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="psh-panelstack">
@@ -604,12 +631,10 @@ export function StatusComposerPanel({ onToast, onClose, onCreated }) {
       <div className="psh-panelstack__actions">
         <Button
           variant="primary"
-          loading={busy}
-          loadingLabel="Inahifadhi…"
           disabled={!canPost}
-          onClick={post}
+          onClick={() => setPreviewing(true)}
         >
-          Chapisha status
+          Hakiki
         </Button>
       </div>
     </div>
@@ -655,7 +680,7 @@ export function StatusAllPanel({ onOpenStatus, onOpenMine }) {
       <div className="psh-statusall__state psh-statusall__state--error" role="alert">
         <span>{error}</span>
         <Button variant="ghost" size="sm" onClick={() => setRetryKey((key) => key + 1)}>
-          Jaribu tena
+          <IconSwap size={14} />
         </Button>
       </div>
     )

@@ -350,7 +350,7 @@ export default function PostStudio({ payload, onToast, onClose, onPosted }) {
                 rows={content.type === 'article' ? 8 : 3}
                 value={content.body.text}
                 maxLength={MAX_BODY}
-                placeholder="Andika… tumia @kutaja mtu"
+                placeholder="Andika…"
                 onChange={(text) => patch((c) => ({ ...c, body: { ...c.body, text } }))}
               />
             </label>
@@ -364,7 +364,7 @@ export default function PostStudio({ payload, onToast, onClose, onPosted }) {
           ) : null}
           {fields.has('attribution') ? (
             <label className="psh-ps__field">
-              <span className="psh-ps__label">Chanzo / mtu wa nukuu (si lazima)</span>
+              <span className="psh-ps__label">Chanzo (si lazima)</span>
               <input className="psh-ps__input" value={content.attribution} maxLength={MAX_ATTRIBUTION}
                 onChange={(e) => patch((c) => ({ ...c, attribution: e.target.value }))} />
             </label>

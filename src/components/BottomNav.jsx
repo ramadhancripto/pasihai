@@ -66,12 +66,6 @@ export default function BottomNav({ active, onChange }) {
                 </span>
                 <span className="psh-nav__meta">
                   <span className="psh-nav__label">{label}</span>
-                  <span
-                    className={`psh-nav__state${statusTone ? ` psh-nav__state--${statusTone}` : ''}`}
-                    aria-hidden="true"
-                  >
-                    {statusLabel}
-                  </span>
                 </span>
               </button>
             </li>

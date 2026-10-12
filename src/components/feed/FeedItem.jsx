@@ -169,7 +169,7 @@ function SocialButtons({
           type="button"
           className={`psh-feed-social__btn psh-feed-social__btn--follow ${state.following ? 'is-active' : ''}`}
           disabled={!!busy}
-          onClick={(e) => { e.stopPropagation(); act('following', onFollow, state.following ? 'Umeacha kufuata' : 'Umeanza kufuata') }}
+          onClick={(e) => { e.stopPropagation(); act('following', onFollow) }}
         >
           {state.following ? <><IconCheck size={13} /> Unamfuata</> : <><IconFollow size={13} /> Fuata</>}
         </button>
@@ -184,7 +184,7 @@ function SocialButtons({
           type="button"
           className={`psh-feed-social__btn psh-feed-social__btn--join ${state.joined ? 'is-active' : ''}`}
           disabled={!!busy}
-          onClick={(e) => { e.stopPropagation(); act('joined', onFollow, state.joined ? 'Umejiunga tayari' : 'Umejiunga na Hub') }}
+          onClick={(e) => { e.stopPropagation(); act('joined', onFollow) }}
         >
           {state.joined ? <><IconCheck size={13} /> Umejiunga</> : <><IconGroup size={13} /> Jiunge</>}
         </button>
@@ -199,7 +199,7 @@ function SocialButtons({
           type="button"
           className={`psh-feed-social__btn psh-feed-social__btn--join ${state.joined ? 'is-active' : ''}`}
           disabled={!!busy}
-          onClick={(e) => { e.stopPropagation(); act('joined', onFollow, state.joined ? 'Umejiunga tayari' : 'Umejiunga na Kikundi') }}
+          onClick={(e) => { e.stopPropagation(); act('joined', onFollow) }}
         >
           {state.joined ? <><IconCheck size={13} /> Umejiunga</> : <><IconConnect size={13} /> Jiunge</>}
         </button>
@@ -207,14 +207,14 @@ function SocialButtons({
     )
   }
 
-  /* Default: Person (mtu wa kawaida) */
+  /* Default: Person */
   return (
     <div className="psh-feed-social psh-feed-social--inline">
       <button
         type="button"
         className={`psh-feed-social__btn psh-feed-social__btn--friend ${state.friendRequested ? 'is-active' : ''}`}
         disabled={!!busy}
-        onClick={(e) => { e.stopPropagation(); act('friendRequested', onFriendRequest, 'Ombi la urafiki limetumwa') }}
+        onClick={(e) => { e.stopPropagation(); act('friendRequested', onFriendRequest) }}
       >
         {state.friendRequested ? <><IconCheck size={13} /> Ombi limetumwa</> : <><IconPersonAdd size={13} /> Omba Urafiki</>}
       </button>
@@ -222,6 +222,7 @@ function SocialButtons({
         type="button"
         className="psh-feed-social__btn psh-feed-social__btn--msg"
         disabled={!!busy}
+        aria-label="Ujumbe"
         onClick={(e) => { e.stopPropagation(); onMessage?.() }}
       >
         <IconChat size={13} /> Ujumbe

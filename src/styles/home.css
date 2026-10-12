@@ -149,22 +149,28 @@
   bottom: 7px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 1px 6px 1px 4px;
+  gap: 3px;
+  padding: 2px 6px 2px 4px;
   border-radius: var(--r-full);
-  background: var(--c-error);
-  color: var(--t-1);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  line-height: 1.6;
+  background: #c62828;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
   border: 2px solid var(--bg);
+  box-shadow: 0 0 6px rgba(198, 40, 40, 0.4);
+  animation: psh-pulse 1.6s var(--ease) infinite;
+  text-transform: uppercase;
+}
+.psh-status__live svg {
+  color: #fff;
 }
 .psh-status__livedot {
   width: 5px;
   height: 5px;
   border-radius: var(--r-full);
-  background: var(--bg);
+  background: #fff;
   animation: psh-pulse 1.6s var(--ease) infinite;
 }
 @keyframes psh-pulse {
@@ -258,6 +264,54 @@
   height: 100%;
   color: var(--c-green-700);
   background: var(--c-green-soft);
+}
+.psh-status__row--skeleton {
+  display: flex;
+  gap: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+.psh-status__item--skel {
+  flex: 0 0 96px;
+  width: 96px;
+  height: 118px;
+  border-radius: 18px;
+  background: var(--bg-hover);
+  animation: psh-pulse 1.6s var(--ease) infinite;
+}
+.psh-status__retry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--t-2);
+  cursor: pointer;
+}
+.psh-homesearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 14px 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--bg-hover);
+  color: var(--t-3);
+}
+.psh-homesearch__input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--t-1);
+  font-size: var(--fs-14);
+  outline: none;
+}
+.psh-homesearch__input::placeholder {
+  color: var(--t-3);
 }
 .psh-status__foot {
   display: flex;
@@ -470,30 +524,28 @@
 .psh-strip {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
-  flex-wrap: wrap;
-  padding: 8px 2px 0;
+  padding: 6px 14px 0;
 }
 .psh-strip__label {
-  font-size: var(--fs-12);
-  color: var(--t-3);
-  margin-right: 2px;
+  display: none;
 }
 .psh-strip__mode {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border: 0;
-  border-radius: var(--r-full);
-  background: var(--c-blue-soft);
-  color: var(--c-blue-700);
-  font-size: var(--fs-12);
-  font-weight: 500;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--t-2);
   cursor: pointer;
 }
 .psh-strip__mode:hover {
-  background: var(--c-blue-soft);
+  background: var(--bg-hover);
 }
 
 /* ── Kadi ya hali ya ujenzi ───────────────────────────────── */

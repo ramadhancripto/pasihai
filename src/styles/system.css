@@ -24,18 +24,16 @@
 .psh-ctl {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 36px;
-  padding: 0 11px;
+  justify-content: center;
+  gap: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--bg);
+  background: transparent;
   color: var(--t-2);
-  font-family: var(--font-ui);
-  font-size: var(--fs-12);
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
+  font-size: 0;
   cursor: pointer;
   transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease),
     color var(--dur-1) var(--ease);

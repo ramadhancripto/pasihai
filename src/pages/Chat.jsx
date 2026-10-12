@@ -43,6 +43,7 @@ import {
   IconSpaces,
   IconHub,
   IconArchive,
+  IconChat,
   IconMoreVertical as IconRowMore,
 } from '../components/icons.jsx'
 import '../styles/chat-direct.css'
@@ -305,17 +306,15 @@ export default function Chat({ onToast }) {
                 <button
                   type="button"
                   className="psh-btn psh-btn--primary psh-chat__rowaction"
+                  aria-label="Hifadhi (Archive)"
                   onClick={() => archiveFromList(target)}
                 >
-                  <IconArchive size={18} /> Hifadhi (Archive)
+                  <IconArchive size={18} />
                 </button>
               ) : null}
-              <p className="psh-chat__rowhelp">
-                Archive huondoa mazungumzo kwenye orodha kuu. Historia inabaki, haifutwi, na
-                haikutoi kwenye kikundi. Yanapatikana kwenye “Chats zilizohifadhiwa”.
-              </p>
-              <button type="button" className="psh-btn psh-chat__rowaction" onClick={close}>
-                Ghairi
+              <p className="psh-chat__rowhelp" title="Archive: historia inabaki"><IconArchive size={14} /></p>
+              <button type="button" className="psh-btn psh-chat__rowaction" aria-label="Ghairi" onClick={close}>
+                ✕
               </button>
             </div>
           ),
@@ -342,14 +341,14 @@ export default function Chat({ onToast }) {
               <button
                 type="button"
                 className="psh-btn psh-btn--primary"
+                aria-label="Weka zote kama zimesomwa"
                 onClick={async () => {
                   await chatService.markAllRead()
-                  onToast?.('Zote zimewekwa kama zimesomwa')
                   back()
                   refresh()
                 }}
               >
-                Weka zote kama zimesomwa
+                <IconCheck size={18} />
               </button>
             </div>
           ),
@@ -409,22 +408,12 @@ export default function Chat({ onToast }) {
             <div className="psh-chat__sysline" aria-label="Hali ya mfumo">
               <span className={`psh-chat__syschip ${inbox.system.state === 'LOCAL' || inbox.system.state === 'ONLINE' ? 'psh-chat__syschip--ok' : ''}`}>
                 <IconRadar size={12} />
-                <b>{inbox.system.label}</b>
-              </span>
-              <span className="psh-chat__syschip">
-                <IconShield size={12} />
-                Data Saved <b>{dataSaved ? `${dataSaved.total} MB` : '—'}</b>
-              </span>
-              <span className="psh-chat__syschip">
-                <IconInfo size={12} />
-                {inbox.system.transport}
               </span>
             </div>
           ) : null}
 
           <button type="button" className="psh-chat__search" onClick={() => go('search')}>
             <IconSearchSmall size={17} />
-            Tafuta mazungumzo na jumbe…
           </button>
 
           <div className="psh-chat__filters" role="radiogroup" aria-label="Vichujio vya Chat">
@@ -461,17 +450,16 @@ export default function Chat({ onToast }) {
                     <span className="psh-chat__rowtop">
                       <span className="psh-chat__rowname">{c.title}</span>
                       {c.type === 'direct' && c.relationship === 'saved' ? (
-                        <span className="psh-chat__rel psh-chat__rel--saved">Saved Contact</span>
+                        <IconShield size={13} />
                       ) : c.type === 'direct' && c.relationship === 'friend' ? (
-                        <span className="psh-chat__rel psh-chat__rel--friend">PASIHAI Friend</span>
+                        <IconRadar size={13} />
                       ) : c.type === 'group' ? (
-                        <span className="psh-chip psh-chip--soft">Kikundi</span>
+                        <IconHub size={13} />
                       ) : null}
                     </span>
                     {c.parentContext ? (
                       <span className="psh-chat__context">
                         {c.parentContext.type === 'hub' ? <IconHub size={12} /> : <IconSpaces size={12} />}
-                        Kikundi · {c.parentContext.label}
                       </span>
                     ) : null}
                     <span className="psh-chat__rowtext">{c.last?.text}</span>
@@ -503,8 +491,8 @@ export default function Chat({ onToast }) {
             ) : null}
           </div>
 
-          <button type="button" className="psh-chat__fab" onClick={() => go('newchat')}>
-            <IconComment size={18} /> New Chat
+          <button type="button" className="psh-chat__fab" onClick={() => go('newchat')} aria-label="New Chat">
+            <IconComment size={18} />
           </button>
 
         </section>

@@ -15,7 +15,7 @@ import { Chip } from '../components/ui.jsx'
 import { homeService } from '../services/homeService.js'
 import { settingsService } from '../services/settingsService.js'
 import useAsyncData from '../hooks/useAsyncData.js'
-import { IconEye } from '../components/icons.jsx'
+import { IconEye, IconSearchSmall } from '../components/icons.jsx'
 
 export default function Home({
   homeTab,
@@ -52,6 +52,16 @@ export default function Home({
         version={feedVersion}
       />
 
+      <div className="psh-homesearch">
+        <IconSearchSmall size={16} />
+        <input
+          type="search"
+          className="psh-homesearch__input"
+          placeholder="Tafuta…"
+          aria-label="Tafuta"
+        />
+      </div>
+
       <HomeTabs
         active={homeTab}
         onChange={setHomeTab}
@@ -68,16 +78,10 @@ export default function Home({
         onToast={onToast}
       />
 
-      {/* Mstari wa hali: inaonyesha tab · muonekano · kichujio vilivyochaguliwa.
-          Hii inafanya View Mode na Filter kuonekana BILA kujaza skrini. */}
       {stripReady ? (
         <div className="psh-strip">
-          <span className="psh-strip__label">Unatazama</span>
-          <Chip tone="soft">{activeTab.label}</Chip>
-          <Chip tone="soft">{activeFilter.label}</Chip>
           <button type="button" className="psh-strip__mode" onClick={onOpenViewMode}>
-            <IconEye size={16} />
-            {activeMode.label}
+            <IconEye size={14} />
           </button>
         </div>
       ) : null}

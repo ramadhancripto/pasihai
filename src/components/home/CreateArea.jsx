@@ -356,7 +356,7 @@ export default function CreateArea({ onCreate, onPosted, onToast, prompt = 'Nini
 
           {tool === 'mention' ? (
             <div className="psh-qp__toolform psh-qp__toolform--stack">
-              <label htmlFor={mentionInputId} className="u-sr">Tafuta mtu wa kutaja</label>
+              <label htmlFor={mentionInputId} className="u-sr">Tafuta</label>
               <input
                 id={mentionInputId}
                 className="psh-qp__field"
@@ -367,7 +367,7 @@ export default function CreateArea({ onCreate, onPosted, onToast, prompt = 'Nini
               {!Array.isArray(people) ? (
                 <p className="psh-qp__hint" role="status">Inapakia watu…</p>
               ) : mentionMatches.length === 0 ? (
-                <p className="psh-qp__hint">Hakuna mtu anayelingana.</p>
+                <p className="psh-qp__hint">Hakuna.</p>
               ) : (
                 <ul className="psh-qp__people">
                   {mentionMatches.map((person) => (

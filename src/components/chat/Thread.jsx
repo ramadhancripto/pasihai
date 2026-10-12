@@ -410,10 +410,8 @@ export default function Thread({
           <span className="psh-chat__theadname">{conv.title}</span>
           {group ? (
             <span className="psh-chat__theadsub">
-              {`wanachama ${conv.members || (conv.memberIds || []).length}`}
+              <IconHub size={10} /> {conv.members || (conv.memberIds || []).length}
             </span>
-          ) : conv.account?.handle ? (
-            <span className="psh-chat__theadsub">{conv.account.handle}</span>
           ) : null}
         </span>
         {/* Simu/video hazipo bado: vitufe havionyeshwi (hakuna utendaji halisi). */}
@@ -425,12 +423,11 @@ export default function Thread({
       {systemBanner ? (
         <div
           className={`psh-chat__banner psh-chat__banner--compact ${systemBanner.tone === 'mesh' ? 'psh-chat__banner--mesh' : ''}`}
-          title={systemBanner.text}
+          title={systemBanner.title}
           role="status"
         >
           <systemBanner.icon size={14} />
-          <b>{systemBanner.title}</b>
-          <span className="psh-sr-only">{systemBanner.text}</span>
+          <span className="psh-sr-only">{systemBanner.title}</span>
         </div>
       ) : null}
 

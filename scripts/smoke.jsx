@@ -1419,9 +1419,9 @@ for (const [name, node] of [
 
 /* ── K19: contract — modes · kategoria · counts ──────────── */
 const guMain = await gunduaService.getPage({ mode: 'mchanganyiko', filters: gunduaService.EMPTY, query: '' })
-assert(guMain.modules.length === 4, 'Gundua: modes 4 (Mchanganyiko · Friends · Channels · Live)', `${guMain.modules.length}`)
+assert(guMain.modules.length === 4, 'Gundua: modes 4 (All · Friends · Channels · Live)', `${guMain.modules.length}`)
 assert(
-  guMain.modules.map((m) => m.label).join('·') === 'Mchanganyiko·Friends·Channels·Live',
+  guMain.modules.map((m) => m.label).join('·') === 'All·Friends·Channels·Live',
   'Gundua: modes kwa mpangilio sahihi',
   guMain.modules.map((m) => m.label).join(' · '),
 )

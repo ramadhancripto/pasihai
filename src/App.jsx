@@ -219,7 +219,7 @@ export default function App() {
         const userId = top.payload || 'me'
         return {
           title: userId === 'me' ? 'Akaunti yangu' : 'Wasifu',
-          subtitle: userId === 'me' ? 'Muonekano wa mtumiaji wa kawaida' : 'Muonekano wa umma',
+          subtitle: userId === 'me' ? 'Muonekano wako' : 'Muonekano wa umma',
           body: (
             <ProfilePanel
               userId={userId}
@@ -288,8 +288,8 @@ export default function App() {
         }
       case 'more':
         return {
-          title: 'Menyu ya Home',
-          subtitle: 'Hii ni menyu ya Home pekee — si urambazaji wa jumla',
+          title: '⋮',
+          subtitle: null,
           body: (
             <MorePanel
               viewMode={viewMode}
@@ -299,6 +299,8 @@ export default function App() {
               dataSaver={dataSaver}
               setDataSaver={setDataSaver}
               onRefresh={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              isDark={isDark}
+              onToggleTheme={toggleTheme}
             />
           ),
         }
@@ -486,8 +488,8 @@ export default function App() {
         }
       case 'statusviewer':
         return {
-          title: top.payload?.own ? 'Status yako' : top.payload?.user?.name || 'Story',
-          subtitle: 'Picha, video au maandishi · muda wa saa 24',
+          title: null,
+          subtitle: null,
           back: true,
           body: (
             <StatusViewerPanel
@@ -569,11 +571,8 @@ export default function App() {
         <Header
           onNotifications={() => openTop({ type: 'notifications' })}
           onAccount={() => openTop({ type: 'profile', payload: 'me' })}
-          onMore={() => openTop({ type: 'more' })}
-          onDataSaved={() => openTop({ type: 'datasaved' })}
           onSystem={() => openTop({ type: 'system' })}
-          isDark={isDark}
-          onToggleTheme={toggleTheme}
+          onMore={() => openTop({ type: 'more' })}
         />
       ) : null}
 
@@ -678,6 +677,7 @@ export default function App() {
         onBack={stack.length > 1 ? pop : undefined}
         title={panelDef?.title}
         subtitle={panelDef?.subtitle}
+        size={top?.type === 'statusviewer' || top?.type === 'statuspreview' ? 'full' : 'md'}
       >
         {panelDef?.body}
       </Sheet>

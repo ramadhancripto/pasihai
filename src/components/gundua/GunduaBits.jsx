@@ -93,11 +93,9 @@ export function SectionHead({ title, hint, showHint = false, actionLabel = 'Zote
     <header className="psh-gu-sechead">
       <div className="psh-gu-sechead__text">
         <h2 className="psh-gu-sechead__title">{title}</h2>
-        {hint && showHint ? <p className="psh-gu-sechead__hint">{hint}</p> : null}
       </div>
       {onAction ? (
-        <button type="button" className="psh-gu-sechead__action" onClick={onAction}>
-          {actionLabel}
+        <button type="button" className="psh-gu-sechead__action" onClick={onAction} aria-label={actionLabel}>
           <IconArrowRight size={15} />
         </button>
       ) : null}

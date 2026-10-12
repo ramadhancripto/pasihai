@@ -83,7 +83,7 @@ export default function Gundua({ onToast, onOpenChat }) {
       add: async (person) => {
         try {
           const res = await gunduaService.addFriend(person.id)
-          onToast?.(res?.changed === false ? res.hint || 'Hakuna mabadiliko' : `Ombi la urafiki limetumwa kwa ${person.name || 'mtu huyu'}`)
+          onToast?.(res?.changed === false ? res.hint || 'Hakuna mabadiliko' : `Ombi limetumwa`)
         } catch (err) {
           onToast?.(err?.message || 'Ombi halikutumwa. Jaribu tena.')
         }
@@ -313,7 +313,7 @@ export default function Gundua({ onToast, onOpenChat }) {
           className="psh-gu-search__input"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Unatafuta nini? Biashara, mtu, channel…"
+          placeholder="Tafuta…"
           aria-label="Unatafuta nini"
         />
         {q ? (

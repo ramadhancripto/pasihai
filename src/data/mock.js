@@ -1587,7 +1587,7 @@ export const gunduaMyLink = {
 }
 
 export const gunduaModes = [
-  { id: 'mchanganyiko', label: 'Mchanganyiko', hint: 'Ugunduzi mseto', icon: 'spark', tone: 'green', primary: true },
+  { id: 'mchanganyiko', label: 'All', hint: 'Ugunduzi mseto', icon: 'spark', tone: 'green', primary: true },
   { id: 'friends', label: 'Friends', hint: 'Marafiki & watu', icon: 'people', tone: 'green', primary: true },
   { id: 'channels', label: 'Channels', hint: 'Habari & elimu', icon: 'megaphone', tone: 'blue', primary: true },
   { id: 'live', label: 'Live', hint: 'Vipindi mubashara', icon: 'live', tone: 'gold', primary: true },
@@ -1603,7 +1603,7 @@ export const gunduaCategories = [
   { id: 'friends', label: 'Friends', hint: 'Marafiki na maombi', icon: 'people', mode: 'friends' },
   { id: 'addFriend', label: 'Ongeza Rafiki', hint: 'Namba · QR · contacts', icon: 'personAdd', mode: 'addfriend' },
   { id: 'live', label: 'Live', hint: 'Vikao vya moja kwa moja', icon: 'live', mode: 'live' },
-  { id: 'mchanganyiko', label: 'Mchanganyiko', hint: 'Ugunduzi wote', icon: 'spark', mode: 'mchanganyiko' },
+  { id: 'mchanganyiko', label: 'All', hint: 'Ugunduzi wote', icon: 'spark', mode: 'mchanganyiko' },
 ]
 
 /* ── Vichujio: WHAT (mode) · ABOUT (mada) · WHERE (eneo) · WHEN (wakati) · RELATION ── */

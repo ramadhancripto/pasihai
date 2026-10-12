@@ -431,11 +431,11 @@ export function AddFriendBody({
   return (
     <div className="psh-gu-add">
       <p className="psh-gu-filters__lead">
-        Urafiki wa PASIHAI ni <b>wa makusudi</b>: mtu hawi rafiki kwa kuonekana — unatuma ombi, yeye anakubali.
+        <b>PASIHAI</b>
       </p>
 
       <section className="psh-gu-fgroup">
-        <header className="psh-gu-fgroup__head"><h3 className="psh-gu-fgroup__label">Tafuta kwa jina la mtumiaji</h3></header>
+        <header className="psh-gu-fgroup__head"><h3 className="psh-gu-fgroup__label">Tafuta</h3></header>
         <input
           className="psh-gu-input"
           value={q}

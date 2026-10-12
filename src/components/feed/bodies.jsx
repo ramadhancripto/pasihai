@@ -308,7 +308,7 @@ export function LiveActivityBody({ item, onOpenLive }) {
     <div className={`psh-live psh-live--${state.tone}`}>
       <div className="psh-live__top">
         <span className={`psh-live__badge psh-live__badge--${state.tone}`}>
-          {state.tone === 'live' ? <span className="psh-live__dot" aria-hidden="true" /> : null}
+          {state.tone === 'live' ? <IconLive size={14} /> : null}
           {state.label}
         </span>
         <span className="psh-live__mode">
