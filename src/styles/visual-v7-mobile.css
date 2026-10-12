@@ -113,22 +113,22 @@ html[data-chrome='hidden'] .psh-nav {
 /* ── 4. Palette laini (vitendo na surfaces) ─────────────── */
 :root {
   /* Kijani cha kati: vitendo vikuu, icons, branding */
-  --pg-dark: #22875f;
-  --pg-hover: #2c9a6c;
+  --pg-dark: var(--c-green-700, #22875f);
+  --pg-hover: var(--c-green-600, #2c9a6c);
   /* Kijani kirefu: maandishi na mkazo tu */
-  --pg-dark-ink: #1f5a40;
+  --pg-dark-ink: var(--c-green, #1f5a40);
   /* Surfaces laini */
-  --c-green-soft: #eef8f2;
+  --c-green-soft: var(--c-green-soft);
 }
 
 /* Maandishi ya ujumbe wa kutuma: kijani laini, si giza */
 .psh-msg--me .psh-msg__bubble {
-  background: #dcf1e8;
-  color: #1f3b2c;
+  background: var(--c-green-soft);
+  color: var(--t-1);
 }
 .psh-msg--me .psh-msg__meta,
 .psh-msg--me .psh-msg__state {
-  color: #4f6a5c;
+  color: var(--t-2);
 }
 
 /* ── 5. Mazungumzo skrini nzima: hakuna kukatwa upande ─────── */

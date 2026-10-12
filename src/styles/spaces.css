@@ -1013,7 +1013,7 @@
 .psh-csp__step.is-done .psh-csp__stepNo {
   background: var(--c-green);
   border-color: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 
 .psh-csp__stepText {

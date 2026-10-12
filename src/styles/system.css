@@ -380,7 +380,7 @@
 }
 .psh-sys-state--waiting {
   background: var(--c-gold-soft);
-  color: #8a6d16;
+  color: var(--c-gold, #8a6d16);
 }
 .psh-sys-state--sending {
   background: var(--c-blue-soft);
@@ -736,13 +736,13 @@
 .psh-sys-alert--limit {
   background: var(--c-gold-soft);
   border-color: transparent;
-  color: #7a6013;
+  color: var(--c-gold, #7a6013);
 }
 .psh-sys-alert--limit b {
-  color: #6b5310;
+  color: var(--c-gold);
 }
 .psh-sys-alert--limit svg {
-  color: #8a6d16;
+  color: var(--c-gold, #8a6d16);
 }
 
 /* Baa ya matumizi (used / limit) */

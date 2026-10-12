@@ -196,7 +196,7 @@
 .psh-chat__filter.is-active {
   background: var(--c-green);
   border-color: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-chat__filterdot {
   width: 6px;
@@ -205,7 +205,7 @@
   background: var(--c-green);
 }
 .psh-chat__filter.is-active .psh-chat__filterdot {
-  background: #fff;
+  background: var(--bg);
 }
 .psh-chat__filtercount {
   font-size: var(--fs-11);
@@ -280,7 +280,7 @@
   padding: 0 6px;
   border-radius: 999px;
   background: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
   font-size: var(--fs-11);
   font-weight: 600;
   display: grid;
@@ -312,11 +312,11 @@
 }
 .psh-chat__ava--green { background: var(--c-green-soft); color: var(--c-green-700); }
 .psh-chat__ava--blue { background: var(--c-blue-soft); color: var(--c-blue-700); }
-.psh-chat__ava--gold { background: var(--c-gold-soft); color: #8a6d16; }
-.psh-chat__ava--clay { background: #fbeee6; color: #9a5b34; }
-.psh-chat__ava--plum { background: #f3e9fb; color: #6b3f96; }
-.psh-chat__ava--slate { background: #eef2f6; color: #45566b; }
-.psh-chat__ava--teal { background: #e6f6f4; color: #14746b; }
+.psh-chat__ava--gold { background: var(--c-gold-soft); color: var(--c-gold, #8a6d16); }
+.psh-chat__ava--clay { background: var(--av-clay-bg); color: var(--av-clay-fg, #9a5b34); }
+.psh-chat__ava--plum { background: var(--av-plum-bg); color: var(--av-plum-fg, #6b3f96); }
+.psh-chat__ava--slate { background: var(--av-slate-bg); color: var(--av-slate-fg, #45566b); }
+.psh-chat__ava--teal { background: var(--av-teal-bg); color: var(--av-teal-fg, #14746b); }
 .psh-chat__ava svg {
   color: currentColor;
 }
@@ -476,7 +476,7 @@
 .psh-msg__role--gold {
   background: var(--c-gold-soft);
   border-color: transparent;
-  color: #8a6d16;
+  color: var(--c-gold, #8a6d16);
 }
 .psh-msg__role--blue {
   background: var(--c-blue-soft);
@@ -501,7 +501,7 @@
   border-radius: 14px 14px 5px 14px;
   background: var(--c-green-700);
   border-color: transparent;
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-msg__text {
   margin: 0;
@@ -542,7 +542,7 @@
   color: var(--t-1);
 }
 .psh-msg--me .psh-msg__quoteby {
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-msg__quotetext {
   color: var(--t-2);
@@ -571,7 +571,7 @@
   border-radius: 50%;
   border: 0;
   background: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
   cursor: pointer;
   flex: 0 0 auto;
 }
@@ -686,7 +686,7 @@
   padding: 3px 8px;
   border-radius: 999px;
   background: var(--c-green-700);
-  color: #fff;
+  color: var(--t-1);
   font-size: var(--fs-11);
   font-weight: 600;
 }
@@ -825,12 +825,12 @@
   gap: 6px;
   font-size: var(--fs-13);
   font-weight: 600;
-  color: #6b5310;
+  color: var(--c-gold);
 }
 .psh-msg__guardtext {
   font-size: var(--fs-12);
   line-height: 1.5;
-  color: #7a6013;
+  color: var(--c-gold, #7a6013);
 }
 .psh-msg__guardactions {
   display: grid;
@@ -854,7 +854,7 @@
 .psh-msg__guardbtn--primary {
   background: var(--c-green);
   border-color: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-msg__guardbtn:hover {
   filter: brightness(0.98);
@@ -866,7 +866,7 @@
   height: 132px;
   border-radius: 10px;
   background: #22303c;
-  color: #fff;
+  color: var(--t-1);
   font-size: var(--fs-12);
 }
 .psh-msg__videobadge {
@@ -893,7 +893,7 @@
   color: var(--c-blue-700);
 }
 .psh-msg__state--gold {
-  color: #8a6d16;
+  color: var(--c-gold, #8a6d16);
 }
 
 /* ── Itikio (reactions) ────────────────────────────────────── */
@@ -1013,11 +1013,11 @@
 }
 .psh-chat__cbtn--send {
   background: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-chat__cbtn--send:hover {
   background: var(--c-green-600);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-chat__cbtn:disabled {
   opacity: 0.45;
@@ -1082,7 +1082,7 @@
   border: 0;
   border-radius: 999px;
   background: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
   font-size: var(--fs-14);
   font-weight: 600;
   cursor: pointer;
@@ -1415,7 +1415,7 @@
 
 [data-theme="dark"] .psh-msg--me .psh-msg__bubble {
   background: var(--c-green-700);
-  color: #fff;
+  color: var(--t-1);
 }
 
 [data-theme="dark"] .psh-chat__thread {
@@ -1432,7 +1432,7 @@
 
   :root:not([data-theme="light"]) .psh-msg--me .psh-msg__bubble {
     background: var(--c-green-700);
-    color: #fff;
+    color: var(--t-1);
   }
 
   :root:not([data-theme="light"]) .psh-chat__thread {

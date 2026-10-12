@@ -32,8 +32,11 @@
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: var(--bg);
-  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 0;
+  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
 }
 .psh-header__inner {
   display: flex;
@@ -68,8 +71,11 @@
   right: 0;
   bottom: 0;
   z-index: var(--z-nav);
-  background: var(--bg);
-  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
   padding-bottom: env(safe-area-inset-bottom);
 }
 .psh-nav__list {
@@ -104,7 +110,7 @@
   color: var(--t-1);
 }
 .psh-nav__btn.is-active {
-  color: var(--c-green);
+  color: var(--c-blue);
 }
 .psh-nav__icon {
   display: grid;
@@ -151,10 +157,11 @@
   top: -7px;
   left: 50%;
   transform: translateX(-50%);
-  width: 16px;
-  height: 2px;
+  width: 24px;
+  height: 3px;
   border-radius: var(--r-full);
-  background: var(--c-green);
+  background: var(--c-primary-container);
+  box-shadow: var(--sh-glow-primary);
 }
 
 /* Tablet: nav inabaki chini lakini imejikita katikati */

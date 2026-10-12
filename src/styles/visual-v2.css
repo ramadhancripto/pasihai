@@ -9,22 +9,22 @@
    ══════════════════════════════════════════════════════════════ */
 
 :root {
-  --v2-canvas: #f7faf9;
-  --v2-surface: #ffffff;
-  --v2-line: #e3ebe7;
-  --v2-line-soft: #eef4f1;
-  --v2-ink: #15201c;
-  --v2-mute: #6b7772;
-  --v2-green: #18a982;
-  --v2-green-ink: #0f7a5d;
-  --v2-green-soft: #e9f7f2;
-  --v2-green-line: #cdeadd;
-  --v2-blue: #3b82f6;
-  --v2-blue-ink: #2456b8;
-  --v2-blue-soft: #eef4ff;
-  --v2-gold: #d4a72c;
-  --v2-gold-ink: #8a6a12;
-  --v2-gold-soft: #fbf5e2;
+  --v2-canvas: var(--bg);
+  --v2-surface: var(--bg);
+  --v2-line: var(--line);
+  --v2-line-soft: var(--line);
+  --v2-ink: var(--t-1, #15201c);
+  --v2-mute: var(--t-3, #6b7772);
+  --v2-green: var(--c-green, #18a982);
+  --v2-green-ink: var(--c-green, #0f7a5d);
+  --v2-green-soft: var(--c-green-soft);
+  --v2-green-line: var(--line);
+  --v2-blue: var(--c-blue, #3b82f6);
+  --v2-blue-ink: var(--c-blue, #2456b8);
+  --v2-blue-soft: var(--c-blue-soft);
+  --v2-gold: var(--c-gold, #d4a72c);
+  --v2-gold-ink: var(--c-gold, #8a6a12);
+  --v2-gold-soft: var(--c-gold-soft);
   --v2-shadow-1: 0 1px 2px rgba(20, 40, 30, 0.04);
   --v2-shadow-2: 0 6px 18px rgba(20, 40, 30, 0.06);
   --v2-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -70,7 +70,7 @@ body {
 }
 .psh-status__ring--viewed,
 .psh-status__ring--seen {
-  background: #d6e1dc;
+  background: var(--bg-hover);
 }
 .psh-status__name {
   color: var(--v2-ink);

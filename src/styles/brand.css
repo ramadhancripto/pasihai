@@ -7,7 +7,9 @@
 
 /* ── 1. Logo kamili kwenye header ───────────────────────────── */
 .psh-header {
-  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 .psh-header__inner {
   height: 64px;
@@ -147,7 +149,7 @@
   height: 46px;
   border-radius: 50%;
   background: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
   border: 0;
   box-shadow: 0 4px 12px rgba(24, 169, 130, 0.3);
 }
@@ -178,11 +180,11 @@
   border-radius: 50%;
   background: var(--bg-hover, #f3f6f5);
 }
-.psh-createbar__act:nth-child(1) svg { color: #18a982; background: #e7f7f1; }
-.psh-createbar__act:nth-child(2) svg { color: #2f6fe0; background: #e9f0fd; }
-.psh-createbar__act:nth-child(3) svg { color: #7a7f7c; background: #f1f2f1; }
-.psh-createbar__act:nth-child(4) svg { color: #b08a1a; background: #fbf4e0; }
-.psh-createbar__act:nth-child(5) svg { color: #d6322c; background: #fde9e8; }
+.psh-createbar__act:nth-child(1) svg { color: #18a982; background: var(--c-green-soft); }
+.psh-createbar__act:nth-child(2) svg { color: #2f6fe0; background: var(--c-blue-soft); }
+.psh-createbar__act:nth-child(3) svg { color: #7a7f7c; background: var(--bg-hover); }
+.psh-createbar__act:nth-child(4) svg { color: #b08a1a; background: var(--c-gold-soft); }
+.psh-createbar__act:nth-child(5) svg { color: #d6322c; background: var(--c-error-soft); }
 
 /* ── 5. Mobile fine-tuning ─────────────────────────────────── */
 @media (max-width: 480px) {
@@ -197,7 +199,7 @@
   z-index: 9999;
   display: grid;
   place-items: center;
-  background: var(--bg, #ffffff);
+  background: var(--bg);
   transition: opacity 400ms ease;
 }
 .psh-splash.is-fading {

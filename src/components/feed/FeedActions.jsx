@@ -69,6 +69,16 @@ export default function FeedActions({
         className="psh-feedaction"
         disabled={busy}
         onClick={() => click(onOpenShare)}
+        aria-label="Repost"
+      >
+        <IconRepost size={19} />
+      </button>
+
+      <button
+        type="button"
+        className="psh-feedaction"
+        disabled={busy}
+        onClick={() => click(onOpenShare)}
         aria-label="Shiriki"
       >
         <IconShare size={19} />

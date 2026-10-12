@@ -131,16 +131,16 @@
 
 /* ── 5. Karatasi: palette moja ───────────────────────────── */
 .psh-chat--paper {
-  --pp-ink: #2a2418;
-  --pp-mute: #6e6248;
+  --pp-ink: var(--t-1, #2a2418);
+  --pp-mute: var(--t-2, #6e6248);
   /* Kijani kilichofifia: mandharinyuma ya thread na orodha */
-  --pp-green-bg: #d3e4d7;
+  --pp-green-bg: var(--c-green-soft);
   /* Karatasi: receiver = ivory safi, sender = parchment yenye rangi ya kina zaidi */
-  --pp-ivory: #fcf8ee;
-  --pp-parch: #efdcb0;
-  --pp-back: #e2d2aa;
+  --pp-ivory: var(--bg-hover);
+  --pp-parch: var(--bg-elevated, var(--bg-hover));
+  --pp-back: var(--bg-hover);
   /* Ukanda wa juu/chini (header, composer): parchment nyepesi */
-  --pp-strip: #f5edd9;
+  --pp-strip: var(--bg-subtle);
   --pp-edge: rgba(92, 72, 34, 0.16);
 }
 
@@ -161,8 +161,8 @@
   box-shadow: 0 1px 2px rgba(60, 45, 15, 0.12);
 }
 .psh-chat--paper .psh-chat__banner--mesh {
-  background: #e5eefb;
-  color: #2b5fb8;
+  background: var(--c-blue-soft);
+  color: var(--c-blue, #2b5fb8);
 }
 
 /* Mpokeaji: ivory, kadi nyuma yake ina kivuli cha kijivu-kahawia */
@@ -191,14 +191,14 @@
 
 /* ── 6. Business: icons, rangi chache ───────────────────── */
 .psh-pageitems__icon--green {
-  background: #e4f2ea;
-  color: #1d6444;
+  background: var(--c-green-soft);
+  color: var(--c-green, #1d6444);
 }
 .psh-pageitems__icon--blue {
-  background: #e7effc;
-  color: #2456b8;
+  background: var(--c-blue-soft);
+  color: var(--c-blue, #2456b8);
 }
 .psh-pageitems__icon--gold {
-  background: #fbf0d4;
-  color: #8a6410;
+  background: var(--c-gold-soft);
+  color: var(--c-gold, #8a6410);
 }

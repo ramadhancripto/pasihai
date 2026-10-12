@@ -31,8 +31,8 @@
 .psh-field input,
 .psh-field textarea,
 .psh-field select {
-  background: #ffffff;
-  border: 1px solid #c9dccf;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 14px;
   color: var(--pg-ink);
   transition: border-color 160ms var(--pg-ease), box-shadow 160ms var(--pg-ease);
@@ -61,7 +61,7 @@
 }
 .psh-seg {
   background: var(--pg-pale);
-  border: 1px solid #d3e6db;
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 3px;
 }
@@ -74,11 +74,11 @@
 .psh-seg__item[aria-checked="true"],
 .psh-seg__item.is-active {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   box-shadow: 0 2px 6px rgba(29, 100, 68, 0.22);
 }
 .psh-seg__item:active {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
 }
 
@@ -97,10 +97,10 @@
 .psh-menu__row:active,
 .psh-checkrow:active {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-menu__row:active .psh-menu__icon {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
 }
 .psh-menu__icon,
@@ -123,28 +123,28 @@
 .psh-checkrow.is-checked .psh-checkrow__mark {
   background: var(--pg-dark);
   border-color: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 
 /* ── Create (menyu ya kuunda) ────────────────────────────── */
 .psh-create__item {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 18px;
   transition: transform 160ms var(--pg-ease), box-shadow 160ms var(--pg-ease), background-color 160ms var(--pg-ease);
 }
 .psh-create__item:hover {
-  background: #f6fbf8;
+  background: var(--c-green-soft);
   box-shadow: 0 6px 16px rgba(20, 60, 40, 0.08);
   transform: translateY(-1px);
 }
 .psh-create__item:active {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   transform: scale(0.98);
 }
 .psh-create__item:active .psh-create__icon {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
 }
 .psh-create__groupTitle {
@@ -160,14 +160,14 @@
 
 /* ── Notifications ───────────────────────────────────────── */
 .psh-notif {
-  background: #ffffff;
-  border: 1px solid #e0ece5;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 18px;
   margin-bottom: 8px;
   box-shadow: 0 1px 2px rgba(20, 60, 40, 0.04);
 }
 .psh-notif:hover {
-  background: #f6fbf8;
+  background: var(--c-green-soft);
 }
 .psh-notif__dot {
   background: var(--pg-brand);
@@ -193,15 +193,15 @@
   gap: 10px;
 }
 .psh-cmts__body {
-  background: #ffffff;
-  border: 1px solid #e0ece5;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 16px 16px 16px 6px;
   padding: 10px 12px;
   box-shadow: 0 1px 2px rgba(20, 60, 40, 0.04);
 }
 .psh-cmts__you .psh-cmts__body {
   background: var(--pg-pale-2);
-  border-color: #b4dcc5;
+  border-color: var(--line);
   border-radius: 16px 16px 6px 16px;
 }
 .psh-cmts__name {
@@ -227,8 +227,8 @@
 .psh-cmts__form input,
 .psh-cmts__form textarea {
   flex: 1;
-  background: #ffffff;
-  border: 1px solid #c9dccf;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 999px;
   padding: 9px 14px;
   color: var(--pg-ink);
@@ -241,7 +241,7 @@
 }
 .psh-cmts__form button {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   border: 1px solid var(--pg-dark);
   border-radius: 999px;
   padding: 9px 16px;
@@ -252,7 +252,7 @@
   background: var(--pg-hover);
 }
 .psh-cmts__form button:active {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
   box-shadow: inset 0 0 0 1px var(--pg-dark);
 }
@@ -264,8 +264,8 @@
 
 /* ── Feed: kadi, vitendo, poll, media ────────────────────── */
 .psh-feeditem {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 22px;
   box-shadow: 0 2px 8px rgba(20, 60, 40, 0.05);
 }
@@ -288,7 +288,7 @@
 }
 .psh-feedaction:active {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   transform: scale(0.96);
 }
 .psh-feedaction--save[aria-pressed="true"],
@@ -296,8 +296,8 @@
   color: var(--pg-dark);
 }
 .psh-pollopt {
-  background: #f4faf6;
-  border: 1px solid #cfe5d7;
+  background: var(--c-green-soft);
+  border: 1px solid var(--line);
   border-radius: 14px;
   transition: background-color 160ms var(--pg-ease), border-color 160ms var(--pg-ease);
 }
@@ -313,28 +313,28 @@
   border-color: var(--pg-dark);
 }
 .psh-discover__item {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 18px;
 }
 .psh-discover__btn {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   border-radius: 999px;
 }
 .psh-discover__btn:hover {
   background: var(--pg-hover);
 }
 .psh-discover__btn:active {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
   box-shadow: inset 0 0 0 1px var(--pg-dark);
 }
 
 /* ── Dropdowns ───────────────────────────────────────────── */
 .psh-dd__panel {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 18px;
   box-shadow: 0 12px 30px rgba(20, 50, 30, 0.14);
 }
@@ -369,7 +369,7 @@
 }
 .psh-chip--ent-you {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-badge--channel {
   color: var(--pg-blue-dark);
@@ -385,8 +385,8 @@
 /* ── Empty states ────────────────────────────────────────── */
 .psh-empty,
 .psh-feed__empty {
-  background: #ffffff;
-  border: 1px dashed #bfd9c9;
+  background: var(--bg);
+  border: 1px dashed var(--line);
   border-radius: 22px;
   padding: 26px 18px;
   color: var(--pg-ink-2);
@@ -414,7 +414,7 @@
 }
 .psh-profile__edit {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   border-radius: 999px;
 }
 .psh-profile__edit:hover {

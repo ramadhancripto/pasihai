@@ -79,7 +79,7 @@
   border-radius: var(--r-full);
   border: 1.5px solid var(--bg);
   background: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-notif__kind--comment {
   background: var(--c-blue);
@@ -427,7 +427,7 @@
   border: 1.5px solid var(--line-2);
   border-radius: var(--r-full);
   background: var(--bg);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-vmode.is-active .psh-vmode__mark {
   background: var(--c-green);

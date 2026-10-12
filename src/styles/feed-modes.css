@@ -176,7 +176,7 @@
   z-index: 5;
   padding: 10px 14px;
   background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
-  color: #fff;
+  color: var(--t-1);
 }
 
 .psh-feed--horizontal-slide .psh-feeditem__body {
@@ -211,7 +211,7 @@
   z-index: 5;
   padding: 10px 14px;
   background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
-  color: #fff;
+  color: var(--t-1);
 }
 
 /* ── Automatic View ────────────────────────────────────────── */
@@ -232,7 +232,7 @@
 
 .psh-feed--horizontal-slide .psh-feedactions__btn:hover,
 .psh-feed--vertical-slide .psh-feedactions__btn:hover {
-  color: #fff;
+  color: var(--t-1);
 }
 
 .psh-feed--horizontal-slide .psh-feedactions__btn.is-active,

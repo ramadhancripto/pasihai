@@ -14,8 +14,8 @@
   row-gap: 2px;
   text-align: left;
   border-radius: 20px;
-  border: 1px solid #d3e6db;
-  background: #ffffff;
+  border: 1px solid var(--line);
+  background: var(--bg);
   transition: background-color 160ms var(--pg-ease), border-color 160ms var(--pg-ease), transform 120ms var(--pg-ease);
 }
 .psh-spaces__tab:hover {
@@ -48,7 +48,7 @@
 }
 .psh-spaces__tab.is-active .psh-spaces__tabIc {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-spaces__tab:nth-child(2).is-active {
   background: var(--pg-blue-soft);
@@ -56,7 +56,7 @@
 }
 .psh-spaces__tab:nth-child(2).is-active .psh-spaces__tabIc {
   background: var(--pg-blue-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-spaces__tabLabel {
   grid-column: 2;
@@ -78,8 +78,8 @@
   align-items: center;
   gap: 6px;
   border-radius: 999px;
-  border: 1px solid #cfe2d6;
-  background: #ffffff;
+  border: 1px solid var(--line);
+  background: var(--bg);
   color: var(--pg-ink-2);
   padding: 7px 13px;
   font-weight: 600;
@@ -94,13 +94,13 @@
 .psh-spaces__chip.is-active {
   background: var(--pg-dark);
   border-color: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-spaces__chip.is-active svg {
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-spaces__chip:active {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
   border-color: var(--pg-dark);
 }
@@ -116,7 +116,7 @@
 }
 .psh-spaces__chip.is-active .psh-spaces__chipCount {
   background: rgba(255, 255, 255, 0.22);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-spaces__filters > svg {
   color: var(--pg-gold);
@@ -124,8 +124,8 @@
 
 /* ── Kadi ya Spaces: msingi ──────────────────────────────── */
 .psh-spc {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 22px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(20, 60, 40, 0.06);
@@ -137,7 +137,7 @@
 
 /* ── Kadi ya Channel: bluu + kijani + dhahabu ────────────── */
 .psh-spc--channel {
-  border-color: #bcd3f5;
+  border-color: var(--line);
 }
 .psh-spc--channel .psh-spc__band {
   background: var(--pg-blue-soft);
@@ -146,7 +146,7 @@
 }
 .psh-spc--channel .psh-spc__ic {
   background: var(--pg-gold);
-  color: #ffffff;
+  color: var(--t-1);
   box-shadow: 0 2px 6px rgba(126, 93, 14, 0.25);
 }
 .psh-spc--channel .psh-spc__fam {
@@ -196,7 +196,7 @@
 .psh-spc--community .psh-spc__ic,
 .psh-spc--hub .psh-spc__ic {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-spc--place .psh-spc__fam,
 .psh-spc--community .psh-spc__fam,

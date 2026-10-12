@@ -19,13 +19,13 @@
   border: 1px solid transparent;
 }
 .psh-chat__rel--friend {
-  background: #EAF3FF;
-  color: #1D4FB8;
+  background: var(--c-blue-soft);
+  color: var(--c-blue);
   border-color: #2563EB;
 }
 .psh-chat__rel--saved {
-  background: #E8F7EE;
-  color: #0F6A3C;
+  background: var(--c-green-soft);
+  color: var(--c-green);
   border-color: #16804A;
 }
 

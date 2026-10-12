@@ -14,7 +14,7 @@
 .psh-login__card {
   width: 100%;
   max-width: 400px;
-  background: var(--psh-surface, #fff);
+  background: var(--bg);
   border-radius: 16px;
   padding: 32px 24px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
@@ -82,7 +82,7 @@
   border: 1px solid var(--psh-border, #e0e0e0);
   border-radius: 10px;
   font-size: 15px;
-  background: var(--psh-surface, #fff);
+  background: var(--bg);
   color: var(--psh-text, #111);
   transition: border-color 0.15s ease;
   width: 100%;
@@ -104,7 +104,7 @@
   margin-top: 8px;
   padding: 14px 20px;
   background: var(--psh-accent, #00a86b);
-  color: #fff;
+  color: var(--t-1);
   border: none;
   border-radius: 10px;
   font-size: 15px;
@@ -124,20 +124,20 @@
 
 .psh-login__error {
   padding: 12px 14px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--c-error-soft);
+  border: 1px solid var(--c-error);
   border-radius: 10px;
-  color: #dc2626;
+  color: var(--c-error);
   font-size: 13px;
   line-height: 1.4;
 }
 
 .psh-login__success {
   padding: 12px 14px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: var(--c-green-soft);
+  border: 1px solid var(--c-green);
   border-radius: 10px;
-  color: #16a34a;
+  color: var(--c-green, #16a34a);
   font-size: 13px;
   line-height: 1.4;
 }

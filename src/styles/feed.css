@@ -168,7 +168,7 @@
   padding: 3px 8px;
   font-size: var(--fs-12);
   font-weight: 500;
-  color: #fff;
+  color: var(--t-1);
   background: rgba(23, 32, 29, 0.72);
   border-radius: var(--r-xs);
 }
@@ -198,7 +198,7 @@
 }
 .psh-audio__play.is-on {
   background: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-audio .psh-wave {
   flex: 1 1 auto;
@@ -278,7 +278,7 @@
   height: 18px;
   border-radius: var(--r-full);
   background: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-pollopt__pct {
   font-weight: 600;
@@ -328,7 +328,7 @@
   border: 0;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.55);
-  color: #fff;
+  color: var(--t-1);
   font-size: 16px;
   cursor: pointer;
   backdrop-filter: blur(4px);
@@ -354,7 +354,7 @@
   width: 36px;
   height: 36px;
   border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border-top-color: var(--t-1);
   border-radius: 50%;
   animation: psh-spin 0.8s linear infinite;
   z-index: 3;
@@ -372,7 +372,7 @@
   border: 0;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.65);
-  color: #fff;
+  color: var(--t-1);
   font-size: var(--fs-13);
   cursor: pointer;
 }
@@ -386,6 +386,24 @@
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid var(--line);
+}
+/* Inline variant: karibu na jina (juku, si chini) */
+.psh-feed-social--inline {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  margin: 0 0 0 6px;
+  padding: 0;
+  border: 0;
+  vertical-align: middle;
+}
+.psh-feed-social--inline .psh-feed-social__btn {
+  padding: 2px 8px;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .psh-feed-social__btn {
   display: inline-flex;
@@ -413,12 +431,18 @@
 .psh-feed-social__btn--friend {
   background: var(--c-green);
   border-color: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-feed-social__btn--friend:hover {
   background: var(--c-green-600, #1a8c5a);
   border-color: var(--c-green-600, #1a8c5a);
-  color: #fff;
+  color: var(--t-1);
+}
+.psh-feed-social__btn--friend.is-active {
+  background: var(--bg-subtle);
+  border-color: var(--line-2);
+  color: var(--t-3);
+  cursor: default;
 }
 .psh-feed-social__btn--follow {
   background: var(--c-blue-soft);
@@ -427,7 +451,13 @@
 }
 .psh-feed-social__btn--follow:hover {
   background: var(--c-blue);
-  color: #fff;
+  color: var(--t-1);
+}
+.psh-feed-social__btn--follow.is-active {
+  background: var(--bg-subtle);
+  border-color: var(--line-2);
+  color: var(--t-3);
+  cursor: default;
 }
 .psh-feed-social__btn--connect {
   background: var(--bg);
@@ -443,8 +473,27 @@
   border-color: transparent;
   color: var(--c-green-700);
 }
+.psh-feed-social__btn--msg.is-active {
+  color: var(--t-3);
+  cursor: default;
+}
 .psh-feed-social__btn--msg:hover {
   background: var(--c-green-soft);
+}
+.psh-feed-social__btn--join {
+  background: var(--c-gold-soft, #fef3c7);
+  border-color: transparent;
+  color: var(--c-gold-700, #92400e);
+}
+.psh-feed-social__btn--join:hover {
+  background: var(--c-gold, #f59e0b);
+  color: var(--t-1);
+}
+.psh-feed-social__btn--join.is-active {
+  background: var(--bg-subtle);
+  border-color: var(--line-2);
+  color: var(--t-3);
+  cursor: default;
 }
 
 /* ── Live Activity (si chapisho la kawaida) ───────────────── */
@@ -479,7 +528,7 @@
 }
 .psh-live__badge--live {
   color: var(--c-error-600);
-  background: #fff;
+  background: var(--bg);
 }
 .psh-live__badge--soon {
   color: var(--av-gold-fg);
@@ -611,7 +660,7 @@
   padding: 2px 6px;
   font-size: var(--fs-11);
   font-weight: 500;
-  color: #fff;
+  color: var(--t-1);
   background: rgba(23, 32, 29, 0.7);
   border-radius: var(--r-xs);
 }
@@ -681,6 +730,10 @@
 }
 .psh-feedaction.is-saved:hover {
   background: var(--c-blue-soft);
+}
+.psh-feedaction--more {
+  padding: 7px 8px;
+  margin-left: 2px;
 }
 
 /* ── Hali tupu ────────────────────────────────────────────── */
@@ -814,13 +867,13 @@
 .psh-liveseg__pill.is-active {
   background: var(--c-green);
   border-color: var(--c-green);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-liveseg__dot {
   width: 7px;
   height: 7px;
   border-radius: var(--r-full);
-  background: #fff;
+  background: var(--bg);
   animation: psh-pulse 1.6s var(--ease) infinite;
 }
 
@@ -905,7 +958,7 @@
   height: 15px;
   border-radius: var(--r-full);
   background: var(--c-blue);
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-discover__meta {
   font-size: var(--fs-12);
@@ -1567,7 +1620,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  color: #fff;
+  color: var(--t-1);
 }
 .psh-status-story--media { background: #101815; }
 .psh-status-story__media {
@@ -1589,7 +1642,7 @@
   overflow-y: auto;
   padding: 24px 18px 20px;
   background: linear-gradient(180deg, transparent, rgb(0 0 0 / 76%) 28%);
-  color: #fff;
+  color: var(--t-1);
   font-size: clamp(1rem, 4vw, 1.35rem);
   font-weight: 600;
   line-height: 1.48;
@@ -1617,7 +1670,7 @@
   padding: 12px 14px;
   border-radius: 12px;
   background: rgb(0 0 0 / 58%);
-  color: #fff;
+  color: var(--t-1);
   font-size: var(--fs-14);
   line-height: 1.45;
   text-align: center;

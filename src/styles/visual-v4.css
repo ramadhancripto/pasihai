@@ -14,36 +14,36 @@
    ══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Kijani */
-  --pg-dark: #1d6444;          /* dark green — vitufe vikuu, icons imara */
-  --pg-dark-ink: #134a31;      /* maandishi ya kijani iliyokolea */
-  --pg-hover: #2a8a57;         /* hover: kijani angavu zaidi ya dark */
-  --pg-brand: #39985e;         /* logo green — utambulisho */
-  --pg-semi: #6cbc8c;          /* semi green — vipengele vya pili */
-  --pg-pale: #e9f6ee;          /* pale green — nyuso laini */
-  --pg-pale-2: #d3ecdd;        /* pale ya kati — selected */
+  /* Kijani — dark mode compatible */
+  --pg-dark: var(--c-green-700, #1d6444);
+  --pg-dark-ink: var(--c-green, #134a31);
+  --pg-hover: var(--c-green-600, #2a8a57);
+  --pg-brand: var(--c-green, #39985e);
+  --pg-semi: var(--c-green, #6cbc8c);
+  --pg-pale: var(--c-green-soft, #e9f6ee);
+  --pg-pale-2: var(--c-green-soft-2, #d3ecdd);
 
-  /* Bluu */
-  --pg-blue: #2b6fe0;          /* blue — taarifa, viungo */
-  --pg-blue-dark: #1f56b5;     /* blue iliyokolea — Channels primary */
-  --pg-blue-bright: #3d8dff;   /* bright blue — hali hai, ugunduzi */
-  --pg-blue-soft: #e7f0ff;     /* blue laini */
+  /* Bluu — dark mode compatible */
+  --pg-blue: var(--c-blue, #2b6fe0);
+  --pg-blue-dark: var(--c-blue-700, #1f56b5);
+  --pg-blue-bright: var(--c-blue-600, #3d8dff);
+  --pg-blue-soft: var(--c-blue-soft, #e7f0ff);
 
-  /* Dhahabu, nyekundu, neutral */
-  --pg-gold: #d9a22a;
-  --pg-gold-soft: #fbf1d4;
-  --pg-gold-ink: #7e5d0e;
-  --pg-red: #d23f3f;
-  --pg-red-soft: #fdeaea;
+  /* Dhabahu, nyekundu, neutral */
+  --pg-gold: var(--c-gold, #d9a22a);
+  --pg-gold-soft: var(--c-gold-soft);
+  --pg-gold-ink: var(--c-gold, #7e5d0e);
+  --pg-red: var(--c-error-600, #d23f3f);
+  --pg-red-soft: var(--c-error-soft);
 
-  --pg-canvas: #eef5f1;        /* mandhari ya ukurasa */
-  --pg-surface: #ffffff;
-  --pg-line: #d9e6df;
-  --pg-ink: #13201a;
-  --pg-ink-2: #3e4d46;
-  --pg-mute: #66746e;
-  --pg-disabled-bg: #e3ebe7;
-  --pg-disabled-ink: #8d9b94;
+  --pg-canvas: var(--bg);
+  --pg-surface: var(--bg);
+  --pg-line: var(--line);
+  --pg-ink: var(--t-1);
+  --pg-ink-2: var(--t-2);
+  --pg-mute: var(--t-3);
+  --pg-disabled-bg: var(--line);
+  --pg-disabled-ink: var(--t-3);
   --pg-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -65,14 +65,14 @@ body {
 .psh-btn--primary,
 .psh-gu-btn--primary {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   border: 1px solid var(--pg-dark);
   box-shadow: 0 2px 8px rgba(29, 100, 68, 0.22);
 }
 .psh-btn--primary svg,
 .psh-gu-btn--primary svg {
-  color: #ffffff;
-  stroke: #ffffff;
+  color: var(--t-1);
+  stroke: var(--t-1);
 }
 .psh-btn--primary:hover:not(:disabled),
 .psh-gu-btn--primary:hover:not(:disabled) {
@@ -83,7 +83,7 @@ body {
 /* Pressed — inverted: nyeupe + dark green */
 .psh-btn--primary:active:not(:disabled),
 .psh-gu-btn--primary:active:not(:disabled) {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark-ink);
   border-color: var(--pg-dark);
   box-shadow: inset 0 0 0 1px var(--pg-dark);
@@ -104,7 +104,7 @@ body {
 .psh-btn:not([class*="--"]) {
   background: var(--pg-pale);
   color: var(--pg-dark-ink);
-  border: 1px solid #c9e4d4;
+  border: 1px solid var(--line);
 }
 .psh-btn--secondary:hover:not(:disabled),
 .psh-btn:not([class*="--"]):hover:not(:disabled) {
@@ -114,13 +114,13 @@ body {
 .psh-btn--secondary:active:not(:disabled),
 .psh-btn:not([class*="--"]):active:not(:disabled) {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   border-color: var(--pg-dark);
 }
 .psh-btn--secondary:active:not(:disabled) svg,
 .psh-btn:not([class*="--"]):active:not(:disabled) svg {
-  color: #ffffff;
-  stroke: #ffffff;
+  color: var(--t-1);
+  stroke: var(--t-1);
 }
 
 /* Ghost / quiet — uwazi, hover pale, active dark */
@@ -133,18 +133,18 @@ body {
 .psh-btn--ghost:hover:not(:disabled),
 .psh-gu-btn--ghost:hover:not(:disabled) {
   background: var(--pg-pale);
-  border-color: #c9e4d4;
+  border-color: var(--line);
 }
 .psh-btn--ghost:active:not(:disabled),
 .psh-gu-btn--ghost:active:not(:disabled) {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   border-color: var(--pg-dark);
 }
 .psh-btn--ghost:active:not(:disabled) svg,
 .psh-gu-btn--ghost:active:not(:disabled) svg {
-  color: #ffffff;
-  stroke: #ffffff;
+  color: var(--t-1);
+  stroke: var(--t-1);
 }
 
 /* Blue — taarifa/ugunduzi/Channels (publishing) */
@@ -152,7 +152,7 @@ body {
 .psh-sp--channel .psh-btn--primary {
   background: var(--pg-blue-dark);
   border-color: var(--pg-blue-dark);
-  color: #ffffff;
+  color: var(--t-1);
   box-shadow: 0 2px 8px rgba(31, 86, 181, 0.22);
 }
 .psh-btn--info:hover:not(:disabled),
@@ -162,7 +162,7 @@ body {
 }
 .psh-btn--info:active:not(:disabled),
 .psh-sp--channel .psh-btn--primary:active:not(:disabled) {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-blue-dark);
   border-color: var(--pg-blue-dark);
 }
@@ -175,14 +175,14 @@ body {
 /* Hatari */
 .psh-btn--danger {
   background: var(--pg-red);
-  color: #ffffff;
+  color: var(--t-1);
   border: 1px solid var(--pg-red);
 }
 .psh-btn--danger:hover:not(:disabled) {
   background: #e25252;
 }
 .psh-btn--danger:active:not(:disabled) {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-red);
   border-color: var(--pg-red);
 }
@@ -201,7 +201,7 @@ body {
 .psh-createbar__plus,
 .psh-chat__fab {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   box-shadow: 0 4px 14px rgba(29, 100, 68, 0.28);
 }
 .psh-createbar__plus:hover,
@@ -210,7 +210,7 @@ body {
 }
 .psh-createbar__plus:active,
 .psh-chat__fab:active {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark-ink);
   box-shadow: inset 0 0 0 2px var(--pg-dark);
 }
@@ -225,7 +225,7 @@ body {
 }
 .psh-icobtn:active {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-nav .psh-nav__icon {
   color: var(--pg-ink-2);
@@ -245,7 +245,7 @@ body {
 /* ══ 3. HOME — tabs na chips ════════════════════════════════ */
 .psh-htabs__scroll {
   background: var(--pg-pale);
-  border: 1px solid #d3e6db;
+  border: 1px solid var(--line);
 }
 .psh-htab {
   color: var(--pg-ink-2);
@@ -256,33 +256,33 @@ body {
 }
 .psh-htab.is-active {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   box-shadow: 0 2px 8px rgba(29, 100, 68, 0.25);
 }
 .psh-htab.is-active:active {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
 }
 
 /* ══ 4. CHAT INBOX — tajiri, si nyeupe tupu ═════════════════ */
 .psh-chat__pane--list {
-  background: #eaf4ee;
+  background: var(--c-green-soft);
 }
 .psh-chat__head {
-  background: #eaf4ee;
-  border-bottom: 1px solid #d3e6db;
+  background: var(--c-green-soft);
+  border-bottom: 1px solid var(--line);
 }
 .psh-chat__title {
   color: var(--pg-ink);
 }
 .psh-chat__search {
-  background: #ffffff;
-  border: 1px solid #cfe3d7;
+  background: var(--bg);
+  border: 1px solid var(--line);
   color: var(--pg-mute);
 }
 .psh-chat__filter {
-  background: #ffffff;
-  border: 1px solid #cfe3d7;
+  background: var(--bg);
+  border: 1px solid var(--line);
   color: var(--pg-ink-2);
 }
 .psh-chat__filter:hover {
@@ -292,27 +292,27 @@ body {
 .psh-chat__filter.is-active {
   background: var(--pg-dark);
   border-color: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-chat__list {
   padding: 6px 10px 12px;
 }
 .psh-chat__row {
-  background: #ffffff;
-  border: 1px solid #e0ece5;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 18px;
   margin: 6px 0;
   box-shadow: 0 1px 2px rgba(20, 60, 40, 0.05);
   position: relative;
 }
 .psh-chat__row:hover {
-  background: #f6fbf8;
-  border-color: #c5e0d0;
+  background: var(--c-green-soft);
+  border-color: var(--line);
 }
 /* Unread — nyuso ya kijani + kipau cha brand */
 .psh-chat__row:has(.psh-chat__unread) {
-  background: #f1faf5;
-  border-color: #bfe0cd;
+  background: var(--c-green-soft);
+  border-color: var(--line);
 }
 .psh-chat__row:has(.psh-chat__unread)::before {
   content: "";
@@ -346,7 +346,7 @@ body {
 }
 .psh-chat__unread {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   box-shadow: 0 2px 6px rgba(29, 100, 68, 0.3);
 }
 .psh-chat__sync,
@@ -361,7 +361,7 @@ body {
 
 /* ══ 5. CHAT CONVERSATION — mazingira ya PASIHAI ════════════ */
 .psh-chat__thread {
-  background: #efe6d3;
+  background: var(--c-gold-soft);
   background-image: radial-gradient(rgba(120, 96, 60, 0.07) 1px, transparent 1.2px);
   background-size: 18px 18px;
 }
@@ -371,39 +371,39 @@ body {
 }
 .psh-msg--me .psh-msg__bubble {
   background: var(--pg-pale-2);
-  border: 1px solid #b4dcc5;
+  border: 1px solid var(--line);
   color: var(--pg-ink);
 }
 .psh-msg--them .psh-msg__bubble {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
 }
 .psh-chat__composer {
-  background: #eaf4ee;
-  border-top: 1px solid #d3e6db;
+  background: var(--c-green-soft);
+  border-top: 1px solid var(--line);
 }
 .psh-chat__input {
-  background: #ffffff;
-  border: 1px solid #c9e0d3;
+  background: var(--bg);
+  border: 1px solid var(--line);
   color: var(--pg-ink);
 }
 .psh-chat__cbtn {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
   border-radius: 999px;
 }
 .psh-chat__cbtn:hover {
   background: var(--pg-hover);
 }
 .psh-chat__cbtn:active {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
   box-shadow: inset 0 0 0 1px var(--pg-dark);
 }
 .psh-chat__banner {
   background: var(--pg-blue-soft);
   color: var(--pg-blue-dark);
-  border: 1px solid #cadbfb;
+  border: 1px solid var(--line);
 }
 
 /* ══ 6. SPACES — Channels (blue) vs Hubs (green+gold) ═══════ */
@@ -413,7 +413,7 @@ body {
 }
 .psh-sp--channel .psh-sp__card {
   border-left: 4px solid var(--pg-blue);
-  background: #fbfdff;
+  background: var(--c-blue-soft);
 }
 .psh-sp--channel .psh-sp__mgicon {
   background: var(--pg-blue-soft);
@@ -424,15 +424,15 @@ body {
 }
 .psh-sp[data-type="hub"] .psh-sp__card {
   border-top: 4px solid var(--pg-gold);
-  background: #fffdf7;
+  background: var(--bg-subtle);
 }
 .psh-sp[data-type="hub"] .psh-sp__mgicon {
   background: var(--pg-gold-soft);
   color: var(--pg-gold-ink);
 }
 .psh-sp__manageRow {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
   border-radius: 14px;
   color: var(--pg-ink);
   transition: background-color 160ms var(--pg-ease), color 160ms var(--pg-ease);
@@ -442,10 +442,10 @@ body {
 }
 .psh-sp__manageRow:active {
   background: var(--pg-dark);
-  color: #ffffff;
+  color: var(--t-1);
 }
 .psh-sp__manageRow:active .psh-sp__mgicon {
-  background: #ffffff;
+  background: var(--bg);
   color: var(--pg-dark);
 }
 
@@ -458,11 +458,11 @@ body {
   color: var(--pg-blue-dark);
 }
 .psh-gu-card {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
 }
 .psh-gu-card:hover {
-  border-color: #b9dcca;
+  border-color: var(--line);
 }
 .psh-gu-chip-ok {
   background: var(--pg-pale-2);
@@ -479,8 +479,8 @@ body {
   color: var(--pg-gold-ink);
 }
 .psh-pagesection {
-  background: #ffffff;
-  border: 1px solid #dbe9e1;
+  background: var(--bg);
+  border: 1px solid var(--line);
 }
 .psh-pagesection__h {
   color: var(--pg-dark-ink);

@@ -9,7 +9,7 @@
   padding: 6px 10px; border: 1px solid var(--psh-border); border-radius: 999px;
   background: var(--psh-surface); color: var(--psh-text-secondary); font: inherit; font-size: 13px; cursor: pointer;
 }
-.psh-ps__step[aria-current='step'] { background: var(--psh-accent); border-color: var(--psh-accent); color: #fff; }
+.psh-ps__step[aria-current='step'] { background: var(--psh-accent); border-color: var(--psh-accent); color: var(--t-1); }
 
 .psh-ps__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
 .psh-ps__card {
@@ -42,7 +42,7 @@
 .psh-ps__h { font-size: 15px; margin: 0 0 8px; }
 
 .psh-ps__warn {
-  margin-top: 10px; padding: 12px; border-radius: 12px; border: 1px solid #b08a1a; background: #fbf4e0; color: #1b1f1d;
+  margin-top: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--c-gold); background: var(--c-gold-soft); color: var(--t-1);
 }
 .psh-ps__warn p { margin: 0 0 8px; }
 
@@ -51,14 +51,14 @@
 
 .psh-ps__preview { padding: 12px; border: 1px solid var(--psh-border); border-radius: 12px; background: var(--psh-surface); display: flex; flex-direction: column; gap: 10px; }
 .psh-ps__pollq { font-weight: 700; margin: 0 0 6px; }
-.psh-ps__errors { margin: 0; padding-left: 18px; color: #d6322c; font-size: 14px; }
+.psh-ps__errors { margin: 0; padding-left: 18px; color: var(--c-error); font-size: 14px; }
 
 .psh-ps__footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
 .psh-ps__status { min-height: 1.2em; margin: 0; font-size: 14px; color: var(--psh-text-secondary); }
-.psh-ps__status--ok { color: #0f7a5c; }
-.psh-ps__status--error { color: #d6322c; }
-.psh-ps__status--saving { color: #1f5fc2; }
+.psh-ps__status--ok { color: var(--c-green, #0f7a5c); }
+.psh-ps__status--error { color: var(--c-error); }
+.psh-ps__status--saving { color: var(--c-blue, #1f5fc2); }
 
-.psh-spost { color: #1b1f1d; overflow-wrap: anywhere; }
+.psh-spost { color: var(--t-1); overflow-wrap: anywhere; }
 .psh-spost--article { display: flex; flex-direction: column; gap: 8px; }
 .psh-spost--emphasis, .psh-spost--quote { padding: 0; }

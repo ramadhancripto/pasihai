@@ -138,7 +138,7 @@
   height: 17px;
   border-radius: var(--r-full);
   background: var(--c-blue);
-  color: #fff;
+  color: var(--t-1);
   border: 2px solid var(--bg);
   bottom: 8px;
 }
@@ -153,7 +153,7 @@
   padding: 1px 6px 1px 4px;
   border-radius: var(--r-full);
   background: var(--c-error);
-  color: #fff;
+  color: var(--t-1);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -164,7 +164,7 @@
   width: 5px;
   height: 5px;
   border-radius: var(--r-full);
-  background: #fff;
+  background: var(--bg);
   animation: psh-pulse 1.6s var(--ease) infinite;
 }
 @keyframes psh-pulse {
@@ -290,9 +290,12 @@
   gap: var(--s-2);
   margin: 0 calc(var(--s-4) * -1);
   padding: 0 var(--s-4);
-  background: var(--bg);
-  border-bottom: 1px solid var(--line);
-  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-dim, var(--bg)) 90%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 0;
+  border-top: 0;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
 }
 .psh-htabs__scroll {
   display: flex;
@@ -334,7 +337,7 @@
   bottom: 0;
   height: 2px;
   border-radius: var(--r-full);
-  background: var(--c-green);
+  background: var(--c-primary-container);
 }
 .psh-htabs__filter {
   flex: 0 0 auto;
@@ -490,7 +493,7 @@
   cursor: pointer;
 }
 .psh-strip__mode:hover {
-  background: #e3eefe;
+  background: var(--c-blue-soft);
 }
 
 /* ── Kadi ya hali ya ujenzi ───────────────────────────────── */

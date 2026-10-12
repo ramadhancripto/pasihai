@@ -96,7 +96,7 @@
 .psh-qp__chip[aria-pressed='true'] {
   background: var(--psh-accent);
   border-color: var(--psh-accent);
-  color: #fff;
+  color: var(--t-1);
 }
 
 .psh-qp__toolform {
@@ -234,13 +234,13 @@
 }
 
 .psh-qp__status--ok {
-  color: #18a982;
+  color: var(--c-green, #18a982);
 }
 
 .psh-qp__status--warn {
-  color: #b08a1a;
+  color: var(--c-gold, #b08a1a);
 }
 
 .psh-qp__status--error {
-  color: #d6322c;
+  color: var(--c-error, #d6322c);
 }
