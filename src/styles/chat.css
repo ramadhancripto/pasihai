@@ -1401,3 +1401,41 @@
     max-width: 1160px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE overrides for Chat
+   ══════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] .psh-chat__ava--clay,
+[data-theme="dark"] .psh-chat__ava--plum,
+[data-theme="dark"] .psh-chat__ava--slate,
+[data-theme="dark"] .psh-chat__ava--teal {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .psh-msg--me .psh-msg__bubble {
+  background: var(--c-green-700);
+  color: #fff;
+}
+
+[data-theme="dark"] .psh-chat__thread {
+  background: var(--bg-sunken);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .psh-chat__ava--clay,
+  :root:not([data-theme="light"]) .psh-chat__ava--plum,
+  :root:not([data-theme="light"]) .psh-chat__ava--slate,
+  :root:not([data-theme="light"]) .psh-chat__ava--teal {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  :root:not([data-theme="light"]) .psh-msg--me .psh-msg__bubble {
+    background: var(--c-green-700);
+    color: #fff;
+  }
+
+  :root:not([data-theme="light"]) .psh-chat__thread {
+    background: var(--bg-sunken);
+  }
+}

@@ -53,6 +53,7 @@ import {
 } from './components/system/SystemPanels.jsx'
 import { syncEngine } from './utils/syncEngine.js'
 import { outboxManager } from './utils/outboxManager.js'
+import { useTheme } from './hooks/useTheme.js'
 
 // 'studio' ni Creator Studio: inafikiwa kutoka kwenye CreatePanel (kiingilio kimoja) na hash #/studio.
 const NAV_ROUTE_IDS = new Set([...NAV_ITEMS.map(({ id }) => id), 'studio'])
@@ -81,6 +82,7 @@ export default function App() {
   const [filter, setFilter] = useState('all')
   const [viewMode, setViewMode] = useState('auto')
   const [dataSaver, setDataSaver] = useState(true)
+  const { isDark, toggle: toggleTheme } = useTheme()
   // Kila kitendo halisi (chapisha · penda · hifadhi · fuata) kinasasisha skrini.
   const [feedVersion, setFeedVersion] = useState(0)
   const refreshFeed = useCallback(() => setFeedVersion((v) => v + 1), [])
@@ -570,6 +572,8 @@ export default function App() {
           onMore={() => openTop({ type: 'more' })}
           onDataSaved={() => openTop({ type: 'datasaved' })}
           onSystem={() => openTop({ type: 'system' })}
+          isDark={isDark}
+          onToggleTheme={toggleTheme}
         />
       ) : null}
 

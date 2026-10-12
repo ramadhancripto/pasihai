@@ -88,6 +88,43 @@
 .psh-feedtext__more:hover {
   text-decoration: underline;
 }
+
+/* Video tappable area */
+.psh-feeditem__video-tappable {
+  cursor: pointer;
+  border-radius: var(--card-r);
+  overflow: hidden;
+  transition: transform var(--dur-1) var(--ease);
+}
+.psh-feeditem__video-tappable:active {
+  transform: scale(0.99);
+}
+
+/* ── Identity inline action ──────────────────────────────── */
+.psh-ident__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border: 1px solid var(--c-green);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-green-700);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--dur-1), color var(--dur-1);
+}
+.psh-ident__action:hover {
+  background: var(--c-green-soft);
+}
+.psh-ident__action--sent {
+  border-color: var(--line-2);
+  color: var(--t-3);
+  cursor: default;
+}
 .psh-feedtext + .psh-feedmedia,
 .psh-feedtext + .psh-audio,
 .psh-feedtext + .psh-live,

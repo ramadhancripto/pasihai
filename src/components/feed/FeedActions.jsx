@@ -1,14 +1,12 @@
 // ══════════════════════════════════════════════════════════════
 // PASIHAI — FEED ACTIONS (halisi)
-// ♡ Kupenda · 💬 Maoni · ↗ Shiriki · [hifadhi] · ⋯ zaidi
+// ♡ Kupenda · 💬 Maoni · ↗ Repost · ↗ Shiriki · [hifadhi] · ⋯
 //
-// Hali zote zinahifadhiwa kwa feedService → contentRepository
-// (hali ya kikao). Hivyo: kupenda kunabaki, kuhifadhi kunaonekana
-// kwenye "Zilizohifadhiwa", maoni yanahesabiwa halisi.
+// Hali zote zinahifadhiwa kwa feedService → contentRepository.
 // ══════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react'
-import { IconHeart, IconComment, IconShare, IconBookmark, IconMoreVertical } from '../icons.jsx'
+import { IconHeart, IconComment, IconShare, IconBookmark, IconMoreVertical, IconRepost } from '../icons.jsx'
 import { formatCount } from '../../utils/format.js'
 
 export default function FeedActions({
@@ -23,7 +21,6 @@ export default function FeedActions({
   onOpenMenu,
 }) {
   const [busy, setBusy] = useState(false)
-  const [hidden, setHidden] = useState(false)
   const [count, setCount] = useState(stats.comments ?? 0)
 
   useEffect(() => {
@@ -43,7 +40,7 @@ export default function FeedActions({
   }
 
   return (
-    <div className={`psh-feedactions ${hidden ? 'is-busy' : ''}`}>
+    <div className="psh-feedactions">
       <button
         type="button"
         className={`psh-feedaction ${liked ? 'is-liked' : ''}`}
@@ -53,7 +50,7 @@ export default function FeedActions({
         aria-label={liked ? 'Ondoa kupenda' : 'Penda'}
       >
         <IconHeart size={19} filled={liked} />
-        {reactions > 0 ? <span>{formatCount(reactions)}</span> : <span className="psh-feedaction__word">Penda</span>}
+        {reactions > 0 ? <span>{formatCount(reactions)}</span> : null}
       </button>
 
       <button
@@ -64,7 +61,7 @@ export default function FeedActions({
         aria-label="Maoni"
       >
         <IconComment size={19} />
-        {count > 0 ? <span>{formatCount(count)}</span> : <span className="psh-feedaction__word">Maoni</span>}
+        {count > 0 ? <span>{formatCount(count)}</span> : null}
       </button>
 
       <button
@@ -75,7 +72,7 @@ export default function FeedActions({
         aria-label="Shiriki"
       >
         <IconShare size={19} />
-        {(stats.shares ?? 0) > 0 ? <span>{formatCount(stats.shares)}</span> : <span className="psh-feedaction__word">Shiriki</span>}
+        {(stats.shares ?? 0) > 0 ? <span>{formatCount(stats.shares)}</span> : null}
       </button>
 
       <button

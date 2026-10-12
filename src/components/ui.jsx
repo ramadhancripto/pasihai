@@ -208,6 +208,7 @@ export function Identity({
   time,
   subtitle,
   pill = null,
+  action = null,
   size = 40,
   showHandle = false,
   compact = false,
@@ -232,6 +233,7 @@ export function Identity({
           </button>
           {user.verified ? <VERIFIED /> : null}
           {pill}
+          {action}
         </div>
         <div className="psh-ident__meta">
           {rel ? (

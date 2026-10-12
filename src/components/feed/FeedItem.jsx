@@ -35,6 +35,7 @@ export default function FeedItem({
   onVote,
   onOpenLive,
   onCta,
+  onOpenVideo,
   onFollow,
   onFriendRequest,
   onMessage,
@@ -68,6 +69,27 @@ export default function FeedItem({
           pill={
             item.role ? <EntityPill type={item.entity.type} label={item.role} /> : null
           }
+          action={
+            showSocial && socialState[item.entity?.id]?.friendRequested ? (
+              <span className="psh-ident__action psh-ident__action--sent">Ombi limetumwa</span>
+            ) : showSocial && !isChannel ? (
+              <button
+                type="button"
+                className="psh-ident__action"
+                onClick={(e) => { e.stopPropagation(); onFriendRequest?.(item.entity) }}
+              >
+                Omba Urafiki
+              </button>
+            ) : showSocial && isChannel ? (
+              <button
+                type="button"
+                className="psh-ident__action"
+                onClick={(e) => { e.stopPropagation(); onFollow?.(item.entity) }}
+              >
+                Fuata
+              </button>
+            ) : null
+          }
           time={showTime && item.ageMinutes != null ? formatAge(item.ageMinutes) : undefined}
           onOpen={() => onOpenProfile?.(item.entity.id)}
         />
@@ -80,13 +102,20 @@ export default function FeedItem({
           </p>
         ) : null}
 
-        <Body
-          item={item}
-          onToast={onToast}
-          onVote={onVote}
-          onOpenLive={onOpenLive}
-          onCta={onCta}
-        />
+        <div
+          className={item.kind === 'video' || item.kind === 'reel' ? 'psh-feeditem__video-tappable' : ''}
+          onClick={(item.kind === 'video' || item.kind === 'reel') ? () => onOpenVideo?.(item) : undefined}
+          role={item.kind === 'video' || item.kind === 'reel' ? 'button' : undefined}
+          aria-label={item.kind === 'video' || item.kind === 'reel' ? 'Fungua video' : undefined}
+        >
+          <Body
+            item={item}
+            onToast={onToast}
+            onVote={onVote}
+            onOpenLive={onOpenLive}
+            onCta={onCta}
+          />
+        </div>
       </div>
 
       <FeedActions

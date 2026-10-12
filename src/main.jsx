@@ -31,6 +31,7 @@ import './styles/quick-post.css'
 import './styles/mentions.css'
 import './styles/feed-modes.css'
 import './styles/post-studio.css'
+import './styles/video-reels.css'
 
 import App from './App.jsx'
 import Splash from './components/Splash.jsx'

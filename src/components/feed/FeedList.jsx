@@ -20,6 +20,7 @@ import { feedService } from '../../services/feedService.js'
 import { chatService } from '../../services/chatService.js'
 import useAsyncData from '../../hooks/useAsyncData.js'
 import FeedItem from './FeedItem.jsx'
+import VideoReelViewer from '../video/VideoReelViewer.jsx'
 import { Avatar, EntityAction } from '../ui.jsx'
 import { IconInfo, IconSpark, IconArrowRight, IconCheck } from '../icons.jsx'
 
@@ -57,6 +58,7 @@ export default function FeedList({
   const vocab = useAsyncData(() => feedService.getEntityVocabulary(), [])
   const [segment, setSegment] = useState('live')
   const [followBusy, setFollowBusy] = useState(null)
+  const [reelIndex, setReelIndex] = useState(null) // index of video item to open in reel viewer
 
   /* ── Vitendo vya chapisho (halisi — hali ya kikao) ──────── */
   const [busy, setBusy] = useState(false)
@@ -249,6 +251,11 @@ export default function FeedList({
               onOpenShare={(it) => onOpenPanel?.({ type: 'share', payload: it })}
               onOpenMenu={(it) => onOpenPanel?.({ type: 'postmenu', payload: it })}
               onCta={openCta}
+              onOpenVideo={(it) => {
+                const videoItems = items.filter((x) => x.kind === 'video' || x.kind === 'reel')
+                const idx = videoItems.findIndex((x) => x.id === it.id)
+                setReelIndex(idx >= 0 ? idx : 0)
+              }}
               onFollow={handleFollow}
               onFriendRequest={handleFriendRequest}
               onMessage={handleMessage}
@@ -320,6 +327,23 @@ export default function FeedList({
           </ul>
         </section>
       ) : null}
+
+      {/* ── Video Reel Viewer ──────────────────────────────── */}
+      {reelIndex !== null && (
+        <VideoReelViewer
+          items={items.filter((it) => it.kind === 'video' || it.kind === 'reel')}
+          startIndex={reelIndex}
+          onClose={() => setReelIndex(null)}
+          onLike={toggleLike}
+          onComment={(it) => onOpenPanel?.({ type: 'comments', payload: it })}
+          onShare={(it) => onOpenPanel?.({ type: 'share', payload: it })}
+          onRepost={(it) => onToast?.('Repost — bado haijaunganishwa')}
+          onSave={toggleSave}
+          onFollow={handleFollow}
+          onFriendRequest={handleFriendRequest}
+          friendStates={socialState}
+        />
+      )}
 
       {/* Mwisho wa mkondo — ni wa kweli, si maudhui ya kubuni */}
       {items.length > 0 ? (
