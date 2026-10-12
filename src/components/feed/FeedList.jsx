@@ -128,8 +128,12 @@ export default function FeedList({
 
   const handleMessage = async (entity) => {
     try {
-      await chatService.startDirect(entity.id)
-      onToast?.(`Mazungumzo na ${entity.name || 'mtumiaji'} yamefunguliwa`)
+      const res = await chatService.startDirect(entity.id)
+      if (!res?.conversation) {
+        onToast?.('Mazungumzo halikuweza kuanzishwa')
+        return
+      }
+      onToast?.(`Mazungumzo na ${res.conversation.title || entity.name || 'mtumiaji'} yamefunguliwa`)
       onOpenChat?.()
     } catch (e) {
       onToast?.('Imeshindikana kuanzisha mazungumzo')

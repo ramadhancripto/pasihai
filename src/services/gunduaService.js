@@ -271,6 +271,7 @@ export const gunduaService = {
 
   async openChat(accountId) {
     const res = await chatRepository.startDirect(accountId)
+    if (!res || !res.conversation) return null
     return { conversation: res.conversation, created: res.created }
   },
 

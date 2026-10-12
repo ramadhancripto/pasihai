@@ -92,9 +92,17 @@ export default function Gundua({ onToast, onOpenChat }) {
       accept: async (person) => { await gunduaService.respondFriend(person.id, 'accept'); onToast?.(`${person.name || 'Mtumiaji'} amekubaliwa — mazungumzo yapo Chat`); reload() },
       decline: async (person) => { await gunduaService.respondFriend(person.id, 'decline'); onToast?.('Ombi la urafiki limekataliwa'); reload() },
       chat: async (item) => {
-        const convo = await gunduaService.openChat(item.id)
-        onToast?.(`Mazungumzo yameandaliwa (${convo?.name || item.name || 'Chat'})`)
-        if (onOpenChat) onOpenChat()
+        try {
+          const convo = await gunduaService.openChat(item.id)
+          if (!convo?.conversation) {
+            onToast?.('Mazungumzo halikuweza kuanzishwa — angalia connection')
+            return
+          }
+          onToast?.(`Mazungumzo yameandaliwa (${convo.conversation.title || item.name || 'Chat'})`)
+          if (onOpenChat) onOpenChat()
+        } catch (err) {
+          onToast?.(`Hitilafu: ${err?.message || 'Mazungumzo hayukuweza kuanzishwa'}`)
+        }
       },
       invite: async (person) => {
         const text = chatService.inviteText(person)
