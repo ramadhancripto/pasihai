@@ -305,6 +305,9 @@
 }
 .psh-media__asset--image,
 .psh-media__asset--video { object-fit: contain; }
+/* ── Adaptive orientation ──────────────────────────────────── */
+.psh-media--portrait .psh-media__asset { object-fit: contain; }
+.psh-media--landscape .psh-media__asset { object-fit: contain; }
 /* Glyph ya aina ya media — kubwa na hafifu, si kelele */
 .psh-media__glyph {
   display: grid;

@@ -71,14 +71,16 @@
   max-height: 65vh;
 }
 
-/* Portrait video: taller */
+/* Portrait media: taller, constrained to prevent oversized vertical media */
 .psh-feed--large-post-feed .psh-media--portrait {
-  max-height: 75vh;
+  max-height: min(80vh, 720px);
+  aspect-ratio: auto;
 }
 
-/* Landscape video: wider */
+/* Landscape media: wider, natural horizontal expansion */
 .psh-feed--large-post-feed .psh-media--landscape {
-  max-height: 55vh;
+  max-height: min(55vh, 480px);
+  aspect-ratio: auto;
 }
 
 /* ── Vertical Slide ────────────────────────────────────────── */
@@ -290,5 +292,18 @@
     margin: 0 auto;
     min-height: auto;
     height: calc(100dvh - 60px);
+  }
+}
+
+/* ── Mobile: maximize media width, minimize margins ────────── */
+@media (max-width: 520px) {
+  .psh-feed--large-post-feed .psh-feedmedia {
+    margin: 8px calc(var(--card-pad) * -1) 0;
+  }
+  .psh-feed--large-post-feed .psh-media--portrait {
+    max-height: min(70vh, 560px);
+  }
+  .psh-feed--large-post-feed .psh-media--landscape {
+    max-height: min(45vh, 360px);
   }
 }

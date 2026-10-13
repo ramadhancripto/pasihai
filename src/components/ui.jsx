@@ -301,9 +301,18 @@ export function MediaFrame({
   poster,
 }) {
   const hasMedia = Boolean(mediaUrl)
+  // ── Adaptive orientation: detect portrait/landscape from ratio ──
+  const orientClass = (() => {
+    if (!ratio) return ''
+    const parts = String(ratio).split('/').map(Number)
+    if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) {
+      return parts[0] > parts[1] ? 'psh-media--landscape' : parts[0] < parts[1] ? 'psh-media--portrait' : ''
+    }
+    return ''
+  })()
   return (
     <div
-      className={`psh-media ${rounded ? 'psh-media--rounded' : ''} psh-media--tone-${tone}`}
+      className={`psh-media ${rounded ? 'psh-media--rounded' : ''} psh-media--tone-${tone} ${orientClass}`}
       style={{ aspectRatio: ratio }}
       role={hasMedia && mediaType === 'video' ? undefined : 'img'}
       aria-label={caption || 'Media'}

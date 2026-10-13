@@ -70,11 +70,23 @@ export default function FeedItem({
     />
   ) : null
 
+  // ── Adaptive: detect media orientation from ratio ──
+  const mediaOrient = (() => {
+    const r = item.media?.ratio
+    if (!r) return ''
+    const parts = String(r).split('/').map(Number)
+    if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) {
+      return parts[0] > parts[1] ? 'landscape' : parts[0] < parts[1] ? 'portrait' : ''
+    }
+    return ''
+  })()
+
   return (
     <article
       className="psh-feeditem"
       data-kind={item.kind}
       data-id={item.id}
+      data-orient={mediaOrient || undefined}
       aria-label={`Chapisho kutoka ${item.entity.name}`}
     >
       <header className="psh-feeditem__head">
