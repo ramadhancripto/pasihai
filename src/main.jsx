@@ -32,6 +32,10 @@ import './styles/mentions.css'
 import './styles/feed-modes.css'
 import './styles/post-studio.css'
 import './styles/video-reels.css'
+// Safu ya juu ya Home feed (upana · media ya adaptive · desktop layout)
+import './styles/feed-responsive.css'
+// Safu ya juu ya Status (uundaji · preview · muonekano wa story)
+import './styles/status-studio.css'
 
 import App from './App.jsx'
 import Splash from './components/Splash.jsx'

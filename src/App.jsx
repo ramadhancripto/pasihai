@@ -467,8 +467,9 @@ export default function App() {
         }
       case 'status':
         return {
-          title: 'Status yangu',
-          subtitle: 'Saa 24 kisha hupotea',
+          /* Kichwa kinaonyeshwa na composer yenyewe (kichwa kimoja, si mawili) */
+          title: null,
+          subtitle: null,
           back: true,
           body: (
             <StatusComposerPanel onToast={toastIt} onClose={closeAll} onCreated={refreshFeed} />

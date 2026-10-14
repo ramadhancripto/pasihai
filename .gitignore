@@ -9,3 +9,14 @@ dist
 .env.local
 .env.*.local
 supabase/.temp/
+# Additional secrets and private credentials
+*.pem
+*.key
+credentials.json
+*service-account*.json
+
+# Local backups and patches
+before-migration-repair.patch
+migration-archive/
+migration-backup/
+upabasefixes

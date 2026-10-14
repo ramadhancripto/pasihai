@@ -13,6 +13,7 @@ import {
   IconStorefront,
   IconPlus,
 } from './icons.jsx'
+import { mediaAspect, orientationOf, ORIENT } from '../utils/mediaLayout.js'
 
 /* ── Initials ─────────────────────────────────────────────── */
 
@@ -286,7 +287,13 @@ export function defaultRelationship(user) {
   return user.relationship ?? REL_BY_TYPE[user.type] ?? 'Mtumiaji'
 }
 
-/* ── MediaFrame: mock placeholder au media iliyohifadhiwa ─── */
+/* ── MediaFrame: mock placeholder au media iliyohifadhiwa ───
+   Kipimo (aspect-ratio) kinatoka kwa data: `ratio` (au width/height
+   zilizohifadhiwa kwenye media_meta). CSS inatumia:
+     --psh-ar    : uwiano kamili (mfano "9 / 16")
+     --psh-ar-w  : namba (w / h) kwa hesabu ya upana
+   Hivyo media inaweza kupunguza UPANA wake ikiwa urefu umefikia
+   kikomo — hakuna letterbox tupu isiyo ya lazima.               */
 export function MediaFrame({
   tone = 'green',
   ratio = '4 / 3',
@@ -299,21 +306,31 @@ export function MediaFrame({
   mediaUrl,
   mediaType = 'image',
   poster,
+  fit = 'contain',
+  orientation,
+  sizes,
 }) {
   const hasMedia = Boolean(mediaUrl)
-  // ── Adaptive orientation: detect portrait/landscape from ratio ──
-  const orientClass = (() => {
-    if (!ratio) return ''
-    const parts = String(ratio).split('/').map(Number)
-    if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) {
-      return parts[0] > parts[1] ? 'psh-media--landscape' : parts[0] < parts[1] ? 'psh-media--portrait' : ''
-    }
-    return ''
-  })()
+  const aspect = mediaAspect({ ratio, width: sizes?.width, height: sizes?.height })
+  const orient = orientation || orientationOf(aspect)
+  const orientClass =
+    orient === ORIENT.LANDSCAPE
+      ? 'psh-media--landscape'
+      : orient === ORIENT.PORTRAIT
+        ? 'psh-media--portrait'
+        : 'psh-media--square'
   return (
     <div
-      className={`psh-media ${rounded ? 'psh-media--rounded' : ''} psh-media--tone-${tone} ${orientClass}`}
-      style={{ aspectRatio: ratio }}
+      className={`psh-media ${rounded ? 'psh-media--rounded' : ''} psh-media--tone-${tone} ${orientClass} ${
+        fit === 'cover' ? 'psh-media--cover' : ''
+      } ${hasMedia ? 'psh-media--filled' : 'psh-media--placeholder'}`}
+      style={{
+        aspectRatio: ratio,
+        '--psh-ar': ratio,
+        '--psh-ar-w': aspect,
+      }}
+      data-orient={orient}
+      data-media-type={mediaType}
       role={hasMedia && mediaType === 'video' ? undefined : 'img'}
       aria-label={caption || 'Media'}
     >

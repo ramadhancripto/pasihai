@@ -173,6 +173,11 @@ export default function FeedList({
 
   const filtersActive = filter !== 'all'
   const isLive = tab === 'live'
+  /* ── Muonekano: 'auto' haukuwa na layout yoyote ya CSS (psh-feed--auto),
+     hivyo mabadiliko ya CSS hayakuwa na athari. 'auto' sasa inatumia
+     layout ya post-kubwa (default) — tabia ileile, muonekano unaofanya kazi.
+     `data-view-mode` inahifadhi chaguo halisi la mtumiaji. ── */
+  const layoutMode = feedMode === 'auto' || !feedMode ? 'large-post-feed' : feedMode
 
   // Kichujio cha hali ya Live ni cha kuonyesha pekee — data bado inatoka service.
   const items =
@@ -190,7 +195,11 @@ export default function FeedList({
     : null
 
   return (
-    <section className={`psh-feed psh-feed--${feedMode}`} aria-label={spaceId ? `Shughuli za ${spaceLabel || 'Space'}` : 'Mkondo wa Home'}>
+    <section
+      className={`psh-feed psh-feed--${layoutMode}`}
+      data-view-mode={feedMode}
+      aria-label={spaceId ? `Shughuli za ${spaceLabel || 'Space'}` : 'Mkondo wa Home'}
+    >
       {tabMeaning && !spaceId ? <p className="psh-feed__context">{tabMeaning}</p> : null}
 
       {isLive ? (

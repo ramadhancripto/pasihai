@@ -1,0 +1,984 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — HOME FEED · RESPONSIVE + ADAPTIVE LAYER
+   ──────────────────────────────────────────────────────────────
+   Safu hii ni ya JUU kabisa (imported last in main.jsx). Inaboresha
+   mkondo wa Home bila kuanzisha mfumo mwingine wa design: rangi,
+   fonti na vipimo vyote vinatoka tokens.css.
+
+   Inashughulikia:
+     1. Upana wa mkondo — simu margins ndogo · desktop layout pana
+     2. Chrome ya juu — status · search · tabs · create (nafasi zaidi
+        kwa mkondo bila kuondoa kipengele chochote)
+     3. Post shell — avatar · caption · vitendo vinalingana
+     4. Media ya adaptive — kila media kwa kipimo chake (ratio/width/
+        height zilizopo kwenye data; fallback 4 / 3)
+     5. Gallery — grid/carousel inayolingana na idadi ya media
+     6. Desktop — post yenye media inapata layout ya safu mbili
+     7. Ushirikiano na hali za full-screen (vertical/horizontal slide)
+
+   Selector zilizoandikwa kwa `:where(...)` haziongezi uzito
+   (specificity) — hivyo hali nyingine za feed haziingiliwi kwa
+   bahati mbaya.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 0. Vipimo vya mkondo ──────────────────────────────────── */
+:root {
+  --feed-gutter: 10px;
+  --feed-gap: 10px;
+  --feed-card-pad: 14px;
+  --feed-card-radius: 16px;
+  --feed-cap-portrait: min(92vh, 700px);
+  --feed-cap-landscape: min(60vh, 460px);
+  --feed-cap-square: min(70vh, 520px);
+  --feed-text-measure: 66ch;
+  /* Kadi za mkondo zinatumia kipimo kimoja — safu nyingine za CSS
+     zinazotumia --card-pad/--card-r zinasalia sawa. */
+  --card-pad: var(--feed-card-pad);
+  --card-r: var(--feed-card-radius);
+}
+
+@media (min-width: 641px) {
+  :root {
+    --feed-gutter: 18px;
+    --feed-gap: 14px;
+    --feed-card-pad: 18px;
+    --feed-cap-portrait: min(78vh, 640px);
+    --feed-cap-landscape: min(58vh, 500px);
+    --feed-cap-square: min(68vh, 540px);
+  }
+}
+
+@media (min-width: 1180px) {
+  :root {
+    --feed-gutter: 24px;
+    --feed-gap: 16px;
+    --feed-card-pad: 20px;
+    --feed-card-radius: 18px;
+    --feed-cap-portrait: min(72vh, 620px);
+    --feed-cap-landscape: min(62vh, 560px);
+    --feed-cap-square: min(70vh, 560px);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   1. UPANA WA MKONDO
+   ══════════════════════════════════════════════════════════════ */
+
+/* Simu: margins ndogo → media inapata nafasi kubwa */
+.psh-col--home {
+  max-width: 100%;
+  padding-left: max(var(--feed-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--feed-gutter), env(safe-area-inset-right));
+}
+
+/* Tablet: safu moja yenye kupumua */
+@media (min-width: 768px) {
+  .psh-col--home {
+    max-width: 740px;
+    margin-inline: auto;
+  }
+}
+
+/* Desktop: mkondo pana — screen inatumika, si safu nyembamba katikati */
+@media (min-width: 1180px) {
+  .psh-col--home {
+    max-width: 1080px;
+  }
+  /* Header inafuata upana uleule ili brand na icons zisibaki katikati */
+  .psh-header__inner {
+    max-width: 1080px;
+    padding-inline: var(--feed-gutter);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   2. CHROME YA JUU — nafasi zaidi kwa mkondo
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Status / Stories: kadi ndogo, safu fupi ───────────────── */
+.psh-col--home .psh-status {
+  padding: 6px 0 4px;
+  margin-top: 0;
+}
+.psh-col--home .psh-status__row {
+  gap: 8px;
+  margin: 0;
+  padding: 2px 0 4px;
+  scroll-padding-inline: 0;
+}
+.psh-col--home .psh-status__item,
+.psh-col--home .psh-status__btn {
+  flex: 0 0 72px;
+  width: 72px;
+  min-width: 72px;
+}
+.psh-col--home .psh-status__btn {
+  gap: 4px;
+}
+.psh-col--home .psh-status__card {
+  width: 72px;
+  height: 92px;
+  border-radius: 13px;
+}
+.psh-col--home .psh-status__name {
+  max-width: 72px;
+  font-size: var(--fs-12);
+}
+
+/* ── Tafuta: mstari mwembamba ──────────────────────────────── */
+.psh-col--home .psh-homesearch {
+  margin: 8px 0 6px;
+  padding: 7px 12px;
+}
+
+/* ── Tabs: zinasalia sticky, zinafuata chrome inapofichwa ──── */
+.psh-col--home .psh-htabs {
+  margin: 0 calc(var(--feed-gutter) * -1);
+  padding: 2px var(--feed-gutter) 4px;
+}
+html[data-chrome='hidden'] .psh-htabs {
+  top: 0;
+}
+
+/* ── Create area: kadi fupi yenye vitendo sawa ─────────────── */
+.psh-col--home .psh-createbar {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 16px;
+}
+.psh-col--home .psh-createbar__dock {
+  margin-top: 10px;
+  padding: 20px 6px 4px;
+}
+.psh-col--home .psh-createbar .psh-createbar__plus {
+  top: -19px;
+  width: 40px;
+  height: 40px;
+}
+.psh-col--home .psh-createbar .psh-createbar__act {
+  padding: 7px 8px;
+  min-height: 40px;
+}
+
+/* ── Mstari wa hali (muonekano) ────────────────────────────── */
+.psh-col--home .psh-strip {
+  padding: 4px 0 0;
+}
+
+/* Desktop: dock ya composer isinyooshe vitendo kwa upana wote */
+@media (min-width: 1180px) {
+  .psh-col--home .psh-createbar__quick {
+    max-width: 460px;
+    margin-inline: auto;
+  }
+  .psh-col--home .psh-qp__status:not(:empty) {
+    max-width: 460px;
+    margin-inline: auto;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   3. POST SHELL — kadi ya chapisho
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-feed {
+  padding-bottom: 28px;
+}
+.psh-feed__items {
+  gap: var(--feed-gap);
+  padding-top: 8px;
+}
+.psh-feeditem {
+  padding: var(--feed-card-pad);
+  border-radius: var(--feed-card-radius);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.psh-feeditem__head {
+  gap: 10px;
+}
+.psh-feeditem__body {
+  margin-top: 10px;
+  padding-right: 0;
+}
+.psh-feedtext {
+  max-width: var(--feed-text-measure);
+  font-size: var(--fs-15);
+  line-height: 1.6;
+}
+/* Maandishi marefu: kunja kwa upole badala ya kukatwa kwa ukali */
+.psh-feedtext--folded {
+  position: relative;
+}
+.psh-feedtext__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--c-green-700);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.psh-feedtext__more:hover {
+  text-decoration: underline;
+}
+
+/* Vitendo: vinapangiliwa kwa mstari mmoja, vinaenda upana wote */
+.psh-feedactions {
+  margin-top: 12px;
+  padding-top: 8px;
+  gap: 2px;
+}
+.psh-feedaction {
+  min-height: 38px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   4. MEDIA YA ADAPTIVE
+   Media inachukua nafasi yake kutokana na kipimo chake HALISI
+   (media.ratio au width/height kutoka media_meta). Kila media
+   inaweza kupunguza upana wake ikiwa urefu umefikia kikomo, hivyo
+   hakuna letterbox tupu isiyo ya lazima.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Wrapper ya video/reel haitoi box yake kwenye mpangilio — watoto wake
+   wanakuwa sehemu ya body moja kwa moja (grid/flex inafanya kazi sawa
+   kwa aina zote za chapisho). Click handler inasikia kupitia bubbling. */
+.psh-feeditem__video-tappable {
+  display: contents;
+}
+
+/* Media ya chapisho: inatembea ukingo hadi ukingo wa kadi.
+   Muundo wa DOM kwa kila aina:
+     picha          body > .psh-feedmedia
+     video          body > .psh-feeditem__video-tappable > .psh-video-wrap
+     reel (video)   body > .psh-feeditem__video-tappable > .psh-reel--media
+   Wrapper ya video/reel ina `display: contents`, hivyo watoto wake
+   wanashiriki mpangilio wa body — margin zinawekwa kwenye wrapper. */
+.psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+  .psh-feeditem__body
+  > .psh-feedmedia,
+.psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+  .psh-feeditem__body
+  > .psh-feeditem__video-tappable
+  > .psh-video-wrap,
+.psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+  .psh-feeditem__body
+  > .psh-feeditem__video-tappable
+  > .psh-reel--media {
+  margin: 10px calc(var(--feed-card-pad) * -1) 0;
+  border-radius: 0;
+}
+/* Reel yenye media: maelezo yanabaki na pambizo la kadi */
+.psh-feeditem__body > .psh-feeditem__video-tappable > .psh-reel--media > .psh-reel__meta {
+  padding: 12px var(--feed-card-pad) 0;
+}
+/* Video wrap: sifa za mpangilio tu — hakuna mpaka wa ziada */
+.psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+  .psh-feeditem__body
+  > .psh-feeditem__video-tappable
+  > .psh-video-wrap
+  > .psh-feedmedia {
+  margin: 0;
+  border-radius: 0;
+}
+
+/* Kipimo cha media */
+.psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+  .psh-feeditem__body
+  .psh-media {
+  --psh-cap: var(--feed-cap-landscape);
+  aspect-ratio: var(--psh-ar, 4 / 3);
+  width: min(100%, calc(var(--psh-cap) * var(--psh-ar-w, 1.3333)));
+  max-height: var(--psh-cap);
+  min-height: 0;
+  margin-inline: auto;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+}
+.psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+  .psh-feeditem__body
+  .psh-media--portrait {
+  --psh-cap: var(--feed-cap-portrait);
+}
+.psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+  .psh-feeditem__body
+  .psh-media--square {
+  --psh-cap: var(--feed-cap-square);
+}
+
+/* Media ya placeholder (bila URL): mguso wa kadi, si picha */
+.psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+  .psh-feeditem__body
+  .psh-media--placeholder {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+/* Placeholder (media ya mock bila faili): uso mtulivu wenye glyph ya aina
+   yake juu + maelezo chini. Faili halisi likiwa lipo, hakuna glyph. */
+.psh-media--placeholder .psh-media__glyph {
+  grid-row: 1;
+  opacity: 0.22;
+}
+.psh-media--placeholder .psh-media__glyph svg {
+  width: clamp(28px, calc(var(--psh-ar-w, 1.3333) * 30px), 56px);
+  height: auto;
+}
+.psh-media--placeholder .psh-media__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px 14px;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  background: transparent;
+  border-radius: 0;
+}
+.psh-media--placeholder {
+  background-image: radial-gradient(
+    130% 100% at 12% 0%,
+    color-mix(in srgb, var(--bg) 60%, transparent),
+    transparent 62%
+  );
+}
+
+/* Cover inatumika kwenye seli za gallery pekee (grid iliyolingana) */
+.psh-media--cover .psh-media__asset {
+  object-fit: cover;
+}
+
+/* ── Simu: media inatembea ukingo hadi ukingo ─────────────────
+   Media inachukua upana KAMILI wa skrini (margins za ukurasa na kadi
+   zinarukwa) — ndiyo nafasi kubwa zaidi inayowezekana bila kuondoa
+   kipengele chochote. Portrait ina kikomo cha urefu; inapofikia
+   kikomo inajaza frame kwa `cover` (kukata kidogo, si kubana). */
+@media (max-width: 640px) {
+  .psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+    .psh-feeditem__body
+    > .psh-feedmedia,
+  .psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+    .psh-feeditem__body
+    > .psh-feeditem__video-tappable
+    > .psh-video-wrap,
+  .psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+    .psh-feeditem__body
+    > .psh-feeditem__video-tappable
+    > .psh-reel--media {
+    margin-inline: calc((var(--feed-gutter) + var(--feed-card-pad)) * -1);
+    border-radius: 0;
+  }
+  .psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+    .psh-feeditem__body
+    .psh-media {
+    width: 100%;
+    max-height: none;
+    margin-inline: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  .psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+    .psh-feeditem__body
+    .psh-media--portrait {
+    max-height: min(80vh, 640px);
+    aspect-ratio: var(--psh-ar, 3 / 4);
+  }
+  .psh-feed:where(:not(.psh-feed--vertical-slide, .psh-feed--horizontal-slide))
+    .psh-feeditem__body
+    .psh-media--portrait
+    .psh-media__asset {
+    object-fit: cover;
+  }
+}
+
+/* Video/reel yenye URL: rangi ya chini nyeusi, si nyeupe */
+.psh-media--filled {
+  background: #0f1512;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   5. GALLERY — grid / carousel
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-gallery {
+  display: block;
+}
+.psh-gallery__count {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: rgba(15, 21, 18, 0.66);
+  color: #fff;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Grid: seli zinalingana, media inajaza seli (cover) */
+.psh-gallery--duo,
+.psh-gallery--trio,
+.psh-gallery--quad {
+  display: grid;
+  gap: 3px;
+  aspect-ratio: var(--psh-gallery-ar-w, 1.5) / 1;
+}
+.psh-gallery--duo,
+.psh-gallery--quad {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.psh-gallery--trio {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.psh-gallery--trio .psh-gallery__cell:first-child {
+  grid-row: span 2;
+}
+.psh-gallery--duo .psh-gallery__cell,
+.psh-gallery--trio .psh-gallery__cell,
+.psh-gallery--quad .psh-gallery__cell {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Carousel */
+.psh-gallery--carousel {
+  position: relative;
+}
+.psh-gallery__track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.psh-gallery__track::-webkit-scrollbar {
+  display: none;
+}
+.psh-gallery__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.psh-gallery__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 0 0;
+}
+.psh-gallery__navbtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: var(--bg);
+  color: var(--t-2);
+  cursor: pointer;
+}
+.psh-gallery__navbtn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-gallery__navbtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.psh-gallery__navbtn:focus-visible {
+  outline: 2px solid var(--c-green);
+  outline-offset: 2px;
+}
+.psh-gallery__dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.psh-gallery__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--line-2);
+}
+.psh-gallery__dot.is-active {
+  width: 16px;
+  background: var(--c-green);
+}
+
+/* Seli za grid zinajaza nafasi — media inajaza seli yake */
+.psh-feeditem__body
+  :is(.psh-gallery--duo, .psh-gallery--trio, .psh-gallery--quad)
+  .psh-media {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+/* Carousel: kila slide inahifadhi kipimo chake */
+.psh-feeditem__body .psh-gallery--carousel .psh-media {
+  width: 100%;
+  height: auto;
+  max-height: var(--feed-cap-portrait);
+  aspect-ratio: var(--psh-ar, 4 / 3);
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   6. BODIES — poll · tangazo · live · sauti · reel
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-poll__q {
+  font-size: var(--fs-16);
+  max-width: 56ch;
+}
+.psh-pollopt {
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+.psh-pollopt__row {
+  font-size: var(--fs-14);
+}
+
+.psh-announce {
+  padding-left: 14px;
+  border-left-width: 3px;
+}
+
+.psh-live {
+  padding: 14px;
+  border-radius: var(--r-lg);
+}
+.psh-live__title {
+  font-size: var(--fs-17, 17px);
+}
+
+.psh-audio {
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+}
+
+/* Reel ya placeholder: kadi ndogo yenye uwiano wa 4 / 5 */
+.psh-reel {
+  align-items: stretch;
+}
+.psh-reel__thumb {
+  width: 104px;
+  border-radius: var(--r-lg);
+}
+.psh-reel__caption {
+  font-size: var(--fs-14);
+  line-height: 1.55;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   7. DESKTOP — post yenye media inatumia safu mbili
+   Media kubwa kushoto, caption + vitendo kulia. Post za maandishi
+   zinasalia safu moja yenye urefu mzuri wa kusoma.
+   ══════════════════════════════════════════════════════════════ */
+
+@media (min-width: 1180px) {
+  /* Kadi zote zina upana mmoja — avatar, caption na vitendo vinalingana */
+  .psh-feed--large-post-feed .psh-feeditem,
+  .psh-feeditem {
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* ── Chapisho lenye media: safu mbili ──
+     Media kushoto (sehemu kubwa ya kadi), maelezo + vitendo kulia.
+     Upana wa safu unatokana na UREFU WA MAELEZO halisi:
+       mafupi (≤200 herufi) → media 55%
+       marefu (>200)        → media 48% (maandishi yanahitaji nafasi) */
+  .psh-feeditem[data-has-media='true'][data-caption='short'] .psh-feeditem__body,
+  .psh-feeditem[data-has-media='true'][data-caption='long'] .psh-feeditem__body {
+    display: grid;
+    column-gap: 28px;
+    align-items: start;
+  }
+  .psh-feeditem[data-has-media='true'][data-caption='short'] .psh-feeditem__body {
+    grid-template-columns: minmax(0, 55%) minmax(0, 1fr);
+  }
+  .psh-feeditem[data-has-media='true'][data-caption='long'] .psh-feeditem__body {
+    grid-template-columns: minmax(0, 48%) minmax(0, 1fr);
+  }
+  /* Safu ya 2: maandishi · label · CTA */
+  .psh-feeditem[data-has-media='true'][data-caption='short'] .psh-feeditem__body > *,
+  .psh-feeditem[data-has-media='true'][data-caption='long'] .psh-feeditem__body > * {
+    grid-column: 2;
+    min-width: 0;
+  }
+  /* Safu ya 1: media (pamoja na ile iliyo ndani ya wrapper wa video/reel) */
+  .psh-feeditem[data-has-media='true'][data-caption='short'] .psh-feeditem__body > :is(.psh-feedmedia, .psh-video-wrap, .psh-reel--media),
+  .psh-feeditem[data-has-media='true'][data-caption='short'] .psh-feeditem__body > .psh-feeditem__video-tappable > :is(.psh-video-wrap, .psh-reel--media),
+  .psh-feeditem[data-has-media='true'][data-caption='long'] .psh-feeditem__body > :is(.psh-feedmedia, .psh-video-wrap, .psh-reel--media),
+  .psh-feeditem[data-has-media='true'][data-caption='long'] .psh-feeditem__body > .psh-feeditem__video-tappable > :is(.psh-video-wrap, .psh-reel--media) {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    margin: 0;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    align-self: start;
+  }
+  /* Maelezo ya reel yanapata pambizo lake ndani ya safu ya media */
+  .psh-feeditem[data-has-media='true'] .psh-feeditem__body > .psh-feeditem__video-tappable > .psh-reel--media > .psh-reel__meta {
+    padding: 10px 12px 0;
+  }
+  /* Media inajaza safu yake hadi kikomo cha urefu; ikiwa urefu umefikia
+     kikomo, upana hupungua ili UWIANO UHAKIKA (hakuna kunyoshwa). */
+  .psh-feeditem[data-has-media='true'][data-caption='short'] .psh-feeditem__body .psh-media,
+  .psh-feeditem[data-has-media='true'][data-caption='long'] .psh-feeditem__body .psh-media {
+    width: min(100%, calc(var(--psh-cap) * var(--psh-ar-w, 1.3333)));
+    max-height: var(--psh-cap);
+    margin-inline: auto;
+  }
+  .psh-feeditem[data-has-media='true'][data-caption='short'] .psh-feeditem__body .psh-media--placeholder,
+  .psh-feeditem[data-has-media='true'][data-caption='long'] .psh-feeditem__body .psh-media--placeholder {
+    border-radius: var(--r-lg);
+  }
+
+  /* Chapisho la media pekee (hakuna maandishi): media inachukua upana wote */
+  .psh-feeditem[data-has-media='true'][data-caption='none'] .psh-feeditem__body {
+    display: block;
+  }
+  .psh-feeditem[data-has-media='true'][data-caption='none'] .psh-feeditem__body .psh-media--placeholder {
+    border-radius: var(--r-lg);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   8. FULL-SCREEN MODES — ushirikiano
+   (vertical-slide · horizontal-slide hazibadilishwi zaidi ya
+   kuendelea kufanya kazi baada ya kubadilika kwa DOM ya video)
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-feed--vertical-slide .psh-video-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.psh-feed--vertical-slide .psh-feedtext,
+.psh-feed--horizontal-slide .psh-feedtext {
+  padding: 0 12px 8px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   9. DARK THEME — hakuna rangi mpya; tokens zinabadilika zenyewe
+   ══════════════════════════════════════════════════════════════ */
+
+:root[data-theme='dark'] .psh-feeditem {
+  box-shadow: none;
+}
+:root[data-theme='dark'] .psh-media--placeholder {
+  border-color: var(--line);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   10. MEDIA CHROME — video · reel (muonekano MMOJA kwa video zote)
+   ──────────────────────────────────────────────────────────────
+   Video na reel zinaonekana kama player: uso mweusi hafifu, kitufe
+   cha play cha duara katikati, na pills za muda/watazamaji zenye
+   blur. Rangi zinatoka tokens za mandhari — hakuna rangi mpya ya
+   brand, na dark mode inabadilika yenyewe.
+
+   Sheria hizi zinagusa mkondo wa kawaida (large-post-feed) pekee:
+   hali za full-screen (vertical/horizontal slide) hazijaguswa.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  --psh-media-surface: #0d1310;
+  --psh-media-chrome: rgba(9, 14, 12, 0.62);
+  --psh-media-chrome-fg: #f3f7f5;
+  --psh-media-play-fg: var(--c-green-700);
+  --psh-media-ring: rgba(255, 255, 255, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --psh-media-surface: #080b0e;
+    --psh-media-chrome: rgba(6, 9, 11, 0.7);
+    --psh-media-chrome-fg: #eef2f0;
+    --psh-media-play-fg: #0f7a61;
+    --psh-media-ring: rgba(255, 255, 255, 0.07);
+  }
+}
+:root[data-theme='dark'] {
+  --psh-media-surface: #080b0e;
+  --psh-media-chrome: rgba(6, 9, 11, 0.7);
+  --psh-media-chrome-fg: #eef2f0;
+  --psh-media-play-fg: #0f7a61;
+  --psh-media-ring: rgba(255, 255, 255, 0.07);
+}
+
+/* Uso wa player kwa video/reel (pamoja na placeholder bila faili) */
+.psh-feed--large-post-feed .psh-media[data-media-type='video'] {
+  background: var(--psh-media-surface);
+  background-image: none;
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--psh-media-ring);
+}
+.psh-feed--large-post-feed .psh-media[data-media-type='video'] .psh-media__glyph {
+  color: var(--psh-media-chrome-fg);
+  opacity: 0.14;
+}
+/* Glyph haionekani pale kitufe cha play kilipo (kimoja kinatosha) */
+.psh-feed--large-post-feed
+  .psh-media[data-media-type='video']:has(.psh-media__play)
+  .psh-media__glyph {
+  display: none;
+}
+
+/* Kitufe cha play: duara jeupe, icon ya brand — kama reference */
+.psh-feed--large-post-feed .psh-media__playbtn {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--psh-media-play-fg);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  padding-left: 3px;
+  transition: transform var(--dur-2) var(--ease), background var(--dur-1) var(--ease);
+}
+.psh-feed--large-post-feed .psh-media__playbtn svg {
+  width: 24px;
+  height: 24px;
+}
+.psh-feed--large-post-feed .psh-media__playbtn:active {
+  transform: scale(0.94);
+}
+.psh-feed--large-post-feed .psh-media__scrim {
+  height: 46%;
+  background: linear-gradient(to top, rgba(5, 9, 7, 0.6), rgba(5, 9, 7, 0));
+}
+
+/* Pills za muda (duration) na watazamaji (views) juu ya media */
+.psh-feed--large-post-feed .psh-media__views,
+.psh-feed--large-post-feed .psh-media__dur {
+  bottom: 10px;
+  padding: 3px 8px;
+  border-radius: var(--r-xs);
+  background: var(--psh-media-chrome);
+  color: var(--psh-media-chrome-fg);
+  backdrop-filter: blur(8px);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.psh-feed--large-post-feed .psh-media__views {
+  left: 10px;
+}
+.psh-feed--large-post-feed .psh-media__dur {
+  right: 10px;
+}
+
+/* Kidhibiti cha sauti juu ya video: duara la chrome, icon nyeupe */
+.psh-feed--large-post-feed .psh-video-controls {
+  bottom: 56px;
+  right: 12px;
+}
+.psh-feed--large-post-feed .psh-video-ctrl {
+  width: 38px;
+  height: 38px;
+  background: var(--psh-media-chrome);
+  color: var(--psh-media-chrome-fg);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+}
+.psh-feed--large-post-feed .psh-video-ctrl:hover {
+  background: var(--psh-media-chrome);
+  color: #fff;
+}
+/* Kidhibiti cha sauti cha reel: kiko kwenye meta (si juu ya media) */
+.psh-feed--large-post-feed .psh-video-controls--inline {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  margin-top: 6px;
+}
+.psh-feed--large-post-feed .psh-video-ctrl--reel {
+  position: static;
+  width: 34px;
+  height: 34px;
+  background: var(--bg-hover);
+  color: var(--t-2);
+  border: 1px solid var(--line);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.psh-feed--large-post-feed .psh-video-ctrl--reel:hover {
+  background: var(--bg-sunken);
+  color: var(--t-1);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   11. ENGAGEMENT RAIL — Like · Maoni · Repost · Shiriki · Hifadhi
+   ──────────────────────────────────────────────────────────────
+   Kila kitendo ni pill ya rounded-full yenye eneo la kugusa la 40px;
+   hesabu (reactions/comments) zinaonekana karibu na icon. Hifadhi na
+   menyu ziko pembeni kwa kulia. Hali zote mbili (light · dark)
+   zinatumia tokens: --c-error kwa liked, --c-green-700 kwa saved.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-feed--large-post-feed .psh-feedactions {
+  gap: 4px;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.psh-feed--large-post-feed .psh-feedaction {
+  min-height: 40px;
+  padding: 8px 11px;
+  gap: 6px;
+  border-radius: var(--r-full);
+  color: var(--t-3);
+  font-size: var(--fs-13);
+  font-weight: 600;
+  transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease);
+}
+.psh-feed--large-post-feed .psh-feedaction svg {
+  width: 21px;
+  height: 21px;
+}
+.psh-feed--large-post-feed .psh-feedaction span {
+  color: var(--t-2);
+  font-weight: 600;
+}
+.psh-feed--large-post-feed .psh-feedaction:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-feed--large-post-feed .psh-feedaction:hover span {
+  color: var(--t-1);
+}
+.psh-feed--large-post-feed .psh-feedaction:active {
+  transform: scale(0.96);
+}
+
+/* Imependwa — moyo mwekundu (reference), rangi inatoka token */
+.psh-feed--large-post-feed .psh-feedaction.is-liked,
+.psh-feed--large-post-feed .psh-feedaction.is-liked span {
+  color: var(--c-error);
+}
+.psh-feed--large-post-feed .psh-feedaction.is-liked:hover {
+  background: var(--c-error-soft);
+}
+
+/* Hifadhi — kijani cha brand pale imehifadhiwa */
+.psh-feed--large-post-feed .psh-feedaction.is-saved,
+.psh-feed--large-post-feed .psh-feedaction.is-saved:hover {
+  color: var(--c-green-700);
+}
+.psh-feed--large-post-feed .psh-feedaction.is-saved:hover {
+  background: var(--c-green-soft);
+}
+
+/* Hifadhi · Menyu: duara 40px pembeni kwa kulia */
+.psh-feed--large-post-feed .psh-feedaction--save,
+.psh-feed--large-post-feed .psh-feedaction--more {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+}
+.psh-feed--large-post-feed .psh-feedaction--save {
+  margin-left: auto;
+}
+
+/* Simu: pills nyembamba kidogo ili vitendo vyote vikae mstari mmoja */
+@media (max-width: 640px) {
+  .psh-feed--large-post-feed .psh-feedactions {
+    gap: 2px;
+  }
+  .psh-feed--large-post-feed .psh-feedaction {
+    padding: 8px 8px;
+    gap: 5px;
+  }
+  .psh-feed--large-post-feed .psh-feedaction--save,
+  .psh-feed--large-post-feed .psh-feedaction--more {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   12. REEL = VIDEO — ukubwa mmoja kwa video zote
+   ──────────────────────────────────────────────────────────────
+   Reel inaonyeshwa kwa media kubwa (uwiano wake halisi: 9/16 au 4/5),
+   kisha chip ya Reel · maelezo · watazamaji chini — si kadi ndogo ya
+   thumbnail. Kwenye desktop, media inakaa safu ya kushoto na maelezo
+   yake safu ya kulia (kama video zingine), hivyo hakuna nafasi tupu.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-feed--large-post-feed .psh-reel--media {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 0;
+  margin-top: 10px;
+}
+.psh-feed--large-post-feed .psh-reel--media > .psh-feedmedia {
+  /* Bleed ya media inafanywa na `.psh-reel--media` yenyewe; margin ya
+     ndani ingeongeza bleed mara ya pili (media kutoka nje ya skrini). */
+  margin: 0;
+  border-radius: 0;
+}
+.psh-feed--large-post-feed .psh-reel__meta {
+  gap: 6px;
+}
+
+@media (min-width: 1180px) {
+  /* Reel: media safu 1, maelezo safu 2 — mpangilio mmoja na video/picha */
+  .psh-feeditem[data-kind='reel'][data-has-media='true'][data-caption='short']
+    .psh-feeditem__body
+    > .psh-feeditem__video-tappable
+    > .psh-reel--media,
+  .psh-feeditem[data-kind='reel'][data-has-media='true'][data-caption='long']
+    .psh-feeditem__body
+    > .psh-feeditem__video-tappable
+    > .psh-reel--media {
+    display: contents;
+  }
+  .psh-feeditem[data-kind='reel'][data-has-media='true'][data-caption='short']
+    .psh-feeditem__body
+    > .psh-feeditem__video-tappable
+    > .psh-reel--media
+    > .psh-feedmedia,
+  .psh-feeditem[data-kind='reel'][data-has-media='true'][data-caption='long']
+    .psh-feeditem__body
+    > .psh-feeditem__video-tappable
+    > .psh-reel--media
+    > .psh-feedmedia {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    margin: 0;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    align-self: start;
+  }
+  .psh-feeditem[data-kind='reel'][data-has-media='true'][data-caption='short']
+    .psh-feeditem__body
+    > .psh-feeditem__video-tappable
+    > .psh-reel--media
+    > .psh-reel__meta,
+  .psh-feeditem[data-kind='reel'][data-has-media='true'][data-caption='long']
+    .psh-feeditem__body
+    > .psh-feeditem__video-tappable
+    > .psh-reel--media
+    > .psh-reel__meta {
+    grid-column: 2;
+    padding: 0;
+  }
+}

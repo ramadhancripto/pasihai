@@ -19,6 +19,7 @@ import { Identity, Chip, EntityPill } from '../ui.jsx'
 import { BODIES } from './bodies.jsx'
 import FeedActions from './FeedActions.jsx'
 import { formatAge } from '../../utils/time.js'
+import { layoutFor } from '../../utils/mediaLayout.js'
 import { IconPersonAdd, IconFollow, IconChat, IconCheck, IconGroup, IconConnect } from '../icons.jsx'
 
 export default function FeedItem({
@@ -70,23 +71,21 @@ export default function FeedItem({
     />
   ) : null
 
-  // ── Adaptive: detect media orientation from ratio ──
-  const mediaOrient = (() => {
-    const r = item.media?.ratio
-    if (!r) return ''
-    const parts = String(r).split('/').map(Number)
-    if (parts.length === 2 && parts[0] > 0 && parts[1] > 0) {
-      return parts[0] > parts[1] ? 'landscape' : parts[0] < parts[1] ? 'portrait' : ''
-    }
-    return ''
-  })()
+  // ── Adaptive: mpangilio unatokana na DATA ya media (ratio/width/height) ──
+  const layout = layoutFor(item)
+  const isVideoLike = item.kind === 'video' || item.kind === 'reel'
 
   return (
     <article
-      className="psh-feeditem"
+      className={`psh-feeditem ${layout.hasMedia ? 'psh-feeditem--media' : 'psh-feeditem--textual'}`}
       data-kind={item.kind}
       data-id={item.id}
-      data-orient={mediaOrient || undefined}
+      data-post-type={layout.postType}
+      data-source-kind={item.sourceKind || item.kind}
+      data-orient={layout.orientation}
+      data-has-media={layout.hasMedia ? 'true' : 'false'}
+      data-media-count={layout.mediaCount}
+      data-caption={layout.captionLength}
       aria-label={`Chapisho kutoka ${item.entity.name}`}
     >
       <header className="psh-feeditem__head">
@@ -109,12 +108,26 @@ export default function FeedItem({
           </p>
         ) : null}
 
-        <div
-          className={item.kind === 'video' || item.kind === 'reel' ? 'psh-feeditem__video-tappable' : ''}
-          onClick={(item.kind === 'video' || item.kind === 'reel') ? () => onOpenVideo?.(item) : undefined}
-          role={item.kind === 'video' || item.kind === 'reel' ? 'button' : undefined}
-          aria-label={item.kind === 'video' || item.kind === 'reel' ? 'Fungua video' : undefined}
-        >
+        {isVideoLike ? (
+          <div
+            className="psh-feeditem__video-tappable"
+            onClick={(event) => {
+              // Vidhibiti vya video (sauti · play) havifungui viewer.
+              if (event.target?.closest?.('video, button, a, input, select, textarea, [role="button"], [role="link"]')) return
+              onOpenVideo?.(item)
+            }}
+            role="button"
+            aria-label="Fungua video"
+          >
+            <Body
+              item={item}
+              onToast={onToast}
+              onVote={onVote}
+              onOpenLive={onOpenLive}
+              onCta={onCta}
+            />
+          </div>
+        ) : (
           <Body
             item={item}
             onToast={onToast}
@@ -122,7 +135,7 @@ export default function FeedItem({
             onOpenLive={onOpenLive}
             onCta={onCta}
           />
-        </div>
+        )}
       </div>
 
       <FeedActions

@@ -15,8 +15,11 @@ import StructuredPost from '../studio/StructuredPost.jsx'
 import { useState } from 'react'
 import { useVideoAutoplay } from '../../hooks/useVideoAutoplay.js'
 import { MediaFrame, Waveform, Chip, Avatar } from '../ui.jsx'
+import MediaGallery from './MediaGallery.jsx'
+import { mediaItemsOf } from '../../utils/mediaLayout.js'
 import {
   IconPlay,
+  IconPhoto,
   IconLive,
   IconMegaphone,
   IconMic,
@@ -28,6 +31,8 @@ import {
   IconHeadset,
   IconVideo,
   IconCalendarAdd,
+  IconVolume,
+  IconVolumeOff,
 } from '../icons.jsx'
 
 /* ── Prima: maandishi ya chapisho ─────────────────────────── */
@@ -41,7 +46,7 @@ function FeedText({ text }) {
   if (structured) return <StructuredPost content={structured} />
   const needsTruncate = text.length > TEXT_TRUNCATE_LIMIT && !expanded
   return (
-    <p className="psh-feedtext">
+    <p className={`psh-feedtext ${needsTruncate ? 'psh-feedtext--folded' : ''}`}>
       {needsTruncate ? text.slice(0, TEXT_TRUNCATE_LIMIT) : text}
       {needsTruncate && (
         <>
@@ -63,11 +68,20 @@ function FeedText({ text }) {
   )
 }
 
-/* ── Prima: media yenye play/duration ─────────────────────── */
-function MediaWithOverlay({ media, tone, icon, rounded = true }) {
+/* ── Prima: media yenye play/duration ───────────────────────
+   video        → IconPlay (overlay ya play ikiwa hakuna faili)
+   picha        → IconPhoto kwenye uso wa placeholder (bila play)
+   media halisi → hakuna glyph; faili linaonekana yenyewe          */
+function MediaWithOverlay({ media, tone, icon, rounded = true, fit = 'contain', showPlay = true, videoHint = false }) {
   const Icon = icon
-  const hasPlayableVideo = Boolean(media?.url && (media?.mediaType === 'video' || Icon))
-  const placeholderIcon = Icon && !hasPlayableVideo ? <Icon size={26} /> : null
+  const hasUrl = Boolean(media?.url)
+  /* `videoHint` inatoka kwa aina ya chapisho (video/reel) — hivyo media
+     iliyohifadhiwa bila mediaType bado inapata chrome ya video. */
+  const isVideo = media?.mediaType === 'video' || videoHint
+  const hasPlayableVideo = Boolean(hasUrl && (isVideo || showPlay))
+  const Glyph = !hasUrl ? (isVideo ? Icon : IconPhoto) : null
+  const placeholderIcon = Glyph ? <Glyph size={26} /> : null
+  const playOverlay = showPlay && !hasUrl && Icon && isVideo
   return (
     <MediaFrame
       tone={media?.tone ?? 'green'}
@@ -77,21 +91,24 @@ function MediaWithOverlay({ media, tone, icon, rounded = true }) {
       showCaption={!Icon}
       icon={placeholderIcon}
       mediaUrl={media?.url}
-      mediaType={media?.mediaType || (Icon ? 'video' : 'image')}
+      mediaType={media?.mediaType || (Icon && showPlay ? 'video' : 'image')}
+      poster={media?.poster}
+      fit={fit}
+      sizes={{ width: media?.width, height: media?.height }}
       overlay={
         hasPlayableVideo ? null : (
           <>
-            {Icon ? <span className="psh-media__scrim" aria-hidden="true" /> : null}
-            {Icon && media?.views ? (
+            {playOverlay ? <span className="psh-media__scrim" aria-hidden="true" /> : null}
+            {playOverlay && media?.views ? (
               <span className="psh-media__views">
                 <IconEye size={12} />
                 {media.views}
               </span>
             ) : null}
-            {Icon && media?.duration ? (
+            {playOverlay && media?.duration ? (
               <span className="psh-media__dur">{media.duration}</span>
             ) : null}
-            {Icon ? (
+            {playOverlay ? (
               <span className="psh-media__play" aria-hidden="true">
                 <span className="psh-media__playbtn">
                   <IconPlay size={18} />
@@ -101,6 +118,22 @@ function MediaWithOverlay({ media, tone, icon, rounded = true }) {
           </>
         )
       }
+    />
+  )
+}
+
+/* ── Media ya chapisho: moja → frame; nyingi → grid/carousel ── */
+function PostMedia({ item, icon, fit = 'contain', showPlay = true }) {
+  const items = mediaItemsOf(item)
+  if (items.length > 1) return <MediaGallery item={item} />
+  const videoHint = item?.kind === 'video' || item?.kind === 'reel'
+  return (
+    <MediaWithOverlay
+      media={items[0] ?? item.media}
+      icon={icon}
+      fit={fit}
+      showPlay={showPlay}
+      videoHint={videoHint}
     />
   )
 }
@@ -128,13 +161,15 @@ export function TextBody({ item, onCta}) {
   return <FeedText text={item.text} />
 }
 
-/* ── 2. Picha (pamoja na maandishi + picha) ───────────────── */
+/* ── 2. Picha (pamoja na maandishi + picha) ─────────────────
+   Media inachukua nafasi yake kwa uwiano wake halisi; maandishi
+   yanabaki safi upande wa pili kwenye skrini pana (CSS).       */
 export function MediaBody({ item, onToast, onCta }) {
   return (
     <>
       <FeedText text={item.text} />
       <div className="psh-feedmedia">
-        <MediaWithOverlay media={item.media} />
+        <PostMedia item={item} icon={IconPhoto} showPlay={false} />
       </div>
       <CtaRow item={item} cta={item.cta} onCta={onCta} />
     </>
@@ -145,29 +180,31 @@ export function MediaBody({ item, onToast, onCta }) {
 export function VideoBody({ item, onCta }) {
   const { containerRef, toggleMute, isMuted, isLoading, hasError, retry } = useVideoAutoplay()
   return (
-    <div ref={containerRef} className="psh-video-wrap">
-      <div className="psh-feedmedia psh-feedmedia--first">
-        <MediaWithOverlay media={item.media} icon={IconPlay} />
+    <>
+      <div ref={containerRef} className="psh-video-wrap">
+        <div className="psh-feedmedia psh-feedmedia--first">
+          <PostMedia item={item} icon={IconPlay} />
+        </div>
+        {/* Sound toggle — browser autoplay policy: start muted, user taps to unmute */}
+        <div className="psh-video-controls">
+          <button
+            type="button"
+            className="psh-video-ctrl psh-video-ctrl--mute"
+            onClick={toggleMute}
+            aria-label={isMuted ? 'Washa sauti' : 'Zima sauti'}
+          >
+            {isMuted ? <IconVolumeOff size={18} /> : <IconVolume size={18} />}
+          </button>
+        </div>
+        {isLoading && <div className="psh-video-loading" aria-label="Inapakia video" />}
+        {hasError && (
+          <button type="button" className="psh-video-retry" onClick={retry}>
+            Jaribu tena
+          </button>
+        )}
       </div>
-      {/* Sound toggle — browser autoplay policy: start muted, user taps to unmute */}
-      <div className="psh-video-controls">
-        <button
-          type="button"
-          className="psh-video-ctrl psh-video-ctrl--mute"
-          onClick={toggleMute}
-          aria-label={isMuted ? 'Washa sauti' : 'Zima sauti'}
-        >
-          {isMuted ? '🔇' : '🔊'}
-        </button>
-      </div>
-      {isLoading && <div className="psh-video-loading" aria-label="Inapakia video" />}
-      {hasError && (
-        <button type="button" className="psh-video-retry" onClick={retry}>
-          Jaribu tena
-        </button>
-      )}
       <FeedText text={item.text} />
-    </div>
+    </>
   )
 }
 
@@ -380,48 +417,20 @@ export function LiveActivityBody({ item, onOpenLive }) {
   )
 }
 
-/* ── 8. Reel — kadi compact kwenye Mchanganyiko ───────────── */
+/* ── 8. Reel ──────────────────────────────────────────────────
+   Reel ni VIDEO: inaonyeshwa kwa ukubwa sawa na video zingine za
+   mkondo — media inachukua upana wa kadi (uwiano wake halisi, kawaida
+   9 / 16 au 4 / 5), kisha chip ya Reel · maelezo · watazamaji chini.
+   Hakuna kadi ndogo ya thumbnail, na hakuna kurudia maudhui. */
 export function ReelBody({ item }) {
   const { containerRef, toggleMute, isMuted } = useVideoAutoplay()
   const media = item.media ?? {}
-  return (
-    <div className="psh-reel" ref={containerRef}>
-      <span
-        className={`psh-reel__thumb psh-reel__thumb--tone-${media.tone ?? 'green'}`}
-        aria-hidden={media.url ? undefined : 'true'}
-      >
-        {media.url ? (
-          <video
-            className="psh-reel__video"
-            src={media.url}
-            controls
-            playsInline
-            muted
-            preload="metadata"
-            poster={media.poster}
-            aria-label={item.text ? `Video ya Reel: ${item.text}` : 'Video ya Reel'}
-          />
-        ) : (
-          <>
-            <span className="psh-reel__play">
-              <IconPlay size={16} />
-            </span>
-            {media.duration ? <span className="psh-reel__dur">{media.duration}</span> : null}
-          </>
-        )}
-        {/* Sound toggle overlay for reel */}
-        {media.url ? (
-          <button
-            type="button"
-            className="psh-video-ctrl psh-video-ctrl--reel"
-            onClick={toggleMute}
-            aria-label={isMuted ? 'Washa sauti' : 'Zima sauti'}
-          >
-            {isMuted ? '🔇' : '🔊'}
-          </button>
-        ) : null}
-      </span>
 
+  return (
+    <div className="psh-reel psh-reel--media" ref={containerRef}>
+      <div className="psh-feedmedia psh-feedmedia--first">
+        <MediaWithOverlay media={{ ...media, mediaType: 'video' }} icon={IconPlay} />
+      </div>
       <div className="psh-reel__meta">
         <span className="psh-reel__kind">
           <Chip tone="soft">
@@ -436,6 +445,16 @@ export function ReelBody({ item }) {
             {media.views} wametazama
           </p>
         ) : null}
+        <div className="psh-video-controls psh-video-controls--inline">
+          <button
+            type="button"
+            className="psh-video-ctrl psh-video-ctrl--reel"
+            onClick={toggleMute}
+            aria-label={isMuted ? 'Washa sauti' : 'Zima sauti'}
+          >
+            {isMuted ? <IconVolumeOff size={16} /> : <IconVolume size={16} />}
+          </button>
+        </div>
       </div>
     </div>
   )

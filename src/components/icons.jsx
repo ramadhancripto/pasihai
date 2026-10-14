@@ -211,6 +211,22 @@ export const IconReel = (p) => (
   </S>
 )
 
+/* Sauti ya media: kipaza sauti / kimya (zinatumika kwenye chrome ya video) */
+export const IconVolume = (p) => (
+  <S {...p}>
+    <path d="M4.6 9.4h3.1L11.6 6v12L7.7 14.6H4.6z" />
+    <path d="M15.2 9.6a3.4 3.4 0 0 1 0 4.8" />
+    <path d="M17.6 7.2a6.8 6.8 0 0 1 0 9.6" />
+  </S>
+)
+
+export const IconVolumeOff = (p) => (
+  <S {...p}>
+    <path d="M4.6 9.4h3.1L11.6 6v12L7.7 14.6H4.6z" />
+    <path d="m15.4 9.8 4.2 4.4M19.6 9.8l-4.2 4.4" />
+  </S>
+)
+
 export const IconMic = (p) => (
   <S {...p}>
     <rect x="9.2" y="3.6" width="5.6" height="10" rx="2.8" />
@@ -373,7 +389,96 @@ export const IconGlobe = (p) => (
   </S>
 )
 
+/* ── Status studio (composer · viewer) ────────────────────── */
+
+export const IconText = (p) => (
+  <S {...p}>
+    <path d="M5.4 7.2V5.8h13.2v1.4" />
+    <path d="M12 5.8V18.6" />
+    <path d="M9.4 18.6h5.2" />
+  </S>
+)
+
+export const IconPalette = (p) => (
+  <S {...p}>
+    <path d="M12 3.8a8.2 8.2 0 0 0 0 16.4c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2a1.7 1.7 0 0 1 1.2-2.9h1.6a4.1 4.1 0 0 0 4.1-4.1c0-3.6-3.7-6.5-8.2-6.5Z" />
+    <circle cx="8.6" cy="10.4" r="1.1" />
+    <circle cx="12" cy="8.2" r="1.1" />
+    <circle cx="15.4" cy="10.4" r="1.1" />
+  </S>
+)
+
+export const IconCropFree = (p) => (
+  <S {...p}>
+    <path d="M8.4 4.6H6.2A1.6 1.6 0 0 0 4.6 6.2v2.2" />
+    <path d="M15.6 4.6h2.2a1.6 1.6 0 0 1 1.6 1.6v2.2" />
+    <path d="M15.6 19.4h2.2a1.6 1.6 0 0 0 1.6-1.6v-2.2" />
+    <path d="M8.4 19.4H6.2a1.6 1.6 0 0 1-1.6-1.6v-2.2" />
+  </S>
+)
+
+export const IconUndo = (p) => (
+  <S {...p}>
+    <path d="M4.6 9.4h9.6a5.2 5.2 0 0 1 0 10.4H8.6" />
+    <path d="m8.2 5.6-3.6 3.8 3.6 3.8" />
+  </S>
+)
+
+export const IconLock = (p) => (
+  <S {...p}>
+    <rect x="5.2" y="10.4" width="13.6" height="9.2" rx="2.2" />
+    <path d="M8.6 10.4V8.2a3.4 3.4 0 0 1 6.8 0v2.2" />
+  </S>
+)
+
+export const IconPause = (p) => (
+  <S {...p}>
+    <path d="M9.4 5.6v12.8M14.6 5.6v12.8" />
+  </S>
+)
+
+export const IconFlame = (p) => (
+  <S {...p}>
+    <path d="M12 3.6c2.4 2.4 1.2 4.2.2 5.4-.9 1.1-.4 2.4.8 2.6 1.1.2 1.9-.6 2-1.8 1.7 1.5 2.4 3.2 2.4 4.7a5.4 5.4 0 0 1-10.8 0c0-3.3 2.9-5.1 5.4-10.9Z" />
+  </S>
+)
+
+export const IconClap = (p) => (
+  <S {...p}>
+    <path d="M6.2 12.8 4.8 10a1.5 1.5 0 0 1 2.6-1.5l1.3 2.4" />
+    <path d="M8.7 10.9 6.6 7.1a1.5 1.5 0 0 1 2.6-1.5l2.1 3.9" />
+    <path d="M11.3 9.5 9.6 6.3a1.5 1.5 0 0 1 2.6-1.4l2 3.6" />
+    <path d="M14.2 8.5l-1-1.9a1.5 1.5 0 0 1 2.6-1.4l3.1 6.1a6.2 6.2 0 0 1-7.4 8.9A6.4 6.4 0 0 1 7 14.6" />
+  </S>
+)
+
+export const IconLaugh = (p) => (
+  <S {...p}>
+    <circle cx="12" cy="12" r="8.2" />
+    <path d="M8.6 13.6c.8 1.5 2 2.3 3.4 2.3s2.6-.8 3.4-2.3Z" />
+    <path d="M9.2 9.4h.01M14.8 9.4h.01" strokeWidth="2.2" />
+  </S>
+)
+
+export const IconWow = (p) => (
+  <S {...p}>
+    <circle cx="12" cy="12" r="8.2" />
+    <path d="M9.4 9.6h.01M14.6 9.6h.01" strokeWidth="2.2" />
+    <ellipse cx="12" cy="14.6" rx="1.9" ry="2.4" />
+  </S>
+)
+
+export const IconPalm = (p) => (
+  <S {...p}>
+    <path d="M12 20.4V11" />
+    <path d="M12 11c-1.6-3.4-4-4.6-6.6-4.4 1.4-2 4.6-2.4 6.6-.6" />
+    <path d="M12 11c1.6-3.4 4-4.6 6.6-4.4-1.4-2-4.6-2.4-6.6-.6" />
+    <path d="M12 11c-.6-3.6.6-6 3-7.2-2.6-.6-4.8 1.2-5.2 4" />
+  </S>
+)
+
 /* ── Nyongeza (Stitch integration) ───────────────────────── */
+
 
 export const IconHeadset = (p) => (
   <S {...p}>

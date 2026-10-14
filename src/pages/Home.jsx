@@ -45,7 +45,7 @@ export default function Home({
   const stripReady = Boolean(activeTab && activeFilter && activeMode)
 
   return (
-    <div className="psh-col">
+    <div className="psh-col psh-col--home">
       <StatusRow
         onOpenStatus={onOpenStatus}
         onOpenAll={onOpenAllStatus}

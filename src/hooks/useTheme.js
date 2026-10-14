@@ -19,11 +19,15 @@ function getSystemTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+/* Mandhari ya kwanza (bila chaguo la mtumiaji) ni MWANGA — mkondo wa Home
+   unaonekana safi kwenye uso mweupe. Chaguo la mtumiaji (kitufe cha
+   mandhari kwenye ⋮ → More) linahifadhiwa na heshimiwa, na mandhari ya
+   KIZIMA (dark) inabaki kama ilivyo. */
 function getSavedTheme() {
   try {
-    return localStorage.getItem(STORAGE_KEY) || 'dark'
+    return localStorage.getItem(STORAGE_KEY) || 'light'
   } catch {
-    return 'dark'
+    return 'light'
   }
 }
 
