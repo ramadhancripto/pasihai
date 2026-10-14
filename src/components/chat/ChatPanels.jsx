@@ -27,6 +27,7 @@ import {
   IconInfo,
   IconMic,
   IconPaperclip,
+  IconPeople,
   IconRadar,
   IconRefresh,
   IconSearchSmall,
@@ -36,7 +37,7 @@ import {
 
 /* ── Mtu mmoja (person row) ─────────────────────────────────── */
 
-function PersonRow({ name, meta, tone = 'green', action, icon, onSelect, onAction, badge, selected }) {
+export function PersonRow({ name, meta, tone = 'green', action, icon, onSelect, onAction, badge, selected }) {
   return (
     <li className={`psh-chat-person ${selected ? 'is-selected' : ''}`}>
       {/* Muundo: vitufe viwili VILIVYO TOFAUTI (hakuna kitufe ndani ya kitufe) —
@@ -70,7 +71,7 @@ function PersonRow({ name, meta, tone = 'green', action, icon, onSelect, onActio
       + lookup ya namba (kesi 4) — flow MOJA
    ══════════════════════════════════════════════════════════════ */
 
-export function NewChatBody({ view, onStart, onInvite, onLookup, onNewGroup, onRequests, lookup, onToast }) {
+export function NewChatBody({ view, onStart, onInvite, onLookup, onNewGroup, onRequests, lookup, onToast, onOpenContacts }) {
   const [number, setNumber] = useState(view?.number || '0784 123 456')
   const [saved, setSaved] = useState([])
   const [requested, setRequested] = useState([])
@@ -117,6 +118,11 @@ export function NewChatBody({ view, onStart, onInvite, onLookup, onNewGroup, onR
           <IconShield size={16} /> Maombi ya mazungumzo
           {view.pending ? <Chip tone="green">{view.pending}</Chip> : null}
         </button>
+        {onOpenContacts ? (
+          <button type="button" className="psh-btn psh-btn--sm" onClick={onOpenContacts}>
+            <IconPeople size={16} /> Contacts zangu
+          </button>
+        ) : null}
       </div>
 
       <h3 className="psh-panelstack__h">Tafuta namba ya simu</h3>
@@ -308,7 +314,7 @@ export function NewChatBody({ view, onStart, onInvite, onLookup, onNewGroup, onR
   )
 }
 
-export function NewChatPanel({ onStart, onInvite, onNewGroup, onRequests, onToast }) {
+export function NewChatPanel({ onStart, onInvite, onNewGroup, onRequests, onToast, onOpenContacts }) {
   const [lookup, setLookup] = useState(null)
   const base = useAsyncData(() => chatService.getNewChat(), [])
 
@@ -324,134 +330,23 @@ export function NewChatPanel({ onStart, onInvite, onNewGroup, onRequests, onToas
       onNewGroup={onNewGroup}
       onRequests={onRequests}
       onToast={onToast}
+      onOpenContacts={onOpenContacts}
     />
   )
 }
 
 /* ══════════════════════════════════════════════════════════════
-   2) NEW GROUP — jina · picha (mandhari) · wanachama · tafuta
+   2) NEW GROUP — M1: wizard ipo kwenye `GroupWizard.jsx` (chanzo kimoja)
+   · Chat.jsx inaipandisha kwenye panel ileile ya `newgroup`.
+   · PersonRow + GROUP_TONES zinashirikiwa NAO (hakuna nakala ya pili).
    ══════════════════════════════════════════════════════════════ */
 
-const GROUP_TONES = [
+export const GROUP_TONES = [
   { id: 'green', label: 'Kijani' },
   { id: 'blue', label: 'Bluu' },
   { id: 'gold', label: 'Dhahabu' },
   { id: 'plum', label: 'Zambarau' },
 ]
-
-export function NewGroupBody({ view, name, setName, picked, toggle, onCreate, onToast }) {
-  const [q, setQ] = useState('')
-  const [tone, setTone] = useState('green')
-  if (!view) return null
-
-  const all = [...view.savedFriends, ...view.pasihaiFriends, ...view.accounts]
-  const list = q ? all.filter((c) => c.name.toLowerCase().includes(q.toLowerCase())) : all
-
-  return (
-    <div className="psh-panelstack">
-      <label className="psh-compose">
-        <span className="u-sr">Jina la kikundi</span>
-        <input
-          className="psh-chat-lookup__input"
-          style={{ width: '100%', minHeight: 42 }}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Jina la kikundi"
-          aria-label="Jina la kikundi"
-        />
-      </label>
-
-      <div className="psh-panelstack__actions">
-        <ChatAvatar tone={tone} name={(name || 'Kikundi').slice(0, 2).toUpperCase()} size="md" />
-        <span className="psh-panelstack__count">Picha ya kikundi — chagua mandhari</span>
-        <ul className="psh-chips">
-          {GROUP_TONES.map((t) => (
-            <li key={t.id}>
-              <button
-                type="button"
-                className={`psh-chipbtn ${tone === t.id ? 'is-on' : ''}`}
-                aria-pressed={tone === t.id}
-                aria-label={`Mandhari ya kikundi: ${t.label}`}
-                onClick={() => setTone(t.id)}
-              >
-                {t.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-        {picked.length ? <Chip tone="green">Wanachama {picked.length}</Chip> : null}
-      </div>
-
-      <label className="psh-chat__search" style={{ cursor: 'text' }}>
-        <IconSearchSmall size={17} />
-        <input
-          className="psh-chat-lookup__input"
-          style={{ border: 0, background: 'transparent', minHeight: 0, padding: 0 }}
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Tafuta wanachama…"
-          aria-label="Tafuta wanachama"
-        />
-      </label>
-
-      <h3 className="psh-panelstack__h">Chagua wanachama</h3>
-      <ul>
-        {list.map((c) => {
-          const on = picked.includes(c.id)
-          return (
-            <PersonRow
-              key={c.id}
-              name={c.name}
-              meta={c.saved ? 'Saved Friend' : c.friend ? 'PASIHAI Friend' : 'Akaunti ya PASIHAI'}
-              tone={c.tone}
-              action={on ? '✓ Ameshachaguliwa' : 'Ongeza'}
-              onSelect={() => toggle(c.id)}
-              onAction={() => toggle(c.id)}
-              selected={on}
-              badge={on ? <Chip tone="green">Amechaguliwa</Chip> : null}
-            />
-          )
-        })}
-      </ul>
-
-      <div className="psh-panelstack__actions">
-        <button
-          type="button"
-          className="psh-btn psh-btn--primary"
-          onClick={() => onCreate({ name, members: picked, tone })}
-          disabled={!name.trim() || picked.length === 0}
-          aria-disabled={!name.trim() || picked.length === 0 || undefined}
-        >
-          Unda kikundi
-        </button>
-      </div>
-      <p className="psh-note">
-        <IconInfo size={16} />
-        Kikundi ni mazungumzo. Community au Hub (kama wapo) ni metadata — usimamizi wao uko Spaces.
-      </p>
-    </div>
-  )
-}
-
-export function NewGroupPanel({ onCreate, onToast }) {
-  const view = useAsyncData(() => chatService.getNewChat(), [])
-  const [name, setName] = useState('')
-  const [picked, setPicked] = useState([])
-
-  const toggle = (id) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
-
-  return (
-    <NewGroupBody
-      view={view}
-      name={name}
-      setName={setName}
-      picked={picked}
-      toggle={toggle}
-      onCreate={onCreate}
-      onToast={onToast}
-    />
-  )
-}
 
 /* ══════════════════════════════════════════════════════════════
    3) CHAT REQUESTS — kubali · kataa · zuia

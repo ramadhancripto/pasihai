@@ -74,6 +74,13 @@ html[data-chrome='hidden'] .psh-nav {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
+
+  /* Sheet ya app lazima ibaki JUU ya skrini nzima ya mazungumzo.
+     (Defect iliyopatikana M2: thread z-70 ilifunika sheet z-60, hivyo
+     menyu ya More na paneli ya Usimamizi wa kikundi hazikuklikika kwenye simu.) */
+  .psh-chat[data-mobile-view='thread'] ~ .psh-sheet {
+    z-index: 75;
+  }
   .psh-chat[data-mobile-view='thread'] .psh-chat__pane--thread {
     display: flex;
     flex-direction: column;

@@ -4,7 +4,7 @@
 // Gundua NI SAFU YA UGUNDUZI — haitengenezi entity wala engine mpya:
 //   · Watu / Biashara / Channels / Hubs / Jumuiya  → identityRepository (users)
 //   · Live / Kumbi za sauti                        → liveSessions (Home Live)
-//   · Vikundi                                      → Chat: join → chatRepository.createGroup
+//   · Vikundi                                      → Chat: join → chatService.createGroup (njia moja)
 //   · Mazungumzo ("Wasiliana kwa Chat")            → chatRepository.startDirect
 //   · Hali za urafiki                              → friend model ileile ya Chat/identity
 //
@@ -13,6 +13,8 @@
 // ══════════════════════════════════════════════════════════════
 
 import { gunduaRepository, chatRepository, identityRepository } from '../data/repositories/index.js'
+import { chatService } from './chatService.js'
+import { contactsService } from './contactsService.js'
 
 const EMPTY = { mada: [], eneo: '', distance: '5km', wakati: [], mahusiano: [], biashara: [], hali: [] }
 
@@ -248,11 +250,17 @@ export const gunduaService = {
         }
       }
       /* Mazungumzo yanatengenezwa kwenye CHAT iliyopo — hakuna engine ya pili. */
-      const created = await chatRepository.createGroup({
-        name: group.name,
-        members: [group.ownerId].filter(Boolean),
-        parentContext: null,
-      })
+      /* Njia ya 'system': kujiunga na kikundi cha Gundua ni tendo la ndani —
+         mmiliki wa kikundi (kutoka orodha ya hadharani) si lazima awe kwenye
+         contacts zako; ndiyo maana halindwi kwa sera ya picker. */
+      const created = await chatService.createGroup(
+        {
+          name: group.name,
+          members: [group.ownerId].filter(Boolean),
+          parentContext: null,
+        },
+        { memberPolicy: 'system' },
+      )
       await gunduaRepository.join('group', id, created?.id)
       return {
         type,
@@ -275,12 +283,34 @@ export const gunduaService = {
     return { conversation: res.conversation, created: res.created }
   },
 
-  /** Namba ya simu: njia ILEILE ya Chat (hakuna utafutaji wa pili). */
+  /** Namba ya simu: njia ILEILE ya Chat/Contacts (hakuna utafutaji wa pili). */
   async lookupNumber(number) {
-    const cases = await chatRepository.lookupNumber(number)
-    return Promise.all(
-      cases.map(async (c) => ({ ...c, friendState: c.accountId ? await gunduaRepository.getFriendState(c.accountId) : 'no_account' })),
-    )
+    const res = await contactsService.lookupNumber(number)
+    if (res.invalid) return []
+    const base = {
+      match: res.e164,
+      phone: contactsService.maskPhone(res.e164),
+      accountId: res.accountId || null,
+      saved: res.alreadySaved,
+      friend: res.friendState === 'friend',
+    }
+    if (!res.found) {
+      return [{
+        ...base,
+        id: 'none',
+        name: null,
+        friendState: 'no_account',
+        note: 'Namba hii haijasajiliwa ChatHai bado. Mualike ajiunge.',
+      }]
+    }
+    return [{
+      ...base,
+      id: res.accountId,
+      name: res.account?.name || null,
+      handle: res.account?.handle || null,
+      friendState: res.friendState,
+      note: 'Akaunti ipo ChatHai — unaweza kuongeza kwenye contacts, kutuma ombi la urafiki au kuanza mazungumzo.',
+    }]
   },
 
   /** Orodha ya simu: chanzo kilekile cha Chat (chatPhoneBook). */

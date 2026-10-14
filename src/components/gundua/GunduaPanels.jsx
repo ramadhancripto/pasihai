@@ -412,6 +412,7 @@ export function AddFriendBody({
   onCopyLink,
   onToast,
   onLookup,
+  onOpenContacts,
 }) {
   const [link, setLink] = useState(null)
   useEffect(() => {
@@ -508,7 +509,13 @@ export function AddFriendBody({
       <section className="psh-gu-fgroup">
         <header className="psh-gu-fgroup__head">
           <h3 className="psh-gu-fgroup__label">Kutoka orodha yako ya simu</h3>
-          <span className="psh-gu-fgroup__hint">Inaruhusiwa na wewe pekee</span>
+          {onOpenContacts ? (
+            <button type="button" className="psh-gu-btn psh-gu-btn--ghost" onClick={onOpenContacts}>
+              Fungua Contacts
+            </button>
+          ) : (
+            <span className="psh-gu-fgroup__hint">Inaruhusiwa na wewe pekee</span>
+          )}
         </header>
         <ul className="psh-gu-plist">
           {contacts.slice(0, 6).map((c) => (
@@ -582,7 +589,7 @@ function PersonAction({ p, onAdd, onChat, onAccept, onDecline }) {
   return <button type="button" className="psh-gu-btn psh-gu-btn--primary" onClick={() => onAdd(p)}>Omba Urafiki</button>
 }
 
-export function AddFriendPanel({ onAdd, onChat, onAccept, onDecline, onInvite, onCopyLink, onToast }) {
+export function AddFriendPanel({ onAdd, onChat, onAccept, onDecline, onInvite, onCopyLink, onToast, onOpenContacts }) {
   const [data, setData] = useState(null)
   useEffect(() => {
     let live = true
@@ -603,6 +610,7 @@ export function AddFriendPanel({ onAdd, onChat, onAccept, onDecline, onInvite, o
       onInvite={onInvite}
       onCopyLink={onCopyLink}
       onToast={onToast}
+      onOpenContacts={onOpenContacts}
       onLookup={(n) => gunduaService.lookupNumber(n)}
     />
   )

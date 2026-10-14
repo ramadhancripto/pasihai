@@ -13,6 +13,7 @@ import BottomNav, { NAV_ITEMS } from './components/BottomNav.jsx'
 import Sheet from './components/Sheet.jsx'
 import Home from './pages/Home.jsx'
 import Chat from './pages/Chat.jsx'
+import Contacts from './pages/Contacts.jsx'
 import Gundua from './pages/Gundua.jsx'
 import Spaces from './pages/Spaces.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
@@ -56,7 +57,9 @@ import { outboxManager } from './utils/outboxManager.js'
 import { useTheme } from './hooks/useTheme.js'
 
 // 'studio' ni Creator Studio: inafikiwa kutoka kwenye CreatePanel (kiingilio kimoja) na hash #/studio.
-const NAV_ROUTE_IDS = new Set([...NAV_ITEMS.map(({ id }) => id), 'studio'])
+// 'contacts' haina kitufe kwenye BottomNav: inafikiwa kutoka Chat (New Chat) na
+// Gundua (Ongeza Rafiki) kwa sababu ni safu ya watu, si sehemu ya kusogeza kila siku.
+const NAV_ROUTE_IDS = new Set([...NAV_ITEMS.map(({ id }) => id), 'studio', 'contacts'])
 
 function routeFromHash(hash = '') {
   const segment = String(hash).replace(/^#\/?/, '').split(/[/?#]/, 1)[0]
@@ -616,13 +619,23 @@ export default function App() {
 
         {visitedRoutes.has('chat') ? (
           <div className="psh-route" data-route="chat" hidden={route !== 'chat'}>
-            <Chat onToast={toastIt} />
+            <Chat onToast={toastIt} onOpenContacts={() => navigateTo('contacts')} />
+          </div>
+        ) : null}
+
+        {visitedRoutes.has('contacts') ? (
+          <div className="psh-route" data-route="contacts" hidden={route !== 'contacts'}>
+            <Contacts onToast={toastIt} onOpenChat={() => navigateTo('chat')} />
           </div>
         ) : null}
 
         {visitedRoutes.has('gundua') ? (
           <div className="psh-route" data-route="gundua" hidden={route !== 'gundua'}>
-            <Gundua onToast={toastIt} onOpenChat={() => navigateTo('chat')} />
+            <Gundua
+              onToast={toastIt}
+              onOpenChat={() => navigateTo('chat')}
+              onOpenContacts={() => navigateTo('contacts')}
+            />
           </div>
         ) : null}
 

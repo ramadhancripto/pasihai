@@ -36,6 +36,9 @@ import './styles/video-reels.css'
 import './styles/feed-responsive.css'
 // Safu ya juu ya Status (uundaji · preview · muonekano wa story)
 import './styles/status-studio.css'
+import './styles/chat-studio.css'
+// Safu ya ChatHai Groups (wizard ya uundaji · DP/cover · settings)
+import './styles/groups.css'
 
 import App from './App.jsx'
 import Splash from './components/Splash.jsx'

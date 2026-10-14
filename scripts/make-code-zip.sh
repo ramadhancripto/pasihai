@@ -45,15 +45,19 @@ cp docs/shots/status/status-viewer-harness.html "$ROOT/code-kamili/docs/shots/st
 echo "· files-zilizobadilishwa/ — faili zote zilizobadilishwa…"
 mkdir -p "$ROOT/files-zilizobadilishwa"
 git diff --name-status main.."$BRANCH" > "$STAGE/list.txt"
+: > "$STAGE/list2.txt"
 
 n=0
 while IFS=$'\t' read -r st path; do
   case "$path" in
     docs/shots/*) continue ;;          # picha za uthibitisho — hazijumuishwi
+    docs/verification/*) continue ;;   # ripoti + evidence — hazijumuishwi (si code)
+    *.md) continue ;;                  # maelezo/ripoti — hazijumuishwi
   esac
   [ -f "$path" ] || continue
   mkdir -p "$ROOT/files-zilizobadilishwa/$(dirname "$path")"
   cp -p "$path" "$ROOT/files-zilizobadilishwa/$path"
+  printf '%s  %s\n' "$st" "$path" >> "$STAGE/list2.txt"
   n=$((n+1))
 done < "$STAGE/list.txt"
 
@@ -64,10 +68,10 @@ n=$((n+1))
 # ── 3. Orodha ─────────────────────────────────────────────────
 {
   echo "FILES ZILIZOBADILISHWA · main ($(git rev-parse --short main)) → $BRANCH ($(git rev-parse --short HEAD))"
-  echo "A = mpya · M = imebadilishwa"
+  echo "A = mpya · M = imebadilishwa · code pekee (docs/picha/ripoti hazijumuishwi)"
   echo
-  grep -v $'^A\tdocs/shots/' "$STAGE/list.txt" | sed 's/\t/  /'
-  grep $'^A\tdocs/shots/status/status-viewer-harness.html' "$STAGE/list.txt" | sed 's/\t/  /'
+  cat "$STAGE/list2.txt"
+  echo "docs/shots/status/status-viewer-harness.html  (A — harness ya Status, code)"
 } > "$ROOT/orodha.txt"
 
 # ── 4. Zip ────────────────────────────────────────────────────

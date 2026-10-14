@@ -581,6 +581,25 @@ export const IconChecks = (p) => (
   </S>
 )
 
+/* ── Hali za uwasilishaji (icons pekee — tazama ChatBits.jsx) ── */
+
+export const IconSync = (p) => (
+  <S {...p}>
+    <path d="M20.6 12a8.6 8.6 0 0 1-14.4 6.2L4 16.4" />
+    <path d="M4.2 17.6v-3.9h3.9" />
+    <path d="M3.4 12a8.6 8.6 0 0 1 14.4-6.2L20 7.6" />
+    <path d="M19.8 6.4v3.9h-3.9" />
+  </S>
+)
+
+export const IconOffline = (p) => (
+  <S {...p}>
+    <path d="M3.6 9.6a14 14 0 0 1 4.6-2.7M20.4 9.6a14 14 0 0 0-5.4-3M9.4 13.9c.6-.3 1.2-.4 1.9-.5M15 13.6c.4.1.7.2 1 .3" />
+    <path d="M12 18.4v.1" />
+    <path d="M3.4 3.4 20.6 20.6" />
+  </S>
+)
+
 export const IconPin = (p) => (
   <S {...p}>
     <path d="M12 21.2s6.2-5.6 6.2-10.2a6.2 6.2 0 1 0-12.4 0C5.8 15.6 12 21.2 12 21.2Z" />

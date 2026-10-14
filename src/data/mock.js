@@ -1386,7 +1386,8 @@ export const chatConversations = [
 export const chatMessages = {
   c1: [
     { id: 'm1', from: 'them', kind: 'text', text: 'Habari! Nimefika Kunduchi beach, upepo ni mwanana sana. Uko njiani kuja? 🏖️✨', at: '10:38', state: 'sent' },
-    { id: 'm2', from: 'me', kind: 'text', text: 'Ndiyo niko njiani, nimepanda bodaboda nimefika karibu na Slipway.', at: '10:40', state: 'synced' },
+    { id: 'm2', from: 'me', kind: 'text', text: 'Ndiyo niko njiani, nimepanda bodaboda nimefika karibu na Slipway.', at: '10:40', state: 'read',
+      receipt: { deliveredAt: '10:40', readAt: '10:41', transport: 'internet', simulated: true } },
     { id: 'm3', from: 'them', kind: 'shared', text: 'Chapisho la Home', at: '10:41', state: 'sent',
       shared: { kind: 'post', title: 'Samaki wa kupaka karibu na ufukwe wa Kunduchi', sub: 'Ushauri bora kabisa wa chakula cha mchana kwa leo!…', tone: 'clay', meta: 'Kunduchi Beach', cta: 'Tazama chapisho kwenye Home' } },
     { id: 'm4', from: 'them', kind: 'audio', at: '10:42', state: 'sent', reactions: { heart: 1 },
@@ -1399,14 +1400,21 @@ export const chatMessages = {
       ] } },
     { id: 'm6', from: 'them', kind: 'location', at: '10:44', state: 'sent',
       location: { title: 'Kunduchi Beach Road', sub: 'Usawazishaji wa moja kwa moja kupitia mtandao wa PASIHAI', badge: 'Dakika 8 zimebaki', who: 'Mtandaoni' } },
+    /* Mifano ya hali: delivered (✓✓ grey) na sent (✓ moja) */
+    { id: 'm7', from: 'me', kind: 'text', at: '10:46', state: 'delivered',
+      text: 'Nakaribia Slipway, nitakufuata hapo ufukweni.',
+      receipt: { deliveredAt: '10:46', transport: 'internet', simulated: true } },
+    { id: 'm8', from: 'me', kind: 'text', at: '10:47', state: 'sent',
+      text: 'Nimekaa pale karibu na wauza madafu.' },
   ],
   c2: [
     { id: 'g1', from: 'kelvin', kind: 'text', at: '08:30', state: 'sent', role: 'Msimamizi',
       text: 'Habari wote, tafadhali kumbukeni ratiba ya masomo ya Muhimbili kwa wiki hii imeboreshwa.',
       doc: { name: 'Ratiba_Rotations_Muhimbili.pdf', meta: '1.4 MB · PDF Doc', kb: 1434 }, reactions: { like: 14, clap: 6 } },
     { id: 'g2', from: 'sarah', kind: 'text', at: '08:42', state: 'sent', role: 'Mwanafunzi', text: 'Asante Dr. Kesho tunakutana wodi gani asubuhi?' },
-    { id: 'g3', from: 'me', kind: 'text', at: '09:10', state: 'synced', replyTo: { by: 'Sarah', text: 'Kesho tunakutana wodi gani asubuhi?' },
-      text: 'Tutaanza Wodi 4 ya Watoto kisha kuelekea ICU ya Upasuaji.' },
+    { id: 'g3', from: 'me', kind: 'text', at: '09:10', state: 'read', replyTo: { by: 'Sarah', text: 'Kesho tunakutana wodi gani asubuhi?' },
+      text: 'Tutaanza Wodi 4 ya Watoto kisha kuelekea ICU ya Upasuaji.',
+      receipt: { audience: 48, delivered: 31, read: 12, simulated: true } },
     { id: 'g4', from: 'juma', kind: 'text', at: '09:18', state: 'waiting', role: 'Kiongozi',
       text: 'Kesho lecture ya mifupa inaanza saa 3 kamili asubuhi. Nitaweka kinasa sauti tayari kwa wote.',
       audioNote: 'Audio imeandaliwa' },
@@ -1424,14 +1432,19 @@ export const chatMessages = {
     { id: 'w3', from: 'asha', kind: 'text', at: '08:51', state: 'sent', role: 'Rafiki',
       text: 'Nimetuma taarifa ya mbegu za mahindi zilizoidhinishwa kwa msimu huu kwenye faili hapa chini. Pakueni na muangalie aina inayofaa mchanga wenu.',
       doc: { name: 'Muongozo_Mbegu_Dar_2025.pdf (680 KB)', meta: '680 KB · Hati Rasmi', kb: 680 }, reactions: { like: 19, heart: 12 } },
-    { id: 'w4', from: 'me', kind: 'text', at: '09:05', state: 'synced', replyTo: { by: 'Asha Mussa', text: 'Muongozo_Mbegu_Dar_2025.pdf (680 KB)' },
-      text: 'Asante sana Asha, je wakulima wa Kigamboni watafikishiwa lini mizigo yao?' },
+    { id: 'w4', from: 'me', kind: 'text', at: '09:05', state: 'delivered', replyTo: { by: 'Asha Mussa', text: 'Muongozo_Mbegu_Dar_2025.pdf (680 KB)' },
+      text: 'Asante sana Asha, je wakulima wa Kigamboni watafikishiwa lini mizigo yao?',
+      receipt: { audience: 36, delivered: 29, simulated: true } },
     { id: 'w5', from: 'space', kind: 'shared', at: '09:14', state: 'sent',
       shared: { kind: 'article', eyebrow: 'Imechapishwa kutoka Spaces · Wakulima Tanzania', title: 'Uzoefu wa kilimo cha umwagiliaji kwa matone mjini', sub: 'Mbinu bora za kupunguza gharama za maji hadi asilimia sitini huku ukiongeza mavuno…', meta: 'Mwandi: Juma Khalfan · 4 min kusoma' } },
   ],
   c4: [
     { id: 'j1', from: 'them', kind: 'audio', at: 'Jana', state: 'sent', audio: { duration: '1:12', progress: 0.15, bars: 22, label: 'Sauti' } },
-    { id: 'j2', from: 'me', kind: 'text', at: 'Jana', state: 'synced', text: 'Nimesikiliza, nitakujibu kwa urefu jioni hii.' },
+    { id: 'j2', from: 'me', kind: 'text', at: 'Jana', state: 'failed', text: 'Nimesikiliza, nitakujibu kwa urefu jioni hii.',
+      receipt: { retries: 5, maxRetries: 5, lastError: 'Hakuna mtandao kwa dakika 20', transport: 'internet', simulated: true } },
+    { id: 'j4', from: 'me', kind: 'text', at: 'Jana', state: 'retrying', route: 'relay',
+      text: 'Jaribio la pili: nitakupigia saa 4 usiku.',
+      receipt: { retries: 2, maxRetries: 5, nextRetryAt: 'Jana 21:04', transport: 'relay', simulated: true } },
     { id: 'j3', from: 'them', kind: 'image', at: 'Jana', state: 'blocked-media',
       media: { label: 'Picha (3.2 MB)', meta: 'Juma Rashid · picha 4' },
       guard: { title: 'Inasubiri Wi-Fi au Data Kamili',
@@ -1440,7 +1453,8 @@ export const chatMessages = {
   ],
   c5: [
     { id: 'f1', from: 'kelvin', kind: 'text', at: 'Jana', state: 'sent', text: 'Mkutano wa Jumamosi Masaki utaanza saa 4 usiku. Tafadhali jisajili kabla ya Ijumaa.' },
-    { id: 'f2', from: 'me', kind: 'text', at: 'Jana', state: 'synced', text: 'Nimeshajisajili, nitakuja na laptop.' },
+    { id: 'f2', from: 'me', kind: 'text', at: 'Jana', state: 'delivered', text: 'Nimeshajisajili, nitakuja na laptop.',
+      receipt: { audience: 126, delivered: 81, simulated: true } },
   ],
   c6: [
     { id: 'h1', from: 'me', kind: 'text', at: '10:52', state: 'synced', text: 'Hamisi, nimepata ramani ya safari ya Bagamoyo.' },
@@ -1459,6 +1473,11 @@ export const chatMessages = {
         secondary: 'Subiri Wi-Fi',
         vault: 'Imehifadhiwa (Offline Vault)',
       } },
+    /* TTL ya foleni imeisha — ujumbe haukutumwa. */
+    { id: 'h6', from: 'me', kind: 'text', at: '11:24', state: 'expired', route: 'relay',
+      text: 'Ujumbe wa haraka: nimefika Tegeta.',
+      note: 'TTL ya foleni imeisha · haitatumwa',
+      receipt: { expiredAt: '11:54', transport: 'relay', simulated: true } },
   ],
 }
 

@@ -71,4 +71,4 @@ CREATE POLICY participants_insert_creator
     )
   );
 
-COMMIT();
+COMMIT;

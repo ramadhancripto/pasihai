@@ -1,0 +1,428 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — CONTACTS (safu ya muonekano)
+
+   Kanuni:
+   · Inatumia TOKENS za mradi (tokens.css) — light + dark, hakuna rangi mpya.
+   · Haibadilishi data wala mantiki — muonekano pekee.
+   · Vitufe vya VITENDO vina maneno (ni vitendo); HALI (verified · blocked ·
+     friend) zinatumia icons + tooltip, kwa kanuni ya icons-pekee.
+   ══════════════════════════════════════════════════════════════ */
+
+.psh-cx {
+  width: 100%;
+  max-width: var(--col);
+  margin: 0 auto;
+  padding: var(--s-4) var(--s-4) calc(var(--nav-h) + var(--s-8));
+  min-width: 0;
+}
+.psh-cx * { min-width: 0; }
+
+/* ── Kichwa ─────────────────────────────────────────────────── */
+.psh-cx__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.psh-cx__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  line-height: var(--lh-tight);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--t-1);
+  margin: 0;
+}
+.psh-cx__sub {
+  font-size: var(--fs-13);
+  color: var(--t-2);
+  margin: 2px 0 0;
+}
+.psh-cx__head-actions { display: flex; gap: var(--s-2); flex: 0 0 auto; }
+
+/* ── Vitufe ─────────────────────────────────────────────────── */
+.psh-cx-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line-2);
+  background: var(--bg);
+  color: var(--t-1);
+  border-radius: var(--r-full);
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
+  white-space: nowrap;
+}
+.psh-cx-btn:hover { background: var(--bg-hover); }
+.psh-cx-btn:disabled { opacity: 0.55; cursor: default; }
+.psh-cx-btn--primary {
+  background: var(--c-green-700);
+  border-color: var(--c-green-700);
+  color: var(--t-inverse);
+}
+.psh-cx-btn--primary:hover { background: var(--c-green-600); border-color: var(--c-green-600); }
+.psh-cx-btn--danger { color: var(--c-error-600); border-color: var(--c-error-soft); background: var(--c-error-soft); }
+.psh-cx-btn--ghost { border-color: transparent; background: transparent; }
+.psh-cx-btn--icon { padding: 8px; border-radius: var(--r-full); }
+.psh-cx-btn--sm { padding: 6px 10px; font-size: var(--fs-12); }
+
+/* ── Search ─────────────────────────────────────────────────── */
+.psh-cx__search {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  padding: 8px 14px;
+  margin-bottom: var(--s-3);
+}
+.psh-cx__search input {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--fs-14);
+  color: var(--t-1);
+  width: 100%;
+  outline: none;
+}
+.psh-cx__search input::placeholder { color: var(--t-3); }
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+.psh-cx__tabs {
+  display: flex;
+  gap: var(--s-2);
+  overflow-x: auto;
+  padding-bottom: 2px;
+  margin-bottom: var(--s-3);
+  scrollbar-width: none;
+}
+.psh-cx__tabs::-webkit-scrollbar { display: none; }
+.psh-cx-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--t-2);
+  border-radius: var(--r-full);
+  padding: 7px 12px;
+  font: inherit;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.psh-cx-tab.is-on { background: var(--c-green-soft); border-color: var(--c-green-soft-2); color: var(--c-green-700); }
+.psh-cx-tab__n {
+  font-size: var(--fs-11);
+  font-weight: 700;
+  background: var(--bg-sunken);
+  color: var(--t-2);
+  border-radius: var(--r-full);
+  padding: 1px 6px;
+}
+.psh-cx-tab.is-on .psh-cx-tab__n { background: var(--c-green-soft-2); color: var(--c-green-700); }
+
+/* ── Kadi ya orodha ─────────────────────────────────────────── */
+.psh-cx__card {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.psh-cx__list { list-style: none; margin: 0; padding: 0; }
+.psh-cx__list > li + li { border-top: 1px solid var(--line); }
+
+.psh-cx-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 11px var(--s-3);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.psh-cx-row:hover { background: var(--bg-hover); }
+.psh-cx-row__ava {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: var(--r-full);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-14);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  position: relative;
+}
+.psh-cx-row__ava--img { background-size: cover; background-position: center; }
+.psh-cx-row__body { flex: 1 1 auto; display: grid; gap: 3px; min-width: 0; }
+.psh-cx-row__name {
+  font-size: var(--fs-14);
+  font-weight: 650;
+  color: var(--t-1);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.psh-cx-row__meta {
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+.psh-cx-row__metatext {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psh-cx-row__nametext {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.psh-cx-row__name { min-width: 0; }
+.psh-cx-row__side { display: flex; align-items: center; gap: var(--s-2); flex: 0 0 auto; }
+
+/* ── Alama (icons pekee + tooltip) ──────────────────────────── */
+.psh-cx-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-full);
+  background: var(--bg-sunken);
+  color: var(--t-2);
+  flex: 0 0 auto;
+}
+.psh-cx-mark--ok { background: var(--c-green-soft); color: var(--c-green-700); }
+.psh-cx-mark--blue { background: var(--c-blue-soft); color: var(--c-blue-700); }
+.psh-cx-mark--gold { background: var(--c-gold-soft); color: var(--c-gold); }
+.psh-cx-mark--red { background: var(--c-error-soft); color: var(--c-error-600); }
+.psh-cx-mark--fav { background: var(--c-gold-soft); color: var(--c-gold); }
+.psh-cx-mark--lg { width: 26px; height: 26px; }
+
+.psh-cx-pill {
+  font-size: var(--fs-11);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border-radius: var(--r-full);
+  padding: 3px 8px;
+  background: var(--bg-sunken);
+  color: var(--t-2);
+  white-space: nowrap;
+}
+.psh-cx-pill--friend { background: var(--c-green-soft); color: var(--c-green-700); }
+.psh-cx-pill--sent { background: var(--c-gold-soft); color: var(--c-gold); }
+.psh-cx-pill--received { background: var(--c-blue-soft); color: var(--c-blue-700); }
+.psh-cx-pill--blocked { background: var(--c-error-soft); color: var(--c-error-600); }
+.psh-cx-pill--noaccount { background: var(--bg-sunken); color: var(--t-2); }
+.psh-cx-pill--demo { background: var(--bg-sunken); color: var(--t-3); border: 1px dashed var(--line-2); }
+
+.psh-cx-phone {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+}
+
+/* ── Hali (loading · error · offline · empty) ───────────────── */
+.psh-cx-state {
+  display: grid;
+  gap: var(--s-2);
+  justify-items: center;
+  text-align: center;
+  padding: var(--s-8) var(--s-4);
+  background: var(--bg);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-lg);
+  color: var(--t-2);
+}
+.psh-cx-state__ico {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
+  display: grid;
+  place-items: center;
+  background: var(--bg-sunken);
+  color: var(--t-2);
+}
+.psh-cx-state b { color: var(--t-1); font-size: var(--fs-15); }
+.psh-cx-state span { font-size: var(--fs-13); max-width: 42ch; line-height: var(--lh-snug); }
+.psh-cx-state__actions { display: flex; gap: var(--s-2); flex-wrap: wrap; justify-content: center; margin-top: var(--s-1); }
+
+.psh-cx-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-size: var(--fs-13);
+  margin-bottom: var(--s-3);
+  border: 1px solid var(--line);
+  background: var(--bg-subtle);
+  color: var(--t-2);
+}
+.psh-cx-banner--off { background: var(--c-gold-soft); border-color: var(--c-gold-soft); color: var(--c-gold); }
+.psh-cx-banner--demo { border-style: dashed; }
+.psh-cx-banner--err { background: var(--c-error-soft); border-color: var(--c-error-soft); color: var(--c-error-600); }
+
+/* ── Paneli (sheets) ────────────────────────────────────────── */
+.psh-cx-panel { display: grid; gap: var(--s-4); }
+.psh-cx-field { display: grid; gap: 6px; }
+.psh-cx-field > label,
+.psh-cx-field__label {
+  font-size: var(--fs-12);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--t-2);
+}
+.psh-cx-input {
+  width: 100%;
+  border: 1px solid var(--line-2);
+  background: var(--bg);
+  color: var(--t-1);
+  border-radius: var(--r-md);
+  padding: 11px 12px;
+  font: inherit;
+  font-size: var(--fs-14);
+}
+.psh-cx-input:focus { outline: 2px solid var(--c-green-soft-2); border-color: var(--c-green-600); }
+.psh-cx-input--inline { border-radius: 0 var(--r-md) var(--r-md) 0; border-left: 0; }
+.psh-cx-input--invalid { border-color: var(--c-error); }
+
+.psh-cx-phone-row { display: flex; align-items: stretch; }
+.psh-cx-country {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line-2);
+  border-right: 0;
+  border-radius: var(--r-md) 0 0 var(--r-md);
+  background: var(--bg-subtle);
+  padding: 0 10px;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--t-1);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.psh-cx-hint { font-size: var(--fs-12); color: var(--t-2); line-height: var(--lh-snug); }
+.psh-cx-hint--err { color: var(--c-error-600); }
+.psh-cx-hint--ok { color: var(--c-green-700); }
+
+.psh-cx-actions { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.psh-cx-actions .psh-cx-btn { flex: 1 1 auto; justify-content: center; }
+
+.psh-cx-note {
+  display: flex;
+  gap: var(--s-2);
+  align-items: flex-start;
+  font-size: var(--fs-12);
+  color: var(--t-2);
+  line-height: var(--lh-snug);
+  background: var(--bg-subtle);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+}
+
+/* ── Wasifu wa contact ──────────────────────────────────────── */
+.psh-cx-profile { display: grid; gap: var(--s-4); }
+.psh-cx-profile__top { display: flex; align-items: center; gap: var(--s-3); }
+.psh-cx-profile__ava {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--r-full);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-20);
+  font-weight: 700;
+  flex: 0 0 64px;
+}
+.psh-cx-profile__id { display: grid; gap: 3px; }
+.psh-cx-profile__name { font-size: var(--fs-18); font-weight: 700; color: var(--t-1); display: flex; align-items: center; gap: 6px; }
+.psh-cx-profile__sub { font-size: var(--fs-13); color: var(--t-2); }
+.psh-cx-profile__rows { display: grid; gap: 2px; }
+.psh-cx-kv {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-13);
+  flex-wrap: wrap;
+}
+.psh-cx-kv__k { color: var(--t-2); flex: 0 1 auto; }
+.psh-cx-kv__v { color: var(--t-1); font-weight: 600; text-align: right; overflow-wrap: anywhere; flex: 1 1 auto; }
+
+.psh-cx-menu { list-style: none; margin: 0; padding: 0; display: grid; }
+.psh-cx-menu__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--t-1);
+  padding: 13px 4px;
+  cursor: pointer;
+  text-align: left;
+  border-top: 1px solid var(--line);
+}
+.psh-cx-menu__row:hover { background: var(--bg-hover); }
+.psh-cx-menu__row--danger { color: var(--c-error-600); }
+.psh-cx-menu__ico { display: grid; place-items: center; width: 22px; color: var(--t-2); flex: 0 0 22px; }
+.psh-cx-menu__row--danger .psh-cx-menu__ico { color: var(--c-error-600); }
+.psh-cx-menu__label { flex: 1 1 auto; font-size: var(--fs-14); font-weight: 600; }
+.psh-cx-menu__hint { font-size: var(--fs-12); color: var(--t-2); font-weight: 400; }
+
+/* ── Import ─────────────────────────────────────────────────── */
+.psh-cx-import-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.psh-cx-import-list > li { display: flex; align-items: center; gap: var(--s-3); padding: 10px 12px; }
+.psh-cx-import-list > li + li { border-top: 1px solid var(--line); }
+.psh-cx-import-list input[type='checkbox'] { width: 18px; height: 18px; accent-color: var(--c-green-700); flex: 0 0 auto; }
+.psh-cx-import-list__body { flex: 1 1 auto; display: grid; gap: 1px; }
+.psh-cx-import-list__name { font-size: var(--fs-14); font-weight: 600; color: var(--t-1); }
+.psh-cx-import-list__meta { font-size: var(--fs-12); color: var(--t-2); }
+
+.psh-cx-result { display: grid; gap: var(--s-2); }
+.psh-cx-result__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  font-size: var(--fs-13);
+}
+.psh-cx-result__n { font-weight: 700; color: var(--t-1); }
+
+/* ── Desktop ────────────────────────────────────────────────── */
+@media (min-width: 900px) {
+  .psh-cx { padding-top: var(--s-6); padding-bottom: 120px; }
+  .psh-cx__head-actions { align-items: center; }
+}

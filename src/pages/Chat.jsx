@@ -9,17 +9,17 @@
 // Hali za mfumo zinatokana na safu ileile ya System (hakuna network layer mpya).
 // ══════════════════════════════════════════════════════════════
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import useAsyncData from '../hooks/useAsyncData.js'
 import { chatService } from '../services/chatService.js'
 import { systemService } from '../services/systemService.js'
 import Sheet from '../components/Sheet.jsx'
 import Thread from '../components/chat/Thread.jsx'
+import GroupWizard from '../components/chat/GroupWizard.jsx'
 import { ChatAvatar } from '../components/chat/ChatBits.jsx'
 import {
   NewChatPanel,
-  NewGroupPanel,
   RequestsPanel,
   SearchPanel,
   MorePanel,
@@ -33,6 +33,13 @@ import {
   MediaGuardBody,
 } from '../components/chat/ChatPanels.jsx'
 import {
+  GroupInfoBody,
+  GroupAddMembersBody,
+  GroupMembersBody,
+  GroupSettingsGroupBody,
+  GroupEditInfoBody,
+} from '../components/chat/GroupScreens.jsx'
+import {
   IconInfo,
   IconMoreVertical,
   IconPlus,
@@ -44,6 +51,7 @@ import {
   IconHub,
   IconArchive,
   IconChat,
+  IconClose,
   IconMoreVertical as IconRowMore,
 } from '../components/icons.jsx'
 import '../styles/chat-direct.css'
@@ -58,7 +66,7 @@ const DOT = {
   OFFLINE: 'off',
 }
 
-export default function Chat({ onToast }) {
+export default function Chat({ onToast, onOpenContacts }) {
   const [filter, setFilter] = useState('zote')
   const [activeId, setActiveId] = useState(null)
   const [key, setKey] = useState(0)
@@ -67,8 +75,17 @@ export default function Chat({ onToast }) {
   const [guard, setGuard] = useState(null)
   const [busy, setBusy] = useState(false)
   const [rowMenuId, setRowMenuId] = useState(null)
+  const [groupQ, setGroupQ] = useState('') // utafutaji wa papo hapo kwenye Groups Home
 
   const refresh = useCallback(() => setKey((k) => k + 1), [])
+
+  /* Risiti za thread zinapoingia (mock: majaribio · halisi: realtime
+     itakapokuwepo) — thread inajirefresh. Mfumo halisi hauna realtime
+     bado, hivyo hii inarudi no-op na UI haidai mabadiliko yoyote. */
+  useEffect(() => {
+    if (!activeId) return undefined
+    return chatService.subscribeThread(activeId, refresh)
+  }, [activeId, refresh])
 
   /* Panel navigation: fungua (kwa mrundi) · rudi · funga */
   const go = (id) => {
@@ -101,6 +118,10 @@ export default function Chat({ onToast }) {
 
   const conversations = inbox?.conversations || []
   const activeConv = thread?.conversation
+  /* Groups Home: kichujio cha vikundi + utafutaji wa papo hapo (jina la kikundi) */
+  const shown = filter === 'vikundi' && groupQ
+    ? conversations.filter((c) => c.title.toLowerCase().includes(groupQ.trim().toLowerCase()))
+    : conversations
 
   const openConversation = (id) => {
     setActiveId(id)
@@ -195,20 +216,17 @@ export default function Chat({ onToast }) {
     refresh()
   }
 
-  const createGroup = async ({ name, members, tone }) => {
-    try {
-      const created = await chatService.createGroup({ name, members, tone })
-      if (!created?.id) {
-        onToast?.('Kikundi hakikuweza kuundwa')
-        return
-      }
-      close()
-      setActiveId(created.id)
-      onToast?.(`Kikundi “${created.title}” kimeundwa — wanachama ${members.length}`)
-      refresh()
-    } catch (err) {
-      onToast?.(`Hitilafu: ${err?.message || 'Kikundi hakikuweza kuundwa'}`)
-    }
+  /* Uundaji wa kikundi — wizard (M1) inaita hii. Hitilafu HAIFICHWI:
+     wizard inaonyesha ujumbe halisi wa backend (hakuna “success” ya uongo, §56). */
+  const createGroup = async (draft) => {
+    const created = await chatService.createGroup(draft)
+    close()
+    setActiveId(created.id)
+    const warn =
+      Array.isArray(created?.warnings) && created.warnings.length ? ` — ${created.warnings.join('; ')}` : ''
+    onToast?.(`Kikundi “${created.title}” kimeundwa — wanachama ${created.members}${warn}`)
+    refresh()
+    return created
   }
 
   /* ── Panel stack (Sheet ileile) ──────────────────────────── */
@@ -225,6 +243,7 @@ export default function Chat({ onToast }) {
               onNewGroup={() => go('newgroup')}
               onRequests={() => go('requests')}
               onToast={onToast}
+              onOpenContacts={onOpenContacts}
             />
           ),
         }
@@ -245,9 +264,8 @@ export default function Chat({ onToast }) {
       case 'newgroup':
         return {
           title: 'Kikundi Kipya',
-          subtitle: 'Jina · wanachama · tafuta',
           back: true,
-          body: <NewGroupPanel onCreate={createGroup} onToast={onToast} />,
+          body: <GroupWizard onCreate={createGroup} onToast={onToast} />,
         }
       case 'requests':
         return {
@@ -272,7 +290,71 @@ export default function Chat({ onToast }) {
         return {
           title: 'Chat — menyu zaidi',
           subtitle: 'Chat pekee: settings · faragha · taarifa · archives',
-          body: <MorePanel onOpen={(id) => go(id)} onToast={onToast} />,
+          body: (
+            <div className="psh-panelstack">
+              {activeConv?.type === 'group' ? (
+                <button
+                  type="button"
+                  className="psh-btn psh-btn--primary psh-chat__rowaction"
+                  aria-label="Taarifa za kikundi"
+                  onClick={() => go('groupinfo')}
+                >
+                  <IconShield size={18} /> Taarifa za kikundi
+                </button>
+              ) : null}
+              <MorePanel onOpen={(id) => go(id)} onToast={onToast} />
+            </div>
+          ),
+        }
+      case 'groupinfo':
+        return {
+          title: 'Taarifa za kikundi',
+          back: true,
+          body: (
+            <GroupInfoBody
+              conv={activeConv}
+              convId={activeId}
+              onOpen={(id) => go(id)}
+              onToast={onToast}
+              onRefresh={refresh}
+              onLeft={() => {
+                setActiveId(null)
+                close()
+                refresh()
+              }}
+            />
+          ),
+        }
+      case 'groupadd':
+        return {
+          title: 'Ongeza wanachama',
+          back: true,
+          body: <GroupAddMembersBody convId={activeId} onToast={onToast} onRefresh={refresh} onDone={back} />,
+        }
+      case 'groupmembers':
+        return {
+          title: 'Wanachama & roles',
+          back: true,
+          body: (
+            <GroupMembersBody
+              convId={activeId}
+              onToast={onToast}
+              onRefresh={refresh}
+              onAddMembers={() => go('groupadd')}
+            />
+          ),
+        }
+      case 'groupsettings':
+        return {
+          title: 'Mipangilio ya kikundi',
+          back: true,
+          body: <GroupSettingsGroupBody convId={activeId} onToast={onToast} onRefresh={refresh} />,
+        }
+      case 'groupedit':
+        return {
+          title: 'Hariri taarifa',
+          back: true,
+          body: <GroupEditInfoBody convId={activeId} onToast={onToast} onSaved={back} />,
         }
       case 'settings':
         return {
@@ -433,8 +515,36 @@ export default function Chat({ onToast }) {
             ))}
           </div>
 
+          {filter === 'vikundi' ? (
+            <div className="psh-chat__grpbar">
+              <label className="psh-chat__grpsearch" htmlFor="chat-group-q">
+                <IconSearchSmall size={16} />
+                <input
+                  id="chat-group-q"
+                  value={groupQ}
+                  onChange={(e) => setGroupQ(e.target.value)}
+                  placeholder="Tafuta kikundi…"
+                  aria-label="Tafuta kikundi"
+                />
+                {groupQ ? (
+                  <button type="button" className="psh-chat__grpclear" aria-label="Futa utafutaji" onClick={() => setGroupQ('')}>
+                    <IconClose size={14} />
+                  </button>
+                ) : null}
+              </label>
+              <button
+                type="button"
+                className="psh-btn psh-btn--sm psh-btn--primary psh-chat__grpnew"
+                aria-label="Kikundi Kipya"
+                onClick={() => go('newgroup')}
+              >
+                <IconPlus size={15} /> Kikundi Kipya
+              </button>
+            </div>
+          ) : null}
+
           <div className="psh-chat__list">
-            {conversations.map((c) => (
+            {shown.map((c) => (
               <div key={c.id} className="psh-chat__rowwrap">
                 <button
                   type="button"
@@ -445,6 +555,7 @@ export default function Chat({ onToast }) {
                     tone={c.tone}
                     name={c.title}
                     icon={c.type === 'group' ? c.groupIcon : null}
+                    src={c.type === 'group' ? c.dpUrl || null : null}
                   />
                   <span className="psh-chat__rowmain">
                     <span className="psh-chat__rowtop">
@@ -466,6 +577,11 @@ export default function Chat({ onToast }) {
                   </span>
                   <span className="psh-chat__rowmeta">
                     <span className="psh-chat__rowtime">{c.last?.at || c.updatedAt}</span>
+                    {c.type === 'group' && c.members ? (
+                      <span className="psh-chat__rowcount">
+                        <IconHub size={10} /> {c.members}
+                      </span>
+                    ) : null}
                     {c.unread ? <span className="psh-chat__unread">{c.unread}</span> : null}
                   </span>
                 </button>
@@ -483,7 +599,22 @@ export default function Chat({ onToast }) {
               </div>
             ))}
 
-            {conversations.length === 0 ? (
+            {shown.length === 0 && filter === 'vikundi' && !groupQ ? (
+              <div className="psh-empty">
+                <IconHub size={26} />
+                <p>Hakuna vikundi bado.</p>
+                <button type="button" className="psh-btn psh-btn--sm psh-btn--primary" onClick={() => go('newgroup')}>
+                  <IconPlus size={15} /> Unda kikundi
+                </button>
+              </div>
+            ) : null}
+            {shown.length === 0 && filter === 'vikundi' && groupQ ? (
+              <div className="psh-empty">
+                <IconSearchSmall size={24} />
+                <p>Hakuna kikundi kinacholingana na “{groupQ}”.</p>
+              </div>
+            ) : null}
+            {conversations.length === 0 && filter !== 'vikundi' ? (
               <div className="psh-empty">
                 <IconSearchSmall size={24} />
                 <p>Hakuna mazungumzo kwenye kichujio hiki.</p>
@@ -491,9 +622,15 @@ export default function Chat({ onToast }) {
             ) : null}
           </div>
 
-          <button type="button" className="psh-chat__fab" onClick={() => go('newchat')} aria-label="New Chat">
-            <IconComment size={18} />
-          </button>
+          {filter === 'vikundi' ? (
+            <button type="button" className="psh-chat__fab" onClick={() => go('newgroup')} aria-label="Kikundi Kipya">
+              <IconPlus size={18} />
+            </button>
+          ) : (
+            <button type="button" className="psh-chat__fab" onClick={() => go('newchat')} aria-label="New Chat">
+              <IconComment size={18} />
+            </button>
+          )}
 
         </section>
 
@@ -508,6 +645,7 @@ export default function Chat({ onToast }) {
             onResolveMedia={resolveMedia}
             onAttach={attach}
             onMore={() => go('more')}
+            onOpenGroupInfo={() => go('groupinfo')}
             onToast={onToast}
           />
         </section>

@@ -1,0 +1,586 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — CHATHAI GROUPS (M1)
+   Wizard ya uundaji wa kikundi · DP/cover · tabs · muhtasari.
+   Design tokens zilizopo pekee — hakuna design system ya pili (§55).
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── DP: picha halisi ndani ya avatar iliyopo ────────────────── */
+.psh-chat__ava__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* ── Wizard: mfumo mzima ────────────────────────────────────── */
+.psh-gw {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 8px;
+}
+
+/* ── Hatua (tabs za mchakato) ───────────────────────────────── */
+.psh-gw-steps {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+  margin: 0;
+  list-style: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid var(--line-1, rgba(0, 0, 0, 0.08));
+}
+.psh-gw-steps::-webkit-scrollbar {
+  display: none;
+}
+.psh-gw-steppill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  color: var(--t-2, var(--t-1));
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.psh-gw-steppill__n {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--bg-elev, #fff);
+  font-size: 11px;
+  font-weight: 700;
+}
+.psh-gw-steppill.is-on {
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+}
+.psh-gw-steppill.is-done {
+  opacity: 0.75;
+}
+.psh-gw-steppill.is-done .psh-gw-steppill__n::after {
+  content: '✓';
+  font-size: 11px;
+}
+.psh-gw-steppill.is-done .psh-gw-steppill__n {
+  font-size: 0; /* namba inabadilishwa na ✓ */
+}
+
+/* ── Banner ya hitilafu ─────────────────────────────────────── */
+.psh-gw-banner {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.psh-gw-banner--err {
+  background: rgba(190, 40, 40, 0.08);
+  color: var(--c-red-700, #a32626);
+  border: 1px solid rgba(190, 40, 40, 0.25);
+}
+
+/* ── Fields ─────────────────────────────────────────────────── */
+.psh-gw-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+.psh-gw-field__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t-1);
+}
+.psh-gw-field__req {
+  color: var(--c-red-700, #a32626);
+}
+.psh-gw-field__opt {
+  color: var(--t-2);
+  font-weight: 500;
+}
+.psh-gw-field__hint {
+  font-size: 12px;
+  color: var(--t-2);
+  line-height: 1.4;
+}
+.psh-gw-field__err {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-red-700, #a32626);
+}
+.psh-gw-input {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line-2, rgba(0, 0, 0, 0.14));
+  background: var(--bg-elev, #fff);
+  color: var(--t-1);
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+.psh-gw-input:focus-visible {
+  outline: 2px solid var(--c-green-700);
+  outline-offset: 1px;
+}
+.psh-gw-count {
+  align-self: flex-end;
+  font-size: 11px;
+  color: var(--t-2);
+  margin-top: -2px;
+}
+.psh-gw-field.is-err .psh-gw-input {
+  border-color: rgba(190, 40, 40, 0.55);
+}
+
+/* ── Chaguzi (radiogroups) ──────────────────────────────────── */
+.psh-gw-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.psh-gw-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line-2, rgba(0, 0, 0, 0.14));
+  background: var(--bg-elev, #fff);
+  color: var(--t-1);
+  font: inherit;
+  cursor: pointer;
+}
+.psh-gw-opt__label {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.psh-gw-opt__hint {
+  font-size: 12px;
+  color: var(--t-2);
+  line-height: 1.35;
+}
+.psh-gw-opt.is-on {
+  border-color: var(--c-green-700);
+  background: var(--c-green-soft);
+}
+.psh-gw-opt.is-on .psh-gw-opt__label::after {
+  content: ' ✓';
+  font-weight: 700;
+}
+
+/* ── Media (DP/cover) ───────────────────────────────────────── */
+.psh-gw-media {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.psh-gw-media__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.psh-gw-upload {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.psh-gw-coverimg {
+  width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+.psh-gw-coverph {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 84px;
+  border-radius: 12px;
+  border: 1px dashed var(--line-2, rgba(0, 0, 0, 0.2));
+  color: var(--t-2);
+  font-size: 12.5px;
+}
+
+/* ── Muhtasari (summary) ────────────────────────────────────── */
+.psh-gw-sum {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--line-1, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+  overflow: hidden;
+}
+.psh-gw-sum > div {
+  display: flex;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line-1, rgba(0, 0, 0, 0.06));
+  background: var(--bg-elev, #fff);
+}
+.psh-gw-sum > div:last-child {
+  border-bottom: 0;
+}
+.psh-gw-sum dt {
+  flex: 0 0 96px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t-2);
+  margin: 0;
+}
+.psh-gw-sum dd {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  color: var(--t-1);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* ── Navigation ya wizard ───────────────────────────────────── */
+.psh-gw-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px solid var(--line-1, rgba(0, 0, 0, 0.08));
+  position: sticky;
+  bottom: 0;
+  background: var(--bg-elev, #fff);
+  padding-bottom: 4px;
+}
+.psh-gw-nav__count {
+  font-size: 12px;
+  color: var(--t-2);
+  order: 3;
+  flex: 1 1 100%;
+  text-align: center;
+}
+.psh-gw-nav__left,
+.psh-gw-nav__right {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Screen ndogo: vitufe visibanane ────────────────────────── */
+@media (max-width: 380px) {
+  .psh-gw-nav__left,
+  .psh-gw-nav__right {
+    flex: 1 1 auto;
+  }
+  .psh-gw-nav .psh-btn {
+    flex: 1;
+  }
+  .psh-gw-sum dt {
+    flex-basis: 78px;
+  }
+}
+
+/* ── Muhtasari: orodha ya majina ya wanachama waliochaguliwa ── */
+.psh-gw-members {
+  margin: 6px 0 0;
+  padding: 0 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12.5px;
+  color: var(--t-2);
+  list-style: disc;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   M2 · UI/UX — SKRINI ZA GROUPS (Taarifa · Wanachama · Mipangilio)
+   Design tokens zilizopo pekee (§55 — hakuna design system ya pili).
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Kichwa cha thread kinagusa (kikundi) ───────────────────── */
+.psh-chat__theadmain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.psh-chat__theadmain:hover {
+  background: var(--bg-hover);
+}
+.psh-chat__theadmain .psh-chat__theadtext {
+  min-width: 0;
+}
+.psh-chat__rowcount {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t-2);
+}
+
+/* ── Groups Home: bar ya utafutaji + kuunda ─────────────────── */
+.psh-chat__grpbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 8px;
+}
+.psh-chat__grpsearch {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  color: var(--t-2);
+}
+.psh-chat__grpsearch input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--t-1);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+.psh-chat__grpclear {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg-elev, #fff);
+  color: var(--t-2);
+  cursor: pointer;
+}
+.psh-chat__grpnew {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* ── Taarifa za kikundi: hero ───────────────────────────────── */
+.psh-gi {
+  gap: 12px;
+}
+.psh-gi-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 2px 2px 6px;
+}
+.psh-gi-hero__text {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.psh-gi-hero__name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--t-1);
+  overflow-wrap: anywhere;
+}
+.psh-gi-hero__sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: var(--t-2);
+}
+.psh-gi-dot {
+  opacity: 0.6;
+}
+.psh-gi-desc {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg-sunken);
+  color: var(--t-1);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+/* ── Safu za vitendo (icon + label + meta + chevron) ────────── */
+.psh-gi-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-1, rgba(0, 0, 0, 0.08));
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--bg-elev, #fff);
+}
+.psh-gi-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--line-1, rgba(0, 0, 0, 0.06));
+  background: transparent;
+  color: var(--t-1);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.psh-gi-card > .psh-gi-row:last-child {
+  border-bottom: 0;
+}
+.psh-gi-row:hover {
+  background: var(--bg-hover);
+}
+.psh-gi-row:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.psh-gi-row__ico {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--c-green-soft);
+  color: var(--c-green-700);
+  flex: 0 0 auto;
+}
+.psh-gi-row__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.psh-gi-row__meta {
+  font-size: 12.5px;
+  color: var(--t-2);
+}
+.psh-gi-row--danger .psh-gi-row__ico {
+  background: rgba(190, 40, 40, 0.08);
+  color: var(--c-red-700, #a32626);
+}
+.psh-gi-row--danger .psh-gi-row__label {
+  color: var(--c-red-700, #a32626);
+}
+
+/* ── Mipangilio: sehemu ndani ya kadi ───────────────────────── */
+.psh-gi-section {
+  gap: 6px;
+  padding: 12px;
+}
+.psh-gi-seh {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--t-2);
+  margin-bottom: 2px;
+}
+
+/* ── Uthibitisho (hatua ya pili kwa vitendo vya kuharibu) ───── */
+.psh-gi-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid var(--line-2, rgba(0, 0, 0, 0.14));
+  border-radius: 12px;
+  background: var(--bg-elev, #fff);
+}
+.psh-gi-confirm__text {
+  flex: 1 1 100%;
+  font-size: 13px;
+  color: var(--t-1);
+  line-height: 1.4;
+}
+
+/* ── Hitilafu ya skrini (error + retry) ─────────────────────── */
+.psh-gi-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(190, 40, 40, 0.08);
+  border: 1px solid rgba(190, 40, 40, 0.25);
+  color: var(--c-red-700, #a32626);
+  font-size: 13px;
+}
+
+/* ── Wizard: kichwa kidogo cha sehemu ndani ya hatua ya hiari ── */
+.psh-gw-seh {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--t-2);
+  margin: 4px 0 -4px;
+}
+
+/* ── Wanachama & roles: safu za vitendo zijipange kulia ────── */
+.psh-menu__row--static {
+  flex-wrap: wrap;
+}
+.psh-menu__row--static .psh-panelstack__actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.psh-menu__row--static .psh-btn--sm {
+  min-height: 32px;
+  padding: 5px 8px;
+}
+
+/* ── Wanachama & roles: select ndogo kwenye safu ────────────── */
+.psh-gm-rolesel {
+  min-height: 34px;
+  width: auto;
+  max-width: 150px;
+  padding: 6px 8px;
+  font-size: 12.5px;
+  border-radius: 10px;
+}
+
+/* ── Desktop: safu za vitendo zisitanuke ────────────────────── */
+@media (min-width: 700px) {
+  .psh-gi-hero {
+    gap: 16px;
+  }
+  .psh-gi-card {
+    max-width: 640px;
+  }
+}

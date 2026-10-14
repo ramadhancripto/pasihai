@@ -25,6 +25,7 @@ import { mockActivityRepository } from './activityRepository.js'
 import { mockCatalogRepository } from './catalogRepository.js'
 import { mockSystemRepository } from './systemRepository.js'
 import { mockChatRepository } from './chatRepository.js'
+import { mockContactsRepository } from './contactsRepository.js'
 import { mockGunduaRepository } from './gunduaRepository.js'
 import { mockSpacesRepository } from './spacesRepository.js'
 
@@ -44,6 +45,7 @@ const supabaseRepos = {
   gunduaDiscovery: null,
   spaces: null,
   system: null,
+  contacts: null,
 }
 
 const loadPromises = {
@@ -55,6 +57,7 @@ const loadPromises = {
   gunduaDiscovery: null,
   spaces: null,
   system: null,
+  contacts: null,
 }
 
 async function loadSupabaseRepo(name) {
@@ -70,6 +73,7 @@ async function loadSupabaseRepo(name) {
       gunduaDiscovery: () => import('./supabaseGunduaRepository.js').then(m => m.supabaseGunduaRepository),
       spaces: () => import('./supabaseSpacesRepository.js').then(m => m.supabaseSpacesRepository),
       system: () => import('./supabaseSystemRepository.js').then(m => m.supabaseSystemRepository),
+      contacts: () => import('./supabaseContactsRepository.js').then(m => m.supabaseContactsRepository),
     }
 
     loadPromises[name] = loaders[name]().then(repo => {
@@ -236,6 +240,9 @@ export const catalogRepository = liveGuard(mockCatalogRepository, 'catalogReposi
   getEntityVocabulary: async () => mockCatalogRepository.getEntityVocabulary(),
 })
 
+/* ── Contacts: moja kwa moja (mock ↔ Supabase) ─────────────── */
+export const contactsRepository = createRepositoryProxy(mockContactsRepository, 'contacts')
+
 /* ── System: device-local + connection ────────────────────── */
 export const systemRepository = createRepositoryProxy(mockSystemRepository, 'system')
 
@@ -255,7 +262,7 @@ export const REPOSITORY_MODE = checkIsLive() ? 'supabase' : 'mock'
 export async function waitForSupabaseRepos() {
   if (!checkIsLive()) return
 
-  const names = ['content', 'identity', 'chat', 'activity', 'friendship', 'gunduaDiscovery', 'spaces', 'system']
+  const names = ['content', 'identity', 'chat', 'activity', 'friendship', 'gunduaDiscovery', 'spaces', 'system', 'contacts']
   const results = await Promise.all(names.map((name) => loadSupabaseRepo(name)))
   const failed = names.filter((_, i) => !results[i])
   if (failed.length) {

@@ -1153,7 +1153,9 @@ assert(
 /* ── K4: Direct conversation ───────────────────────────────── */
 const direct = await chatService.getThread('c1')
 assert(direct && direct.conversation.type === 'direct', 'Chat direct: conversation inapatikana')
-assert(direct.messages.length === 6, 'Chat direct: jumbe 6', `${direct.messages.length}`)
+/* Ujumbe wa majaribio wa hali za uwasilishaji (sent · delivered · read)
+   umeongezwa kwenye mock — hivyo tunadai >= 6 (aina zote zinabaki). */
+assert(direct.messages.length >= 6, 'Chat direct: jumbe >= 6', `${direct.messages.length}`)
 const chatKinds = new Set(direct.messages.map((m) => m.kind))
 assert(
   ['shared', 'audio', 'poll', 'location', 'text'].every((k) => chatKinds.has(k)),
@@ -1165,6 +1167,40 @@ assert(
   'Chat direct: kila ujumbe una hali ya uwasilishaji yenye label',
 )
 assert(direct.messages.some((m) => m.reactions), 'Chat direct: reactions zipo kwenye data')
+
+/* ── K4b: Uwasilishaji — ticks · hali · njia (NANI → NANI) ────
+   Kanuni: UI haizushi uthibitisho. Kila ujumbe unabeba `tick`
+   inayolingana na `state`, na risiti (kama ipo) inatangaza
+   `simulated` ikiwa ni ya majaribio. */
+const TICK_OK = ['pending', 'sent', 'delivered', 'read', 'retry', 'failed', 'expired']
+assert(
+  direct.messages.every((m) => TICK_OK.includes(m.tick)),
+  'Delivery: kila ujumbe una tick sahihi',
+  direct.messages.map((m) => m.tick).join(' · '),
+)
+assert(
+  direct.messages.some((m) => m.tick === 'read') && direct.messages.some((m) => m.tick === 'delivered'),
+  'Delivery: mock inaonyesha read (✓✓ blue) na delivered (✓✓ grey)',
+)
+assert(
+  direct.messages.filter((m) => m.receipt).every((m) => m.receipt.simulated === true),
+  'Delivery: risiti zote za mock zinatanganza `simulated: true` (hakuna kubuni risiti halisi)',
+)
+const meshThread = await chatService.getThread('c6')
+assert(
+  meshThread.messages.some((m) => m.route === 'relay' || m.route === 'mesh'),
+  'Delivery: njia (relay/mesh) inabaki tofauti na hali ya uwasilishaji',
+  meshThread.messages.map((m) => m.route || 'internet').join(' · '),
+)
+
+/* Vikundi: hesabu ya JUMLA pekee — hatudai kila mtu */
+const groupThread = await chatService.getThread('c2')
+const gReceipt = groupThread.messages.find((m) => m.receipt?.audience)?.receipt
+assert(
+  gReceipt && gReceipt.delivered <= gReceipt.audience,
+  'Delivery (kikundi): delivered hazizidi audience (jumla pekee)',
+  gReceipt ? `${gReceipt.delivered}/${gReceipt.audience}` : 'hakuna risiti',
+)
 
 /* ── K5: Group conversation ────────────────────────────────── */
 const group = await chatService.getThread('c2')
@@ -1211,24 +1247,35 @@ assert(
 )
 assert(newChat.note.includes('phone contacts'), 'New Chat: tofauti ya vyanzo inaelezwa kwenye UI')
 
-/* ── K8: Lookup — kesi 4 (§12) ─────────────────────────────── */
+/* ── K8: Lookup — namba moja, matokeo ya uhakika (§12) ─────── */
+// Njia salama (contactsService): E.164 + ulinganishaji kamili, si jina.
 const lookupHit = await chatService.lookupNumber('0784 123 456')
 assert(
-  lookupHit.cases.length === 1 && lookupHit.cases[0].id === 'k1',
-  'Lookup: namba inayolingana inarudisha akaunti yake pekee',
-  `${lookupHit.cases.length} · ${lookupHit.cases[0]?.name}`,
+  lookupHit.e164 === '+255784123456' && lookupHit.cases.length === 1,
+  'Lookup: namba inabadilishwa kuwa E.164 kisha inarudisha akaunti moja',
+  `${lookupHit.e164} · ${lookupHit.cases.length}`,
 )
 assert(
-  lookupHit.cases[0].saved && lookupHit.cases[0].friend && lookupHit.cases[0].note,
-  'Lookup k1: rafiki aliyehifadhiwa (Saved Friend) + maelezo ya hatua',
+  lookupHit.cases[0].accountId === 'amina' && lookupHit.cases[0].saved && lookupHit.cases[0].note,
+  'Lookup: akaunti ya rafiki aliyehifadhiwa + maelezo ya hatua',
+  `${lookupHit.cases[0].accountId} · saved=${lookupHit.cases[0].saved}`,
+)
+assert(
+  !lookupHit.cases[0].phone.includes('784123456'),
+  'Lookup: namba haionyeshwi kamili (imefichwa)',
+  lookupHit.cases[0].phone,
 )
 
-const lookupAll = await chatService.lookupNumber('999 000 000')
-assert(lookupAll.cases.length === 4, 'Lookup: kesi 4 zimefafanuliwa (mifano ya kielelezo)', lookupAll.cases.map((c) => c.case).join(' · '))
-assert(!lookupAll.cases[1].saved && lookupAll.cases[1].friend, 'Lookup k2: PASIHAI Friend (si saved) → hifadhi rafiki')
-assert(lookupAll.cases[2].accountId && !lookupAll.cases[2].friend, 'Lookup k3: akaunti ya PASIHAI (si rafiki) → ombi')
-assert(!lookupAll.cases[3].accountId && lookupAll.cases[3].name === null, 'Lookup k4: hakuna akaunti → mwaliko wa SMS')
-assert(lookupAll.cases.every((c) => c.note), 'Lookup: kila kesi inaeleza hatua inayofuata')
+const lookupNone = await chatService.lookupNumber('0765 000 999')
+assert(
+  lookupNone.cases.length === 1 && lookupNone.cases[0].accountId === null && lookupNone.cases[0].name === null,
+  'Lookup: namba isiyosajiliwa inarudisha "hajajiunga" (si orodha ya majina)',
+  JSON.stringify(lookupNone.cases[0]?.name),
+)
+assert(lookupNone.cases[0].note, 'Lookup: kila matokeo yanaeleza hatua inayofuata')
+
+const lookupBad = await chatService.lookupNumber('123')
+assert(lookupBad.invalid === true && lookupBad.cases.length === 0, 'Lookup: muundo batili haurudishi matokeo')
 
 /* ── K9: Requests — Accept/Decline/Block → conversation ya kawaida (§13) ── */
 const requests = await chatService.getRequests()
@@ -1259,7 +1306,7 @@ assert(
 
 /* ── K10: New Group (§14) ──────────────────────────────────── */
 const created = await chatService.createGroup({ name: 'Wajasiriamali Dodoma', members: ['p1', 'p4'] })
-assert(created.type === 'group' && created.members === 2, 'New Group: kikundi kimeundwa na wanachama 2')
+assert(created.type === 'group' && created.members === 3, 'New Group: muundaji amehesabiwa — wanachama 3 (M1 §5: wewe + 2)')
 assert(typeof created.groupIcon === 'string' && created.tone, 'New Group: kikundi kina identity (icon · tone)')
 const afterCreate = await chatService.getInbox('vikundi')
 assert(afterCreate.conversations.length === 4, 'New Group: kikundi kipya kimeongezeka kwenye inbox', `${afterCreate.conversations.length}`)
@@ -1426,9 +1473,9 @@ for (const [name, node] of [
 
 /* ── K19: contract — modes · kategoria · counts ──────────── */
 const guMain = await gunduaService.getPage({ mode: 'mchanganyiko', filters: gunduaService.EMPTY, query: '' })
-assert(guMain.modules.length === 4, 'Gundua: modes 4 (All · Friends · Channels · Live)', `${guMain.modules.length}`)
+assert(guMain.modules.length === 4, 'Gundua: modes 4 (Mchanganyiko · Friends · Channels · Live)', `${guMain.modules.length}`)
 assert(
-  guMain.modules.map((m) => m.label).join('·') === 'All·Friends·Channels·Live',
+  guMain.modules.map((m) => m.label).join('·') === 'Mchanganyiko·Friends·Channels·Live',
   'Gundua: modes kwa mpangilio sahihi',
   guMain.modules.map((m) => m.label).join(' · '),
 )
@@ -1976,6 +2023,271 @@ const nSpacesPageSrc = readFileSync(join(process.cwd(), 'src/pages/Spaces.jsx'),
 assert(/SpacePage/.test(nSpacesPageSrc) && /ChannelPage/.test(nSpacesPageSrc), 'N12: Space moja na Channel zina kurasa zao (ndani ya ukurasa mmoja)')
 assert(/role="tablist"/.test(nSpacesPageSrc) && /role="search"/.test(nSpacesPageSrc), 'N12: tabs na utafutaji zina roles (§a11y)')
 
+
+/* ── G1: ChatHai Groups — uundaji (M1 · §5 · §6 · §7) ─────── */
+const { groupMemberLimit, GROUP_MEMBER_LIMITS, GROUP_TYPES } = await import('../src/config/groupLimits.js')
+
+const draftOk = chatService.validateGroupDraft({ name: 'Wakulima wa Mbeya', members: ['amina'] })
+assert(draftOk.ok, 'Groups M1: draft sahihi unapita validation MOJA', JSON.stringify(draftOk.errors))
+
+const draftBad = chatService.validateGroupDraft({ name: '', members: [] })
+assert(
+  !draftBad.ok && !!draftBad.errors.name && !!draftBad.errors.members,
+  'Groups M1: jina na angalau contact mmoja ni wa LAZIMA (§5)',
+  JSON.stringify(draftBad.errors),
+)
+
+const tooMany = chatService.validateGroupDraft({
+  name: 'Kikubwa',
+  members: Array.from({ length: groupMemberLimit('normal') }, (_, i) => `u${i}`),
+})
+assert(
+  !tooMany.ok && String(tooMany.errors.members).includes('1024'),
+  'Groups M1: kikomo cha 1024 kinahakikiwa kabla ya kuunda (§7)',
+  String(tooMany.errors.members),
+)
+
+assert(
+  GROUP_TYPES.length === 3 && groupMemberLimit('announcement') === 1024 && GROUP_MEMBER_LIMITS.managed === 1024,
+  'Groups M1: aina tatu (mode moja ya infra) + tier ya config §6·§7',
+  JSON.stringify(GROUP_MEMBER_LIMITS),
+)
+
+const m1Group = await chatService.createGroup({
+  name: 'Wakulima wa Mbeya',
+  type: 'announcement',
+  privacy: 'private',
+  description: 'Ushirikiano wa pembejeo na masoko',
+  purpose: 'Kuongeza mavuno kwa pamoja',
+  rules: 'Heshima kwa wote',
+  joinMethod: 'request',
+  whoCanReply: 'admins',
+  slowModeSeconds: 60,
+  members: ['amina', 'juma'],
+  tone: 'blue',
+})
+assert(
+  m1Group?.id && m1Group.type === 'group' && m1Group.title === 'Wakulima wa Mbeya',
+  'Groups M1: kikundi kinaundwa kwa hatua zote (owner + wanachama)',
+  m1Group?.id,
+)
+assert(
+  m1Group.members === 3 && m1Group.ownerId === 'me',
+  'Groups M1: muundaji = Owner na anahesabiwa (§5)',
+  `${m1Group.members} · ${m1Group.ownerId}`,
+)
+
+const m1Settings = await chatService.getGroupSettings(m1Group.id)
+assert(
+  m1Settings?.type === 'announcement' && m1Settings.privacy === 'private',
+  'Groups M1: settings zimehifadhiwa (aina · faragha)',
+  JSON.stringify({ type: m1Settings?.type, privacy: m1Settings?.privacy }),
+)
+assert(
+  m1Settings.memberLimit === 1024 && m1Settings.whoCanReply === 'admins' && m1Settings.slowModeSeconds === 60,
+  'Groups M1: kikomo + ruhusa za kujibu + slow mode (§6 · §13 · §14)',
+  JSON.stringify({ limit: m1Settings?.memberLimit, reply: m1Settings?.whoCanReply, slow: m1Settings?.slowModeSeconds }),
+)
+assert(
+  m1Settings.rules === 'Heshima kwa wote' && m1Settings.purpose === 'Kuongeza mavuno kwa pamoja',
+  'Groups M1: sheria na madhumuni yanahifadhiwa (§5)',
+)
+assert(
+  m1Settings.dpPath === null && m1Settings.coverPath === null,
+  'Groups M1: DP/cover hazidaiwi (§5 — hiari)',
+)
+
+const m1Updated = await chatService.updateGroupSettings(m1Group.id, { privacy: 'public' })
+assert(m1Updated?.privacy === 'public', 'Groups M1: settings zinahaririwa (njia moja)', m1Updated?.privacy)
+
+let m1SvcErr = null
+try {
+  await chatService.createGroup({ name: 'Kikubwa', members: Array.from({ length: 1024 }, (_, i) => `u${i}`) })
+} catch (e) {
+  m1SvcErr = e
+}
+assert(
+  m1SvcErr?.code === 'validation' && !!m1SvcErr.errors?.members,
+  'Groups M1: service inakataa kabla ya repository (validation MOJA)',
+  m1SvcErr?.message,
+)
+
+let m1RepoErr = null
+try {
+  await repositories.chatRepository.createGroup({
+    name: 'Kikubwa',
+    members: Array.from({ length: 1024 }, (_, i) => `u${i}`),
+    settings: { type: 'normal' },
+  })
+} catch (e) {
+  m1RepoErr = e
+}
+assert(
+  m1RepoErr?.code === 'member_limit',
+  'Groups M1: repository (backend rule) inakataa kuzidi kikomo — si UI pekee (§7)',
+  m1RepoErr?.message,
+)
+
+const m1Inbox = await chatService.getInbox('vikundi')
+assert(
+  m1Inbox.conversations.some((c) => c.id === m1Group.id),
+  'Groups M1: kikundi kipya kinaonekana kwenye orodha ya Vikundi (data ileile)',
+)
+const m1Thread = await chatService.getThread(m1Group.id)
+assert(
+  m1Thread?.conversation?.type === 'group' && m1Thread.messages.length >= 1,
+  'Groups M1: thread ni engine ileile ya group (hakuna ya pili)',
+)
+
+/* ── G2: Uundaji — ruhusa · double-submit · contract · regression (§2·§4·§5) ── */
+const g2Before = (await chatService.getInbox('vikundi')).conversations.length
+
+let notAllowedErr = null
+try {
+  await chatService.createGroup({ name: 'Kikundi cha Kosa', members: ['mgeni-hayupo-999'] })
+} catch (e) {
+  notAllowedErr = e
+}
+const g2AfterFail = await chatService.getInbox('vikundi')
+assert(
+  notAllowedErr?.code === 'member_not_allowed' && !!notAllowedErr.notAllowed?.length,
+  'Groups M1: mtu asiyeruhusiwa (hayupo kwenye contacts) anakataliwa na service',
+  notAllowedErr?.message,
+)
+assert(
+  g2AfterFail.conversations.length === g2Before &&
+    !g2AfterFail.conversations.some((c) => c.title === 'Kikundi cha Kosa'),
+  'Groups M1: kushindwa hakuauchi kikundi tupu wala membership za nusu',
+  `${g2AfterFail.conversations.length} vs ${g2Before}`,
+)
+
+const retryOk = await chatService.createGroup({ name: 'Kikundi cha Kosa', members: ['amina'] })
+const g2AfterRetry = await chatService.getInbox('vikundi')
+assert(
+  retryOk?.id && g2AfterRetry.conversations.filter((c) => c.title === 'Kikundi cha Kosa').length === 1,
+  'Groups M1: retry baada ya hitilafu inafanikiwa mara MOJA (hakuna mara mbili)',
+  retryOk?.id,
+)
+
+const dupPayload = { name: 'Kikundi cha Double', members: ['amina', 'juma'], type: 'managed' }
+const [dup1, dup2] = await Promise.all([chatService.createGroup(dupPayload), chatService.createGroup(dupPayload)])
+const g2AfterDup = await chatService.getInbox('vikundi')
+assert(
+  dup1?.id && dup1.id === dup2?.id && g2AfterDup.conversations.filter((c) => c.title === 'Kikundi cha Double').length === 1,
+  'Groups M1: double submission inarudisha kikundi KIMOJA (ombi lilelile)',
+  `${dup1?.id} · ${dup2?.id}`,
+)
+
+const liveRepo = (await import('../src/data/repositories/supabaseChatRepository.js')).supabaseChatRepository
+const requiredMethods = [
+  'createGroup', 'getGroupSettings', 'updateGroupSettings', 'listConversations', 'getConversation',
+  'listMessages', 'sendMessage', 'getPhoneBook', 'lookupNumber', 'getRequests', 'getMoreMenu', 'getSettings',
+  'getGroupMembers', 'groupCan', 'groupAddMember', 'groupSetMember', 'groupJoin', 'groupLeave',
+  'groupTransferOwnership',
+]
+const missingLive = requiredMethods.filter((m) => typeof liveRepo[m] !== 'function')
+const missingMock = requiredMethods.filter((m) => typeof repositories.chatRepository[m] !== 'function')
+const canonicalKeys = ['id', 'type', 'title', 'members', 'memberIds', 'ownerId', 'dpUrl', 'coverUrl', 'settings', 'warnings']
+const keysOk = canonicalKeys.every((k) => k in dup1)
+assert(
+  missingLive.length === 0 && missingMock.length === 0 && keysOk,
+  'Groups M1: mock/live contract inalingana (methods + matokeo ya createGroup)',
+  `live missing=[${missingLive}] mock missing=[${missingMock}] keys=${keysOk}`,
+)
+
+const existingGroup = await chatService.getThread('c2')
+const directFirst = (await chatService.getInbox('direct')).conversations[0]
+const existingDirect = directFirst ? await chatService.getThread(directFirst.id) : null
+assert(
+  existingGroup?.conversation?.type === 'group' && existingGroup.conversation.members === 48 &&
+    existingDirect?.conversation?.type === 'direct' && existingDirect.messages.length > 0,
+  'Groups M1: vikundi vya zamani + direct chats vinaendelea (hakuna uvunjaji)',
+  `kikundi=${existingGroup?.conversation?.members} · direct msgs=${existingDirect?.messages?.length}`,
+)
+
+/* ══════════════════════════════════════════════════════════
+   G3: Usimamizi wa kikundi (M2 §3·§4) — roles · ruhusa · leave (mock)
+   ══════════════════════════════════════════════════════════ */
+{
+  const gm = await chatService.createGroup({
+    name: 'Kikundi cha Ruhusa',
+    members: ['p1', 'p4'],
+    tone: 'blue',
+    settings: { type: 'normal' },
+  })
+  const rows = await chatService.getGroupMembers(gm.id)
+  const meRow = rows.find((r) => r.isMe)
+  assert(
+    rows.length === 3 && meRow?.role === 'owner' && rows.filter((r) => r.status === 'active').length === 3,
+    'Groups M2: getGroupMembers — muundaji ni owner; wanachama 3',
+    `rows=${rows.length} role=${meRow?.role}`,
+  )
+
+  const canMod = await chatService.groupCan(gm.id, 'moderate_messages')
+  const canTransfer = await chatService.groupCan(gm.id, 'transfer_ownership')
+  assert(
+    canMod === true && canTransfer === true,
+    'Groups M2: owner anaruhusiwa kila kitendo (can() = sawa na DB)',
+    `mod=${canMod} transfer=${canTransfer}`,
+  )
+
+  let selfErr = null
+  try { await chatService.groupSetMember(gm.id, 'me', { role: 'admin' }) } catch (e) { selfErr = e }
+  let ownerGrantErr = null
+  try { await chatService.groupSetMember(gm.id, 'p1', { role: 'owner' }) } catch (e) { ownerGrantErr = e }
+  assert(
+    selfErr?.code === 'chat_group_self_role_change_forbidden' && ownerGrantErr?.code === 'chat_group_cannot_grant_equal_or_higher',
+    'Groups M2: kujibadilisha mwenyewe na kumpa mtu owner kwa njia ya kawaida zinakataliwa',
+    `${selfErr?.code} · ${ownerGrantErr?.code}`,
+  )
+
+  const banned = await chatService.groupSetMember(gm.id, 'p4', { status: 'banned' })
+  let dupErr = null
+  try { await chatService.groupAddMember(gm.id, 'p4') } catch (e) { dupErr = e }
+  assert(
+    banned?.status === 'banned' && Array.isArray(banned?.warnings) && dupErr?.code === 'chat_group_already_member',
+    'Groups M2: ban inafanya kazi; kuongeza mwanachama aliyepo kunakataliwa',
+    `${banned?.status} · ${dupErr?.code}`,
+  )
+
+  const mod = await chatService.groupSetMember(gm.id, 'p1', {
+    role: 'moderator',
+    permissions: ['moderate_messages', 'restrict_members'],
+  })
+  let badGrant = null
+  try { await chatService.groupSetMember(gm.id, 'p1', { permissions: ['manage_roles'] }) } catch (e) { badGrant = e }
+  assert(
+    mod?.role === 'moderator' && mod?.permissions?.length === 2 && badGrant?.code === 'chat_group_invalid_permissions',
+    'Groups M2: grants zinahifadhiwa; grants isiyo halali kwa role inakataliwa',
+    `role=${mod?.role} perms=${mod?.permissions?.length} bad=${badGrant?.code}`,
+  )
+
+  let ownerLeave = null
+  try { await chatService.groupLeave(gm.id) } catch (e) { ownerLeave = e }
+  assert(
+    ownerLeave?.code === 'chat_group_owner_must_transfer',
+    'Groups M2: owner hawezi kuondoka bila kuhamisha umiliki (DB inakataa)',
+    ownerLeave?.code,
+  )
+
+  const transfer = await chatService.groupTransferOwnership(gm.id, 'p1')
+  const left = await chatService.groupLeave(gm.id)
+  const rejoin = await chatService.groupJoin(gm.id)
+  const canWhilePending = await chatService.groupCan(gm.id, 'send_message')
+  assert(
+    transfer?.newOwner === 'owner' && left?.status === 'left' && rejoin?.status === 'pending' && canWhilePending === false,
+    'Groups M2: hamisha umiliki → kuondoka → kurejea (request=pending) → hawezi kutuma',
+    `transfer=${transfer?.newOwner} left=${left?.status} rejoin=${rejoin?.status} send=${canWhilePending}`,
+  )
+
+  const directMembers = await chatService.getGroupMembers('c1')
+  const groupBack = await chatService.getGroupMembers('c3')
+  assert(
+    Array.isArray(directMembers) && directMembers.length === 0 && groupBack.length >= 1,
+    'Groups M2: regression — direct haina rows za wanachama wa kikundi; vikundi vya zamani vinaendelea',
+    `direct=${directMembers.length} c3=${groupBack.length}`,
+  )
+}
 
 /* ══════════════════════════════════════════════════════════
    RIPOTI

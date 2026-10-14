@@ -37,7 +37,7 @@ const MODE_KEYS = ['mchanganyiko', 'friends', 'channels', 'live']
    Ukurasa
    ══════════════════════════════════════════════════════════════ */
 
-export default function Gundua({ onToast, onOpenChat }) {
+export default function Gundua({ onToast, onOpenChat, onOpenContacts }) {
   const [mode, setMode] = useState('mchanganyiko')
   const [joinedLive, setJoinedLive] = useState([])
   const [query, setQuery] = useState('')
@@ -257,6 +257,7 @@ export default function Gundua({ onToast, onOpenChat }) {
               onInvite={act.invite}
               onCopyLink={act.copyLink}
               onToast={onToast}
+              onOpenContacts={onOpenContacts}
             />
           ),
         }

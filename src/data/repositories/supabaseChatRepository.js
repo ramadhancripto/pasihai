@@ -17,6 +17,8 @@
 
 import { supabase, isSupabaseLive } from '../../lib/supabaseClient.js'
 import { chatFilters } from '../mock.js'
+import { groupMemberLimit } from '../../config/groupLimits.js'
+import { normalizeDraftSettings, rowToSettings, settingsToRow } from './groupSettingsShape.js'
 
 /* ── Error handling helper ────────────────────────────────── */
 function handleError(error, context) {
@@ -24,7 +26,107 @@ function handleError(error, context) {
   return null
 }
 
+/* ── ChatHai Groups: media ya kikundi (bucket moja ya migration 033) ── */
+const GROUP_MEDIA_BUCKET = 'group-media'
+
+function groupImageExt(file) {
+  const fromName = (file?.name || '').split('.').pop()?.toLowerCase()
+  if (fromName && /^[a-z0-9]{2,5}$/.test(fromName)) return fromName
+  const map = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
+  return map[file?.type] || 'jpg'
+}
+
+async function uploadGroupImage(conversationId, file, kind) {
+  const path = `${conversationId}/${kind}-${Date.now()}.${groupImageExt(file)}`
+  const { error } = await supabase.storage
+    .from(GROUP_MEDIA_BUCKET)
+    .upload(path, file, { upsert: true, contentType: file.type })
+  if (error) throw error
+  return path
+}
+
+/* Bucket ni PRIVATE — tunaunda signed URL kwa wanachama pekee (RLS ya storage). */
+async function groupMediaUrl(path) {
+  if (!path) return null
+  if (String(path).startsWith('demo:')) return null
+  if (/^https?:\/\//.test(path)) return path
+  const { data, error } = await supabase.storage
+    .from(GROUP_MEDIA_BUCKET)
+    .createSignedUrl(path, 60 * 60)
+  if (error || !data?.signedUrl) return null
+  return data.signedUrl
+}
+
+/* Hitilafu za DB → hitilafu zenye code inayoeleweka kwa UI (hakuna 'success' ya uongo). */
+function mapGroupError(err, fallback = 'Kitendo hakikufanikiwa. Jaribu tena.') {
+  const msg = String(err?.message || '')
+  if (msg.includes('chat_group_member_limit')) {
+    const e = new Error('Kikomo cha wanachama kimefikiwa.')
+    e.code = 'member_limit'
+    return e
+  }
+  if (msg.includes('chat_group_membership_verify')) {
+    const e = new Error('Wanachama hawakuhifadhiwa kikamilifu. Jaribu tena.')
+    e.code = 'verify'
+    return e
+  }
+  if (err?.code === '42501' || /row-level security|permission denied/i.test(msg)) {
+    const e = new Error('Hauna ruhusa kwa kitendo hiki.')
+    e.code = 'permission'
+    return e
+  }
+  const e = new Error(fallback)
+  e.code = 'unknown'
+  e.cause = err
+  return e
+}
+
+/* ── Ramani ya errors za RPC/guards za kikundi (§4: si "permission denied" ghafi) ── */
+const GROUP_ERROR_MESSAGES = {
+  chat_group_owner_must_transfer: 'Hamisha umiliki kwa mwanachama mwingine kwanza.',
+  chat_group_owner_immutable: 'Mmiliki hawezi kuondolewa au kubadilishwa kwa njia hii.',
+  chat_group_owner_only: 'Ni mmiliki pekee anayeweza kutekeleza kitendo hiki.',
+  chat_group_transfer_self: 'Hauwezi kuhamisha umiliki kwako mwenyewe.',
+  chat_group_transfer_invalid_target: 'Mwanachama huyo hayupo kikamilifu kwenye kikundi.',
+  chat_group_self_role_change_forbidden: 'Hauwezi kubadilisha role au hali yako mwenyewe.',
+  chat_group_self_edit_forbidden: 'Hauwezi kubadilisha role yako mwenyewe.',
+  chat_group_insufficient_rank: 'Cheo hiki ni cha juu/kulingana nawe — huwezi kuibadilisha.',
+  chat_group_cannot_grant_equal_or_higher: 'Huwezi kumpa mtu cheo cha juu/kulingana nawe.',
+  chat_group_invite_required: 'Kikundi hiki kinahitaji mwaliko ili kujiunga.',
+  chat_group_join_restricted: 'Kikundi hiki ni cha faragha — ombi la kujiunga linahitajika.',
+  chat_group_already_member: 'Tayari u mwanachama wa kikundi hiki.',
+  chat_group_banned: 'Hauwezi kujiunga — umezuiliwa kwenye kikundi hiki.',
+  chat_group_not_member: 'Wewe si mwanachama wa kikundi hiki.',
+  chat_group_member_not_found: 'Mwanachama huyo hakupatikana kwenye kikundi.',
+  chat_group_roles_direct_forbidden: 'Roles hazitumiki kwenye mazungumzo ya moja kwa moja.',
+  chat_group_leave_direct_unsupported: 'Kuondoka kunahusu vikundi pekee.',
+  chat_group_invalid_permissions: 'Ruhusa ulizochagua hazihalali kwa role hii.',
+  chat_group_participant_keys_immutable: 'Muundo wa mwanachama haubadiliki.',
+  chat_group_conversation_not_found: 'Kikundi hakipatikani.',
+  chat_group_not_found: 'Kikundi hakipatikani.',
+  chat_group_no_permission_add: 'Hauna ruhusa kuongeza wanachama.',
+  chat_group_no_permission_roles: 'Hauna ruhusa kubadilisha roles au ruhusa.',
+  chat_group_no_permission_members: 'Hauna ruhusa kusimamia wanachama.',
+  chat_group_no_permission_moderate: 'Hauna ruhusa kudhibiti ujumbe.',
+  chat_group_no_permission_edit_info: 'Hauna ruhusa kubadilisha taarifa za kikundi.',
+  chat_group_no_permission: 'Hauna ruhusa kwa kitendo hiki.',
+}
+
 /* ── Helpers za ujumbe ──────────────────────────────────── */
+/* RPC moja ya kikundi → errors za Swahili (mapGroupError). */
+async function callGroupRpc(name, params, fallback) {
+  const { data, error } = await supabase.rpc(name, params)
+  if (error) {
+    handleError(error, name)
+    const msg = String(error?.message || '')
+    for (const [key, swahili] of Object.entries(GROUP_ERROR_MESSAGES)) {
+      if (msg.includes(key)) { const e = new Error(swahili); e.code = key; throw e }
+    }
+    throw mapGroupError(error, fallback)
+  }
+  return data
+}
+
 async function requireUser(action) {
   if (!isSupabaseLive || !supabase) {
     throw new Error(`${action}: Supabase live haijawezeshwa.`)
@@ -703,47 +805,253 @@ export const supabaseChatRepository = {
     return { convId, archived: !!on }
   },
 
-  /* ── WRITE: Create group conversation ─────────────────────── */
-  async createGroup({ name, members = [], parentContext = null }) {
-    if (!isSupabaseLive || !supabase) return null
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return null
+  /* ── WRITE: Create group conversation (ChatHai Groups — M1) ──
+     Hatua: (1) conversation (2) DP/cover → bucket private (3) settings
+     (4) wanachama — muundaji = owner. Kikomo cha wanachama kinahakikiwa
+     hapa NA kwenye trigger ya DB (backbuild §7: UI pekee haitoshi).
+     Kama hatua yoyote inashindwa, conversation inafutwa — hatuachi
+     kikundi nusu (owner wa conversation ndiye anayeweza kufuta). */
+  async createGroup({ name, members = [], tone = 'green', files = null, settings = null, parentContext = null }) {
+    const { user } = await requireUser('createGroup')
+    const type = settings?.type || 'normal'
+    const limit = groupMemberLimit(type)
+    const title = String(name || '').trim()
+    const allMembers = [...new Set([user.id, ...members])]
 
+    if (!title) { const e = new Error('Jina la kikundi linahitajika.'); e.code = 'validation'; throw e }
+    if (title.length > 100) { const e = new Error('Jina la kikundi liwe herufi 100 kwa juu.'); e.code = 'validation'; throw e }
+    if (members.length === 0) { const e = new Error('Chagua angalau contact mmoja.'); e.code = 'validation'; throw e }
+    if (allMembers.length > limit) {
+      const e = new Error(`Kikomo cha wanachama kwa aina hii ni ${limit}.`)
+      e.code = 'member_limit'
+      throw e
+    }
+
+    let createdId = null
+    const warnings = []
+    try {
+      /* 1. Conversation */
       const { data: conv, error } = await supabase
         .from('chat_conversations')
-        .insert({ type: 'group', title: name, created_by: user.id })
+        .insert({ type: 'group', title, created_by: user.id })
         .select('id, type, title, created_at')
         .single()
-
       if (error) throw error
+      createdId = conv.id
 
-      // Add all members including creator
-      const allMembers = [...new Set([user.id, ...members])]
-      const participantRows = allMembers.map(userId => ({
+      /* 2. Wanachama KABLA ya upload/settings (F10 ya audit ya M2):
+         storage policy ya 'group-media' inahitaji row ya owner
+         (`is_chat_group_owner`) — ikiwa haipo bado, upload inashindwa kwenye
+         prod. Mpangilio sahihi: conversation → participants → settings →
+         uploads → settings (paths). */
+      const participantRows = allMembers.map((userId) => ({
         conversation_id: conv.id,
         user_id: userId,
+        role: userId === user.id ? 'owner' : 'member',
+        status: 'active',
       }))
-
-      const { error: pError } = await supabase
-        .from('chat_participants')
-        .insert(participantRows)
-
+      const { error: pError } = await supabase.from('chat_participants').insert(participantRows)
       if (pError) throw pError
+
+      /* 3. Uhakiki: wanachama WOTE wamehifadhiwa kweli kabla ya "mafanikio" (§2.9) */
+      const { data: savedRows, error: vErr } = await supabase
+        .from('chat_participants')
+        .select('user_id')
+        .eq('conversation_id', conv.id)
+      if (vErr) throw vErr
+      if ((savedRows?.length || 0) < allMembers.length) {
+        throw new Error(`chat_group_membership_verify: ${savedRows?.length || 0}/${allMembers.length}`)
+      }
+
+      /* 4. Settings — chanzo kimoja cha taarifa za kikundi (dp/cover baadaye) */
+      const model = normalizeDraftSettings(settings || {}, { type, memberLimit: limit })
+      const settingsRow = {
+        conversation_id: conv.id,
+        ...settingsToRow(model),
+        tone,
+        member_limit: limit,
+      }
+      const { error: sErr } = await supabase.from('chat_group_settings').insert(settingsRow)
+      if (sErr) throw sErr
+
+      /* 5. DP/cover (hiari) — sasa owner row ipo, storage policy inaruhusu.
+         Picha ni HIARI: kama upload inashindwa, kikundi KINAUNDWA na onyo
+         linarudishwa — hatuonyeshi "picha imehifadhiwa" kwa uongo. */
+      let dpPath = null
+      let coverPath = null
+      if (files?.dp) {
+        try { dpPath = await uploadGroupImage(conv.id, files.dp, 'dp') }
+        catch (e) { handleError(e, 'createGroup:dp'); warnings.push('picha ya kikundi haikuhifadhiwa') }
+      }
+      if (files?.cover) {
+        try { coverPath = await uploadGroupImage(conv.id, files.cover, 'cover') }
+        catch (e) { handleError(e, 'createGroup:cover'); warnings.push('cover haikuhifadhiwa') }
+      }
+      if (dpPath || coverPath) {
+        const { error: pathErr } = await supabase
+          .from('chat_group_settings')
+          .update({ dp_path: dpPath, cover_path: coverPath })
+          .eq('conversation_id', conv.id)
+        if (pathErr) { handleError(pathErr, 'createGroup:paths'); warnings.push('picha haikuhusishwa na kikundi') }
+      }
 
       return {
         id: conv.id,
         type: 'group',
         title: conv.title,
-        tone: 'green',
+        tone,
+        groupIcon: 'group',
         members: allMembers.length,
+        memberIds: allMembers,
+        ownerId: user.id,
         unread: 0,
         updatedAt: conv.created_at,
+        dpUrl: await groupMediaUrl(dpPath),
+        coverUrl: await groupMediaUrl(coverPath),
+        settings: { ...model, conversationId: conv.id, dpPath, coverPath },
+        warnings,
       }
     } catch (err) {
       handleError(err, 'createGroup')
-      return null
+      if (createdId) {
+        const { error: cErr } = await supabase.from('chat_conversations').delete().eq('id', createdId)
+        if (cErr) handleError(cErr, 'createGroup:cleanup')
+      }
+      throw mapGroupError(err, 'Kikundi hakikuweza kuundwa. Jaribu tena.')
     }
+  },
+
+  /* ── Settings za kikundi (chanzo kimoja — M1) ─────────────── */
+  async getGroupSettings(convId) {
+    if (!isSupabaseLive || !supabase) return null
+    const { data, error } = await supabase
+      .from('chat_group_settings')
+      .select('*')
+      .eq('conversation_id', convId)
+      .maybeSingle()
+    if (error) { handleError(error, 'getGroupSettings'); return null }
+    if (!data) return null
+    const model = rowToSettings(data)
+    return {
+      ...model,
+      dpPath: data.dp_path,
+      coverPath: data.cover_path,
+      dpUrl: await groupMediaUrl(data.dp_path),
+      coverUrl: await groupMediaUrl(data.cover_path),
+    }
+  },
+
+  async updateGroupSettings(convId, patch = {}) {
+    await requireUser('updateGroupSettings')
+    const row = settingsToRow(patch)
+    if (Object.keys(row).length === 0) {
+      const e = new Error('Hakuna mabadiliko yaliyotolewa.')
+      e.code = 'validation'
+      throw e
+    }
+    try {
+      const { data, error } = await supabase
+        .from('chat_group_settings')
+        .update(row)
+        .eq('conversation_id', convId)
+        .select('*')
+        .single()
+      if (error) throw error
+      const model = rowToSettings(data)
+      return {
+        ...model,
+        dpPath: data.dp_path,
+        coverPath: data.cover_path,
+        dpUrl: await groupMediaUrl(data.dp_path),
+        coverUrl: await groupMediaUrl(data.cover_path),
+      }
+    } catch (err) {
+      handleError(err, 'updateGroupSettings')
+      throw mapGroupError(err, 'Mabadiliko hayakuhifadhiwa. Jaribu tena.')
+    }
+  },
+
+  /* ── Wanachama, roles na ruhusa (M2) — DB ndiyo mamlaka ya mwisho ──
+     UI hutumia mirror ya JS (`src/config/groupPermissions.js`) kuficha/kuzima
+     visivyoruhusiwa; kila kitendo halisi kinapita RPC/RLS. */
+  async getGroupMembers(convId) {
+    if (!isSupabaseLive || !supabase) return []
+    const { user } = await requireUser('getGroupMembers')
+    const { data, error } = await supabase
+      .from('chat_participants')
+      .select('user_id, role, status, permissions, joined_at')
+      .eq('conversation_id', convId)
+      .order('joined_at', { ascending: true })
+    if (error) { handleError(error, 'getGroupMembers'); return [] }
+    const ids = [...new Set((data || []).map((r) => r.user_id))]
+    let names = {}
+    if (ids.length) {
+      const { data: rows } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name')
+        .in('user_id', ids)
+      names = Object.fromEntries((rows || []).map((pr) => [pr.user_id, pr.display_name || pr.username || null]))
+    }
+    return (data || []).map((r) => ({
+      userId: r.user_id,
+      name: names[r.user_id] || null,
+      role: r.role || 'member',
+      status: r.status || 'active',
+      permissions: Array.isArray(r.permissions) ? r.permissions : null,
+      joinedAt: r.joined_at,
+      isMe: r.user_id === user.id,
+    }))
+  },
+
+  /** Ukaguzi wa ruhusa dhidi ya DB (mamlaka ya mwisho). */
+  async groupCan(convId, action) {
+    if (!isSupabaseLive || !supabase) return false
+    const { user } = await requireUser('groupCan')
+    const { data, error } = await supabase.rpc('chat_group_can', {
+      p_conversation_id: convId,
+      p_user_id: user.id,
+      p_action: action,
+    })
+    if (error) { handleError(error, 'groupCan'); return false }
+    return data === true
+  },
+
+  async groupAddMember(convId, userId) {
+    await requireUser('groupAddMember')
+    return callGroupRpc('chat_group_add_member', { p_conversation_id: convId, p_user_id: userId }, 'Mwanachama hakuongezwa. Jaribu tena.')
+  },
+
+  /** patch = { role?, status?, permissions? } — `permissions` array = grants;
+      kuacha `permissions` bila kutaja = hakuna mabadiliko ya grants. */
+  async groupSetMember(convId, userId, patch = {}) {
+    await requireUser('groupSetMember')
+    const params = {
+      p_conversation_id: convId,
+      p_user_id: userId,
+      p_role: patch.role ?? null,
+      p_status: patch.status ?? null,
+    }
+    if (Array.isArray(patch.permissions)) params.p_permissions = patch.permissions
+    return callGroupRpc('chat_group_set_member', params, 'Mabadiliko hayakuhifadhiwa. Jaribu tena.')
+  },
+
+  async groupJoin(convId) {
+    await requireUser('groupJoin')
+    return callGroupRpc('chat_group_join', { p_conversation_id: convId }, 'Kujiunga hakukufanikiwa. Jaribu tena.')
+  },
+
+  async groupLeave(convId) {
+    await requireUser('groupLeave')
+    return callGroupRpc('chat_group_leave', { p_conversation_id: convId }, 'Kuondoka hakukufanikiwa. Jaribu tena.')
+  },
+
+  async groupTransferOwnership(convId, newOwnerId) {
+    await requireUser('groupTransferOwnership')
+    return callGroupRpc(
+      'chat_group_transfer_ownership',
+      { p_conversation_id: convId, p_new_owner_id: newOwnerId },
+      'Kuhamisha umiliki hakukufanikiwa. Jaribu tena.',
+    )
   },
 
   /* ── WRITE: React to message ──────────────────────────────── */

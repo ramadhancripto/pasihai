@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import Sheet from '../Sheet.jsx'
 import { Waveform } from '../ui.jsx'
-import { ChatAvatar, Ticks, MethodNote } from './ChatBits.jsx'
+import { ChatAvatar, Ticks, DeliveryLine, ROUTES } from './ChatBits.jsx'
 import { chatService } from '../../services/chatService.js'
 import {
   IconArrowRight,
@@ -22,6 +22,7 @@ import {
   IconCheck,
   IconChecks,
   IconChevronLeft,
+  IconHub,
   IconComment,
   IconDownload,
   IconFile,
@@ -39,6 +40,7 @@ import {
   IconSend,
   IconShare,
   IconShield,
+  IconSpaces,
   IconTimer,
   IconVideo,
   IconBolt,
@@ -100,7 +102,8 @@ function MessageBubble({ m, group, onAction, onReplySwipe, onResolve, onReact, o
       </button>
 
       <div className="psh-msg__col">
-        {!mine && group && m.from !== 'system' ? (
+        {/* ALIYETUMA — inaonekana kwa Direct NA Vikundi (sio vikundi pekee) */}
+        {!mine && m.from !== 'system' ? (
           <span className="psh-msg__sender">
             <b>{m.senderName || m.from}</b>
             {m.role ? (
@@ -285,13 +288,31 @@ function MessageBubble({ m, group, onAction, onReplySwipe, onResolve, onReact, o
 
           <span className="psh-msg__meta">
             {m.at}
-            {mine ? <Ticks state={m.state} /> : null}
+            {mine ? <Ticks tick={m.tick} label={m.stateInfo?.label} /> : null}
           </span>
         </div>
 
-        {/* Hali ya ujumbe (njia · foleni · vault) */}
-        <MethodNote route={m.route} stateInfo={m.stateInfo} />
-        {m.note ? <span className="psh-msg__state">{m.note}</span> : null}
+        {/* NANI → NANI · hali · njia · jumla (vikundi) — mstari mmoja mwembamba */}
+        <DeliveryLine
+          mine={mine}
+          sender={m.senderLabel}
+          recipient={m.recipientLabel}
+          showSender={mine || m.from === 'system'}
+          stateInfo={m.stateInfo}
+          tick={m.tick}
+          route={m.route}
+          receipt={m.receipt}
+        />
+        {m.note ? (
+          <span
+            className="psh-msg__ico psh-msg__ico--note"
+            role="img"
+            aria-label={m.note}
+            title={m.note}
+          >
+            <IconInfo size={12} />
+          </span>
+        ) : null}
 
         {m.reactions ? (
           <span className="psh-msg__reactions">
@@ -315,6 +336,7 @@ export default function Thread({
   onResolveMedia,
   onAttach,
   onMore,
+  onOpenGroupInfo,
   onCall,
   onPlayAudio,
   onSaveOffline,
@@ -327,6 +349,7 @@ export default function Thread({
   const [draft, setDraft] = useState('')
   const [reply, setReply] = useState(null)
   const [action, setAction] = useState(null)
+  const [details, setDetails] = useState(null)
   const [forward, setForward] = useState(false)
   const [forwardList, setForwardList] = useState(null)
   const [forwardBusy, setForwardBusy] = useState(null)
@@ -369,17 +392,20 @@ export default function Thread({
   }
 
   const group = conv.type === 'group'
-  const withNames = msgs.map((m) => ({
-    ...m,
-    senderName:
-      m.from === 'me'
-        ? 'Wewe'
-        : m.from === 'them'
-          ? conv.title
-          : m.from === 'system'
-            ? 'PASIHAI'
-            : (conv.memberPreview || []).find((p) => p.id === m.from)?.name || m.from,
-  }))
+  const withNames = msgs.map((m) => {
+    const mine = m.from === 'me'
+    const senderName = mine
+      ? 'Wewe'
+      : m.from === 'them'
+        ? conv.title
+        : m.from === 'system'
+          ? 'PASIHAI'
+          : (conv.memberPreview || []).find((p) => p.id === m.from)?.name || m.from
+    /* Mpokeaji: Direct → mwenzangu; Kikundi → kikundi (jumla inaonyeshwa
+       kwenye receipt). Kwa ujumbe wa kuingia, mpokeaji ni Wewe. */
+    const recipientLabel = mine ? (group ? `Kikundi “${conv.title}”` : conv.title) : 'Wewe'
+    return { ...m, senderName, senderLabel: senderName, recipientLabel }
+  })
 
   const send = async () => {
     const text = draft.trim()
@@ -404,16 +430,31 @@ export default function Thread({
         <button type="button" className="psh-icobtn psh-chat__back" aria-label="Rudi kwenye orodha ya Chat" onClick={onBack}>
           <IconChevronLeft size={20} />
         </button>
-        {/* Presence (online/last seen) haionyeshwi: hakuna chanzo halisi cha presence bado */}
-        <ChatAvatar tone={conv.tone} name={conv.title} icon={group ? conv.groupIcon : null} />
-        <span className="psh-chat__theadtext">
-          <span className="psh-chat__theadname">{conv.title}</span>
-          {group ? (
-            <span className="psh-chat__theadsub">
-              <IconHub size={10} /> {conv.members || (conv.memberIds || []).length}
+        {/* Presence (online/last seen) haionyeshwi: hakuna chanzo halisi cha presence bado.
+            Kikundi: kichwa (avatar + jina + wanachama) KINAGUSA → Taarifa za kikundi. */}
+        {group ? (
+          <button
+            type="button"
+            className="psh-chat__theadmain"
+            aria-label={`Taarifa za kikundi ${conv.title}`}
+            onClick={onOpenGroupInfo}
+          >
+            <ChatAvatar tone={conv.tone} name={conv.title} icon={conv.groupIcon} src={conv.dpUrl || null} />
+            <span className="psh-chat__theadtext">
+              <span className="psh-chat__theadname">{conv.title}</span>
+              <span className="psh-chat__theadsub">
+                <IconHub size={10} /> {conv.members || (conv.memberIds || []).length}
+              </span>
             </span>
-          ) : null}
-        </span>
+          </button>
+        ) : (
+          <>
+            <ChatAvatar tone={conv.tone} name={conv.title} icon={null} src={null} />
+            <span className="psh-chat__theadtext">
+              <span className="psh-chat__theadname">{conv.title}</span>
+            </span>
+          </>
+        )}
         {/* Simu/video hazipo bado: vitufe havionyeshwi (hakuna utendaji halisi). */}
         <button type="button" className="psh-icobtn" aria-label="Menyu zaidi za mazungumzo" onClick={onMore}>
           <IconMoreVertical size={19} />
@@ -506,11 +547,23 @@ export default function Thread({
       </div>
 
       <div className="psh-chat__footnotes">
-        <span>
-          <IconRadar size={12} /> Local Mesh {view.system.localMeshUp ? 'inapatikana' : 'haipo'}
+        <span
+          className={`psh-chat__fnote ${view.system.localMeshUp ? 'is-on' : 'is-off'}`}
+          role="img"
+          aria-label={`Local Mesh ${view.system.localMeshUp ? 'inapatikana' : 'haipo'}`}
+          title={`Local Mesh ${view.system.localMeshUp ? 'inapatikana' : 'haipo'}`}
+        >
+          <IconRadar size={13} />
+          <i className="psh-chat__fnodedot" />
         </span>
-        <span>
-          <IconRelay size={12} /> Relay {view.system.relayEnabled ? 'imewashwa' : 'imezimwa'}
+        <span
+          className={`psh-chat__fnote ${view.system.relayEnabled ? 'is-on' : 'is-off'}`}
+          role="img"
+          aria-label={`Internet Relay ${view.system.relayEnabled ? 'imewashwa' : 'imezimwa'}`}
+          title={`Internet Relay ${view.system.relayEnabled ? 'imewashwa' : 'imezimwa'}`}
+        >
+          <IconRelay size={13} />
+          <i className="psh-chat__fnodedot" />
         </span>
       </div>
 
@@ -607,7 +660,7 @@ export default function Thread({
                   type="button"
                   className="psh-menu__row"
                   onClick={() => {
-                    onToast?.(`Hali: ${action.stateInfo?.label || action.state}`)
+                    setDetails(action)
                     setAction(null)
                   }}
                 >
@@ -615,8 +668,8 @@ export default function Thread({
                     <IconInfo size={19} />
                   </span>
                   <span className="psh-menu__text">
-                    <span className="psh-menu__label">Taarifa za ujumbe</span>
-                    <span className="psh-menu__hint">{action.stateInfo?.label}</span>
+                    <span className="psh-menu__label">Taarifa za uwasilishaji</span>
+                    <span className="psh-menu__hint">{action.stateInfo?.short || action.stateInfo?.label}</span>
                   </span>
                 </button>
               </li>
@@ -703,6 +756,124 @@ export default function Thread({
               <IconChecks size={16} /> Vitendo hivi ni vya muktadha wa ujumbe huu pekee. Kufuta ni
               kwa upande wako — mwenzako anaendelea kuuona.
             </p>
+          </div>
+        ) : null}
+      </Sheet>
+
+      {/* ── Taarifa za uwasilishaji: NANI → NANI · hali · njia · risiti ──
+          Hapa ndipo namba/mabadiliko yote yanaishi. Chat inabaki safi. */}
+      <Sheet
+        open={!!details}
+        onClose={() => setDetails(null)}
+        title="Taarifa za uwasilishaji"
+        subtitle={details?.text ? details.text.slice(0, 60) : details?.kind}
+      >
+        {details ? (
+          <div className="psh-delivery">
+            <div className="psh-delivery__kv">
+              <span>Imetumwa na</span>
+              <b>{details.senderLabel || (details.from === 'me' ? 'Wewe' : details.from)}</b>
+            </div>
+            <div className="psh-delivery__kv">
+              <span>Imepokelewa na</span>
+              <b>{details.receipt?.audience ? `Kikundi · wanachama ${details.receipt.audience}` : details.recipientLabel || '—'}</b>
+            </div>
+            <div className="psh-delivery__kv">
+              <span>Hali ya uwasilishaji</span>
+              <b className="psh-delivery__state">
+                <Ticks tick={details.tick} label={details.stateInfo?.label} />
+                {details.stateInfo?.label || details.state}
+              </b>
+            </div>
+            <div className="psh-delivery__kv">
+              <span>Njia (transport)</span>
+              <b>{(ROUTES[details.route] || {}).hint || 'Internet'}</b>
+            </div>
+            <div className="psh-delivery__kv">
+              <span>Muda</span>
+              <b>{details.at}</b>
+            </div>
+            {details.note ? (
+              <div className="psh-delivery__kv">
+                <span>Maelezo</span>
+                <b>{details.note}</b>
+              </div>
+            ) : null}
+            {details.receipt?.audience ? (
+              <div className="psh-delivery__kv">
+                <span>Jumla (kikundi)</span>
+                <b>
+                  {Number.isFinite(details.receipt.delivered) ? `Imefika ${details.receipt.delivered}/${details.receipt.audience}` : 'Haijathibitishwa'}
+                  {Number.isFinite(details.receipt.read) && details.receipt.read > 0 ? ` · Imesomwa ${details.receipt.read}/${details.receipt.audience}` : ''}
+                </b>
+              </div>
+            ) : null}
+            {details.receipt?.deliveredAt ? (
+              <div className="psh-delivery__kv">
+                <span>Ilifika kifaa cha mpokeaji</span>
+                <b>{details.receipt.deliveredAt}</b>
+              </div>
+            ) : null}
+            {details.receipt?.readAt ? (
+              <div className="psh-delivery__kv">
+                <span>Ilisomwa</span>
+                <b>{details.receipt.readAt}</b>
+              </div>
+            ) : null}
+            {Number.isFinite(details.receipt?.retries) ? (
+              <div className="psh-delivery__kv">
+                <span>Majaribio</span>
+                <b>
+                  {details.receipt.retries}/{details.receipt.maxRetries || 5}
+                  {details.receipt.nextRetryAt ? ` · anajaribu tena ${details.receipt.nextRetryAt}` : ''}
+                </b>
+              </div>
+            ) : null}
+            {details.receipt?.lastError ? (
+              <div className="psh-delivery__kv">
+                <span>Kosa la mwisho</span>
+                <b>{details.receipt.lastError}</b>
+              </div>
+            ) : null}
+            {details.doc?.kb || details.media?.kb ? (
+              <div className="psh-delivery__kv">
+                <span>Bytes</span>
+                <b>
+                  {details.doc?.kb ? `${details.doc.kb} KB` : ''}
+                  {details.media?.kb ? `${(details.media.kb / 1024).toFixed(1)} MB` : ''}
+                </b>
+              </div>
+            ) : null}
+
+            {/* Uaminifu: kila kikomo kinaandikwa wazi — hakuna madai ya uongo */}
+            <div className="psh-delivery__notes">
+              <p>
+                <IconChecks size={15} /> <b>Imefika</b> (✓✓ grey) = kifaa cha mpokeaji kimethibitisha kupokea.{" "}
+                <b>Imesomwa</b> (✓✓ blue) = mpokeaji amesoma. Moja (✓) = imekubaliwa na mfumo wangu
+                <b> pekee</b> — si uthibitisho wa mpokeaji.
+              </p>
+              <p>
+                <IconRelay size={15} /> <b>Imesawazishwa/Relay</b> ni hali ya safu na njia, si risiti —
+                ujumbe unaweza kuwa umehifadhiwa bila mpokeaji kupokea.
+              </p>
+              {details.receipt?.audience ? (
+                <p>
+                  <IconSpaces size={15} /> Kikundi: tunaonyesha <b>hesabu ya jumla pekee</b> — kamwe
+                  hatusemi “kila mtu amefika/amesoma”.
+                </p>
+              ) : null}
+              {details.receipt?.simulated ? (
+                <p className="psh-delivery__demo">
+                  <IconTimer size={15} /> Risiti hii ni ya <b>majaribio</b> (mock) — mfumo halisi wa
+                  PASIHAI bado hauna risiti za mpokeaji.
+                </p>
+              ) : (
+                <p>
+                  <IconTimer size={15} /> Mfumo halisi wa PASIHAI bado hauna risiti za mpokeaji kwa
+                  ujumbe huu — kwa hiyo alama ni ✓ moja tu.
+                </p>
+              )}
+            </div>
           </div>
         ) : null}
       </Sheet>

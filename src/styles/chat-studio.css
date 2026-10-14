@@ -1,0 +1,736 @@
+/* ══════════════════════════════════════════════════════════════
+   PASIHAI — CHAT STUDIO (safu ya juu ya muonekano wa Chat)
+
+   MUHIMU: safu hii ni YA MUONEKANO PEKEE.
+   · Haibadilishi data, routes, repositories, counts wala mantiki.
+   · Inatumia tokens za mradi (tokens.css) — light + dark.
+   · Inasahihisha tofauti zilizothibitishwa:
+       1) thread ilikuwa na wallpaper ya dots (visual-v4.css) —
+          kanuni ya Chat ni "rangi MOJA safi" (chat.css).
+       2) bubble za "me" zilikuwa zimefifia (--pg-pale-2) badala ya
+          rangi ya brand; meta/ticks zilikuwa hazisomeki.
+       3) composer, kichwa cha thread na inbox vilikuwa vya tabaka
+          za zamani — sasa vinaunganishwa na lugha ya muonekano ya
+          Home feed + Status studio (pills, radius, blur, brand).
+
+   Ratiba ya kupakia: baada ya visual-v10 · status-studio (main.jsx).
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 0a. Kuzuia overflow: watoto wa grid/flex lazima wapungue ─
+   (pane--list ilikuwa 430px ndani ya 358px kwa sababu ya
+   min-width:auto + chips za vichujio) */
+.psh-chat {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.psh-chat > *,
+.psh-chat__pane,
+.psh-chat__pane--list,
+.psh-chat__pane--thread,
+.psh-chat__list,
+.psh-chat__messages,
+.psh-chat__head,
+.psh-chat__filters {
+  min-width: 0;
+  max-width: 100%;
+}
+.psh-chat__search {
+  width: auto;
+  align-self: stretch;
+  box-sizing: border-box;
+}
+
+/* ── 0. Vigezo vya ndani (hubadilika na mandhari) ───────────── */
+.psh-chat,
+.psh-chat__pane {
+  --cs-surface: var(--bg);
+  --cs-surface-2: var(--bg-subtle);
+  --cs-me-bg: var(--c-green-700);
+  --cs-me-fg: #ffffff;
+  --cs-me-meta: rgba(255, 255, 255, 0.82);
+  --cs-me-line: rgba(255, 255, 255, 0.22);
+  --cs-shadow: 0 1px 2px rgba(20, 60, 40, 0.05);
+  --cs-shadow-me: 0 6px 16px rgba(15, 122, 97, 0.16);
+  --cs-blur: color-mix(in srgb, var(--bg) 84%, transparent);
+}
+
+[data-theme='dark'] .psh-chat,
+[data-theme='dark'] .psh-chat__pane {
+  --cs-me-bg: rgba(0, 214, 143, 0.16);
+  --cs-me-fg: var(--t-1);
+  --cs-me-meta: rgba(223, 226, 235, 0.66);
+  --cs-me-line: rgba(0, 214, 143, 0.3);
+  --cs-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --cs-shadow-me: 0 6px 18px rgba(0, 214, 143, 0.1);
+  --cs-blur: color-mix(in srgb, var(--bg) 78%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .psh-chat,
+  :root:not([data-theme='light']) .psh-chat__pane {
+    --cs-me-bg: rgba(0, 214, 143, 0.16);
+    --cs-me-fg: var(--t-1);
+    --cs-me-meta: rgba(223, 226, 235, 0.66);
+    --cs-me-line: rgba(0, 214, 143, 0.3);
+    --cs-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+    --cs-shadow-me: 0 6px 18px rgba(0, 214, 143, 0.1);
+    --cs-blur: color-mix(in srgb, var(--bg) 78%, transparent);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   1. INBOX — kichwa · tafuta · vichujio · safu
+   ══════════════════════════════════════════════════════════════ */
+
+/* Kichwa: kimefungwa na blur; chips za hali zinabaki kama zilivyo */
+.psh-chat__head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 12px 14px 10px;
+  background: var(--bg);
+  background: var(--cs-blur);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-bottom: 1px solid var(--line);
+}
+.psh-chat__title {
+  font-family: var(--font-display, var(--font-ui));
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+/* Kitufe cha utafutaji: pill yenye ikoni ndani */
+.psh-chat__search {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  min-height: 44px;
+  margin: 10px 14px 0;
+  width: calc(100% - 28px);
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--cs-surface-2);
+  color: var(--t-3);
+  box-shadow: var(--cs-shadow);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.psh-chat__search:hover {
+  background: var(--bg);
+  border-color: var(--c-green);
+  box-shadow: 0 0 0 3px var(--c-green-soft);
+}
+
+/* Vichujio: pills zinazotembea kwa mkono */
+.psh-chat__filters {
+  gap: 8px;
+  padding: 12px 14px 8px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.psh-chat__filter {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--cs-surface);
+  color: var(--t-2);
+  font-weight: 550;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    transform 0.12s ease;
+}
+.psh-chat__filter:hover {
+  border-color: var(--line-2);
+  color: var(--t-1);
+}
+.psh-chat__filter.is-active {
+  background: var(--c-green-700);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(15, 122, 97, 0.22);
+}
+.psh-chat__filtercount {
+  opacity: 0.72;
+}
+.psh-chat__filter.is-active .psh-chat__filtercount {
+  opacity: 0.9;
+}
+
+/* Jina la mazungumzo: likatwe kwa ellipsis (chip ya uhusiano inashuka
+   mstari unaofuata) — sheria hii ilikuwa kwenye chat-direct.css ambayo
+   HAIPAKIWI kwenye app, kwa hiyo jina lilikuwa linavunjika mstari. */
+.psh-chat__rowtop {
+  min-width: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+.psh-chat__rowtop .psh-chat__rowname {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Chip ya uhusiano (shields/hub/spaces) inabaki mstari mmoja na jina */
+.psh-chat__rowtop > svg,
+.psh-chat__rowtop > .psh-chat__badge {
+  flex: 0 0 auto;
+}
+
+/* Orodha ya mazungumzo */
+.psh-chat__list {
+  padding: 4px 12px 88px;
+}
+.psh-chat__rowwrap {
+  margin-bottom: 2px;
+}
+.psh-chat__row {
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 18px;
+  box-shadow: var(--cs-shadow);
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.14s ease,
+    border-color 0.14s ease;
+}
+.psh-chat__row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(20, 60, 40, 0.1);
+}
+.psh-chat__row:has(.psh-chat__unread) {
+  background: var(--c-green-soft);
+}
+.psh-chat__row.is-active {
+  background: var(--c-green-soft-2);
+}
+.psh-chat__rowname {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.psh-chat__rowtext {
+  color: var(--t-2);
+}
+.psh-chat__unread {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  background: var(--c-green-700);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(15, 122, 97, 0.3);
+}
+
+/* Kitufe cha New Chat */
+.psh-chat__fab {
+  width: 56px;
+  height: 56px;
+  background: var(--c-green-700);
+  color: #fff;
+  box-shadow: 0 10px 26px rgba(15, 122, 97, 0.34), 0 0 0 6px var(--c-green-soft);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.psh-chat__fab:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   2. THREAD — uso safi (bila dots)· kichwa · jibu · composer
+   ══════════════════════════════════════════════════════════════ */
+
+/* THREAD BACKGROUND: kwa ombi, linabaki kama lilivyokuwa
+   (visual-v4: tint + dots). Hapa hapana override —
+   tabaka la awali linaamua. */
+
+/* Kichwa cha mazungumzo: kimefungwa, chenye blur */
+.psh-chat__thead {
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--cs-blur);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border-bottom: 1px solid var(--line);
+}
+.psh-chat__theadname {
+  font-size: 15.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.psh-chat__theadsub {
+  color: var(--t-2);
+}
+.psh-chat__back {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--cs-surface);
+  color: var(--t-1);
+}
+
+/* Kanda ya ujumbe */
+.psh-chat__messages {
+  gap: 10px;
+  padding: 14px 12px 18px;
+}
+
+/* ── Bubbles ───────────────────────────────────────────────── */
+.psh-msg__bubble {
+  max-width: min(78%, 520px);
+  padding: 10px 14px 8px;
+  border-radius: 18px 18px 18px 6px;
+  border: 1px solid var(--line);
+  background: var(--cs-surface);
+  box-shadow: var(--cs-shadow);
+  line-height: 1.5;
+}
+
+/* Ujumbe wangu: rangi ya brand, maandishi yanasomeka */
+.psh-msg--me .psh-msg__bubble {
+  border-radius: 18px 18px 6px 18px;
+  background: var(--cs-me-bg);
+  border-color: transparent;
+  color: var(--cs-me-fg);
+  box-shadow: var(--cs-shadow-me);
+}
+.psh-msg--me .psh-msg__meta,
+.psh-msg--me .psh-msg__state,
+.psh-msg--me .psh-msg__ticks {
+  color: var(--cs-me-meta);
+}
+.psh-msg--me .psh-msg__ticks[data-read='true'],
+.psh-msg--me .psh-msg__ticks.is-read {
+  color: #ffffff;
+}
+.psh-msg--me .psh-msg__quote {
+  background: rgba(255, 255, 255, 0.16);
+  border-left-color: rgba(255, 255, 255, 0.6);
+}
+.psh-msg--me .psh-msg__quoteby,
+.psh-msg--me .psh-msg__quotetext {
+  color: rgba(255, 255, 255, 0.9);
+}
+.psh-msg--me .psh-msg__eyebrow {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Bubbles za media/kadi: zibaki kwenye uso safi (zinatumia rangi zao) */
+.psh-msg__bubble:has(.psh-msg__audio),
+.psh-msg__bubble:has(.psh-msg__poll),
+.psh-msg__bubble:has(.psh-msg__loc),
+.psh-msg__bubble:has(.psh-msg__doc),
+.psh-msg__bubble:has(.psh-msg__shared),
+.psh-msg__bubble:has(.psh-msg__videoframe) {
+  max-width: min(100%, 620px);
+  padding-inline: 12px;
+}
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__audio),
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__poll),
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__loc),
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__doc),
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__shared),
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__videoframe) {
+  background: var(--cs-surface);
+  border-color: var(--line);
+  color: var(--t-1);
+  box-shadow: var(--cs-shadow);
+}
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__poll) .psh-msg__meta,
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__audio) .psh-msg__meta,
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__loc) .psh-msg__meta,
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__doc) .psh-msg__meta,
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__shared) .psh-msg__meta,
+.psh-msg--me .psh-msg__bubble:has(.psh-msg__videoframe) .psh-msg__meta {
+  color: var(--t-3);
+}
+
+/* Duration ya voice note: isivunjike katikati ya namba */
+.psh-msg__dur {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Video frame + kadi za ulinzi: radius moja */
+.psh-msg__videoframe,
+.psh-msg__guardcard {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Itikio (reactions) — pill safi */
+.psh-msg__reactions {
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--cs-surface);
+  box-shadow: var(--cs-shadow);
+}
+
+/* ── Kanda ya jibu (reply) ─────────────────────────────────── */
+.psh-chat__reply {
+  margin: 10px 12px 0;
+  padding: 8px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--c-green-700);
+  background: var(--cs-surface-2);
+}
+
+/* ── Composer ──────────────────────────────────────────────── */
+.psh-chat__composer {
+  gap: 8px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  background: var(--cs-blur);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  backdrop-filter: blur(16px) saturate(1.15);
+  border-top: 1px solid var(--line);
+}
+.psh-chat__input {
+  min-height: 44px;
+  padding: 11px 16px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: var(--cs-surface-2);
+  font-size: var(--fs-14);
+}
+.psh-chat__input:focus {
+  border-color: var(--c-green);
+  background: var(--cs-surface);
+  box-shadow: 0 0 0 3px var(--c-green-soft);
+}
+.psh-chat__cbtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: var(--cs-surface-2);
+  color: var(--t-2);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+.psh-chat__cbtn:hover {
+  background: var(--bg-hover);
+  color: var(--t-1);
+}
+.psh-chat__cbtn--send {
+  width: 46px;
+  height: 46px;
+  background: var(--c-green-700);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(15, 122, 97, 0.3);
+}
+.psh-chat__cbtn--send:hover {
+  transform: translateY(-1px) scale(1.03);
+  background: var(--c-green-600);
+  color: #fff;
+}
+
+/* Chips za hali chini ya thread */
+.psh-chat__footnotes {
+  padding: 6px 14px 8px;
+  background: var(--bg);
+  background: var(--cs-blur);
+  border-top: 1px solid var(--line);
+}
+
+/* ── Desktop: panes mbili zenye mpaka safi ─────────────────── */
+@media (min-width: 1024px) {
+  .psh-chat {
+    box-shadow: 0 10px 30px rgba(20, 60, 40, 0.07);
+  }
+  .psh-chat__pane--list {
+    background: var(--bg);
+  }
+  .psh-chat__list {
+    padding-bottom: 24px;
+  }
+  .psh-chat__msg .psh-msg__bubble,
+  .psh-msg__bubble {
+    max-width: min(64%, 560px);
+  }
+}
+
+/* ── Vidokezo vya kugusa: ≥44px (§a11y) ────────────────────── */
+.psh-chat__search,
+.psh-chat__cbtn {
+  min-height: 44px;
+}
+.psh-chat__filter {
+  min-height: 38px;
+}
+.psh-chat__cbtn {
+  min-width: 44px;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   3. MANDHARI NZITO — vitu vilivyokuwa na rangi ngumu
+   ══════════════════════════════════════════════════════════════ */
+
+/* Ramani ya mock ilikuwa #e7eff6 (mwanga) hata kwenye dark */
+[data-theme='dark'] .psh-msg__map {
+  background: #1b2733;
+  border: 1px solid var(--line);
+}
+[data-theme='dark'] .psh-msg__mapbadge {
+  background: rgba(255, 255, 255, 0.9);
+  color: #10202e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .psh-msg__map {
+    background: #1b2733;
+    border: 1px solid var(--line);
+  }
+  :root:not([data-theme='light']) .psh-msg__mapbadge {
+    background: rgba(255, 255, 255, 0.9);
+    color: #10202e;
+  }
+}
+
+/* Muda wa voice note kwenye bubble yangu: ufuate rangi ya meta */
+.psh-msg--me .psh-msg__dur {
+  color: var(--cs-me-meta);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   4. PANELI ZA CHAT (New Chat · Tafuta · Maombi · More · Settings)
+   — safu zile zile za watu, pill za kadi, kichwa kimoja
+   ══════════════════════════════════════════════════════════════ */
+.psh-panelstack__h {
+  font-family: var(--font-display, var(--font-ui));
+  letter-spacing: -0.01em;
+}
+.psh-chat-person {
+  border-radius: 16px;
+  transition: background 0.14s ease, transform 0.14s ease;
+}
+.psh-chat-person:hover {
+  transform: translateY(-1px);
+}
+.psh-chat-person__main {
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 16px;
+}
+.psh-chat-person__row + .psh-chat-person__row {
+  border-top: 1px solid var(--line);
+}
+.psh-chat-person__name {
+  font-weight: 650;
+}
+.psh-chat-person__meta {
+  color: var(--t-2);
+}
+.psh-chat-lookup__input {
+  border-radius: 12px;
+  min-height: 44px;
+}
+.psh-chat-case {
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  box-shadow: var(--cs-shadow, 0 1px 2px rgba(20, 60, 40, 0.05));
+}
+.psh-chat-case__badge {
+  border-radius: 999px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   5. KIKUNDI — jina la mtumaji, chips za dhima, tangazo
+   ══════════════════════════════════════════════════════════════ */
+.psh-msg__sender {
+  font-weight: 650;
+  color: var(--c-green-700);
+}
+[data-theme='dark'] .psh-msg__sender {
+  color: var(--c-green);
+}
+.psh-msg__role {
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.psh-msg__ann {
+  border-left: 3px solid var(--c-green-700);
+  border-radius: 10px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   6. UWASILISHAJI — NANI → NANI · ticks za hali · chips za njia
+   ══════════════════════════════════════════════════════════════ */
+
+/* Mstari mmoja mwembamba chini ya bubble:
+   mtumaji → mpokeaji · hali · njia · jumla (vikundi) */
+.psh-msg__delivery {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  padding-left: 2px;
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--t-3);
+}
+.psh-msg__delivery--me {
+  justify-content: flex-end;
+  padding-left: 0;
+  padding-right: 2px;
+  text-align: right;
+}
+.psh-msg__flow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.psh-msg__flow b {
+  font-weight: 650;
+  color: var(--t-2);
+}
+.psh-msg__flowarrow {
+  flex: none;
+  color: var(--t-3);
+}
+.psh-msg__flowto {
+  color: var(--t-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 42vw;
+}
+
+/* Chips za hali/njia — vidogo, havichukui nafasi ya maandishi */
+/* ICONS PEKEE — hali na njia zinaonyeshwa kwa alama, sio maneno.
+   Maana kamili: tooltip + `aria-label` + "Taarifa za uwasilishaji". */
+.psh-msg__ico {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--t-3);
+  line-height: 1;
+}
+.psh-msg__ico > i {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+/* Rangi ina maana: ok=green · blue=read · gold=foleni/retry · red=fail */
+.psh-msg__ico--ok { color: var(--c-green-700); }
+.psh-msg__ico--blue { color: var(--c-blue-600); }
+.psh-msg__ico--gold { color: var(--c-gold); }
+.psh-msg__ico--red { color: var(--c-error); }
+.psh-msg__ico--quiet { color: var(--t-3); }
+.psh-msg__ico--route { color: var(--t-2); }
+.psh-msg__ico--delivered { color: var(--t-2); }
+.psh-msg__ico--read { color: var(--c-blue); }
+.psh-msg__ico--note { color: var(--t-3); }
+.psh-msg__ico--demo {
+  color: var(--c-gold);
+  border: 1px dashed var(--c-gold);
+  border-radius: 999px;
+  padding: 1px 3px;
+}
+[data-theme='dark'] .psh-msg__ico--gold,
+[data-theme='dark'] .psh-msg__ico--demo { color: var(--c-gold); }
+
+/* Ticks — rangi ina maana kamili (tazama ChatBits.jsx) */
+.psh-tick--pending { color: var(--t-3); }
+.psh-tick--sent { color: var(--t-3); }
+.psh-tick--delivered { color: var(--t-2); }
+.psh-tick--read { color: var(--c-blue); }
+.psh-tick--retry { color: var(--c-gold); }
+.psh-tick--failed { color: var(--c-error); }
+.psh-tick--expired { color: var(--t-3); opacity: 0.75; }
+
+/* Ndani ya bubble yangu (kijani): ticks zinasomeka juu ya rangi ya brand.
+   Read = bluu ya WhatsApp (#53bdeb) — inasomeka kama "blue tick" halisi. */
+.psh-msg--me .psh-msg__ticks.psh-tick--sent,
+.psh-msg--me .psh-msg__ticks.psh-tick--delivered { color: var(--cs-me-meta); }
+.psh-msg--me .psh-msg__ticks.psh-tick--read { color: #53bdeb; }
+.psh-msg--me .psh-msg__ticks.psh-tick--retry { color: #ffe08a; }
+.psh-msg--me .psh-msg__ticks.psh-tick--failed,
+.psh-msg--me .psh-msg__ticks.psh-tick--expired { color: #ffd2c9; }
+
+/* Footnotes za composer: icons pekee + doa la hali (kijani = hai) */
+.psh-chat__fnote {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--t-3);
+}
+.psh-chat__fnote.is-on { color: var(--c-green-700); }
+.psh-chat__fnote.is-off { color: var(--t-3); opacity: 0.6; }
+.psh-chat__fnodedot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.75;
+}
+[data-theme='dark'] .psh-chat__fnote.is-on { color: var(--c-green); }
+
+/* ── Taarifa za uwasilishaji (Sheet) ─────────────────────────── */
+.psh-delivery {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+.psh-delivery__kv {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  min-width: 0;
+}
+.psh-delivery__kv > span {
+  color: var(--t-2);
+  flex: none;
+}
+.psh-delivery__kv > b {
+  font-weight: 650;
+  text-align: right;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}
+.psh-delivery__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.psh-delivery__state .psh-msg__ticks { color: inherit; }
+.psh-delivery__notes {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--t-2);
+}
+.psh-delivery__notes p {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.psh-delivery__notes svg {
+  display: inline-block;
+  vertical-align: -2px;
+  margin-right: 6px;
+  color: var(--c-green-700);
+}
+[data-theme='dark'] .psh-delivery__notes svg { color: var(--c-green); }
+.psh-delivery__demo { color: #8a6d18; }
+[data-theme='dark'] .psh-delivery__demo { color: var(--c-gold); }
+.psh-delivery__notes b { color: var(--t-1); }

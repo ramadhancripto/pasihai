@@ -35,6 +35,15 @@ import {
   chatMoreMenu,
   chatSettings,
 } from '../mock.js'
+import { GROUP_TYPE_LABELS, groupMemberLimit } from '../../config/groupLimits.js'
+import {
+  GROUP_ROLE_RANK,
+  GROUP_GRANTABLE_ACTIONS,
+  groupCan,
+  groupPermissionsValid,
+  groupRoleMax,
+} from '../../config/groupPermissions.js'
+import { normalizeDraftSettings } from './groupSettingsShape.js'
 
 let store = null
 
@@ -51,14 +60,61 @@ function db() {
     blocked: [],          // accountId zilizozuiwa
     settings: {},         // mipangilio iliyobadilishwa
     groupTones: {},       // { convId: tone } — picha ya kikundi (mandhari)
+    groupSettings: {},    // { convId: settings } — chanzo kimoja (model ileile ya live, M1)
     archived: {},         // { convId: true }
     mediaCleared: false,
     deleted: [],          // ujumbe nilioufuta kwangu
+    memberState: {},      // { convId: rows } — roles/status/permissions (M2, demo)
   }
   return store
 }
 
 const conv = (id) => db().conversations.find((c) => c.id === id) || null
+
+/* ── Wasikilizaji wa mabadiliko (mock) ────────────────────────
+   Risiti za majaribio zinapoingia, thread inaweza kujirefresh.
+   Mfumo halisi (Supabase) hauna realtime bado — hivyo hii ni ya
+   mock pekee na UI haitegemei uthibitisho wake. */
+const listeners = new Set()
+function notify(convId) {
+  listeners.forEach((cb) => {
+    try {
+      cb(convId)
+    } catch {
+      /* kosa la msikilizaji haliangushi mfumo */
+    }
+  })
+}
+
+/* ── Wanachama wa kikundi (mock, M2) ──────────────────────────
+   Demo huanza na me=owner + rows chache; vitendo hubadilisha hali hii.
+   Live: RPC za 034 (chat_group_*) — DB ndiyo mamlaka ya mwisho. */
+function memberRows(convId) {
+  const s = db()
+  if (!s.memberState[convId]) {
+    const c = conv(convId)
+    const rows = [{ userId: 'me', role: 'owner', status: 'active', permissions: null, isMe: true }]
+    if (c?.type === 'group') {
+      const demo = (c.memberIds || ['p1', 'p2', 'p4']).filter((id) => id !== 'me').slice(0, 4)
+      const roles = ['admin', 'moderator', 'member', 'member']
+      demo.forEach((id, i) => rows.push({ userId: id, role: roles[i] || 'member', status: 'active', permissions: null, isMe: false }))
+    }
+    s.memberState[convId] = rows
+  }
+  return s.memberState[convId]
+}
+
+function memberName(userId) {
+  if (userId === 'me') return 'Wewe'
+  const hit = chatPhoneBook.find((c) => c.accountId === userId || c.id === userId)
+  return hit?.name || null
+}
+
+function memberError(key, message) {
+  const e = new Error(message)
+  e.code = key
+  return e
+}
 
 function touch(id, patch) {
   const s = db()
@@ -134,7 +190,47 @@ export const mockChatRepository = {
   async setMessageState(convId, msgId, patch = {}) {
     const s = db()
     s.messages[convId] = (s.messages[convId] || []).map((m) => (m.id === msgId ? { ...m, ...patch } : m))
+    notify(convId)
     return this.listMessages(convId)
+  },
+
+  /* ── Kufuatilia mabadiliko (mock) ─────────────────────────── */
+  subscribe(cb) {
+    listeners.add(cb)
+    return () => listeners.delete(cb)
+  },
+
+  /* ── Kuiga mfuatano wa risiti — MOCK PEKEE ────────────────────
+     steps = [{ state, afterMs, route?, receipt? }]
+
+     KANUNI YA UAMINIFU:
+       * Kila risiti inabeba `simulated: true` (UI inaandika "majaribio").
+       * OFFLINE/LOCAL → hakuna hatua: ujumbe unabaki kwenye foleni;
+         hatubuni uwasilishaji usiofanyika.
+       * Vikundi: hesabu ya JUMLA pekee (audience + waliofika/waliosoma);
+         hatusemi kamwe "kila mtu amefika/amesoma". */
+  demoDelivery(convId, msgId, steps = []) {
+    if (!steps.length) return
+    const c = conv(convId)
+    const audience = c?.type === 'group' ? c.members || 0 : 0
+    steps.forEach((step) => {
+      setTimeout(() => {
+        const s = db()
+        const list = s.messages[convId] || []
+        if (!list.some((m) => m.id === msgId)) return
+        s.messages[convId] = list.map((m) => {
+          if (m.id !== msgId) return m
+          const receipt = { simulated: true, ...(m.receipt || {}), ...(step.receipt || {}) }
+          if (audience) {
+            receipt.audience = audience
+            receipt.delivered = Math.round(audience * 0.64)
+            if (step.state === 'read') receipt.read = Math.round(audience * 0.25)
+          }
+          return { ...m, state: step.state, route: step.route || m.route, receipt }
+        })
+        notify(convId)
+      }, step.afterMs)
+    })
   },
 
   async createMediaMessage(convId, media = {}) {
@@ -251,28 +347,224 @@ export const mockChatRepository = {
     return { conversation: created, created: true }
   },
 
-  async createGroup({ name, members = [], parentContext = null }) {
+  async createGroup({ name, members = [], tone = 'green', files = null, settings = null, parentContext = null }) {
     const s = db()
+    const type = settings?.type || 'normal'
+    const limit = groupMemberLimit(type)
+    const title = String(name || '').trim()
+    const total = members.length + 1 // wewe (muundaji = Owner) + waliyochaguliwa
+
+    /* Utekelezaji wa mfumo huu wa demo: kanuni ILEILE ya live (backend). */
+    if (!title) { const e = new Error('Jina la kikundi linahitajika.'); e.code = 'validation'; throw e }
+    if (title.length > 100) { const e = new Error('Jina la kikundi liwe herufi 100 kwa juu.'); e.code = 'validation'; throw e }
+    if (members.length === 0) { const e = new Error('Chagua angalau contact mmoja.'); e.code = 'validation'; throw e }
+    if (total > limit) {
+      const e = new Error(`Kikomo cha wanachama kwa aina hii ni ${limit}.`)
+      e.code = 'member_limit'
+      throw e
+    }
+
     s.created += 1
+    const id = `gnew${s.created}`
+    /* Demo pekee: faili hazipakiwi kwenye storage hapa — zinaonyeshwa kwa object URL.
+       Live repository inapakia kwenye bucket ya 'group-media' (migration 033). */
+    const dpUrl = files?.dp ? URL.createObjectURL(files.dp) : null
+    const coverUrl = files?.cover ? URL.createObjectURL(files.cover) : null
     const created = {
-      id: `gnew${s.created}`,
+      id,
       type: 'group',
-      title: name || 'Kikundi Kipya',
-      tone: 'green',
+      title,
+      tone,
       groupIcon: 'group',
-      members: members.length,
-      memberIds: members,
+      members: total,
+      memberIds: ['me', ...members],
+      ownerId: 'me',
       parentContext,
       unread: 0,
       delivery: 'synced',
       updatedAt: 'sasa hivi',
+      dpUrl,
+      coverUrl,
       last: { by: 'system', text: 'Kikundi kimeundwa', at: 'sasa hivi', kind: 'text' },
     }
     s.conversations = [created, ...s.conversations]
-    s.messages[created.id] = [
-      { id: `${created.id}-m1`, from: 'system', kind: 'text', text: `Kikundi “${created.title}” kimeundwa. Wanachama ${members.length}.`, at: 'sasa hivi', state: 'sent' },
+    s.messages[id] = [
+      { id: `${id}-m1`, from: 'system', kind: 'text', text: `Kikundi “${title}” kimeundwa. Aina: ${GROUP_TYPE_LABELS[type] || type} · Wanachama ${total}/${limit}.`, at: 'sasa hivi', state: 'sent' },
     ]
-    return created
+    s.groupTones[id] = tone
+    s.groupSettings[id] = {
+      ...normalizeDraftSettings(settings || {}, { type, memberLimit: limit }),
+      conversationId: id,
+      memberLimit: limit,
+      tone,
+      dpPath: files?.dp ? `demo:${id}/dp` : null,
+      coverPath: files?.cover ? `demo:${id}/cover` : null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    return { ...created, settings: s.groupSettings[id], warnings: [] }
+  },
+
+  /* ── Settings za kikundi (chanzo kimoja — model ileile ya live) ── */
+  async getGroupSettings(convId) {
+    const s = db()
+    const row = s.groupSettings[convId]
+    return row ? { ...row } : null
+  },
+
+  async updateGroupSettings(convId, patch = {}) {
+    const s = db()
+    const current = s.groupSettings[convId]
+    if (!current) { const e = new Error('Taarifa za kikundi hiki hazipatikani.'); e.code = 'not_found'; throw e }
+    if (patch.memberLimit !== undefined) {
+      const ceiling = groupMemberLimit(patch.type || current.type)
+      if (Number(patch.memberLimit) > ceiling) {
+        const e = new Error(`Kikomo cha juu kwa aina hii ni ${ceiling}.`)
+        e.code = 'member_limit'
+        throw e
+      }
+    }
+    const next = { ...current, ...patch, conversationId: convId, updatedAt: new Date().toISOString() }
+    s.groupSettings[convId] = next
+    return { ...next }
+  },
+
+  /* ── Wanachama, roles na ruhusa (M2) — kanuni ILEILE ya DB, kwa demo ── */
+  async getGroupMembers(convId) {
+    const c = conv(convId)
+    if (!c || c.type !== 'group') return []
+    return memberRows(convId).map((r) => ({ ...r, name: memberName(r.userId) }))
+  },
+
+  async groupCan(convId, action) {
+    const c = conv(convId)
+    if (!c) return false
+    const rows = memberRows(convId)
+    if (c.type !== 'group') {
+      return !!rows.find((r) => r.isMe && r.status === 'active')
+    }
+    const me = rows.find((r) => r.isMe)
+    const settings = db().groupSettings[convId] || null
+    return groupCan({
+      role: me?.role || null,
+      status: me?.status || 'active',
+      kind: 'group',
+      groupType: settings?.type || 'normal',
+      settings,
+      permissions: me?.permissions ?? null,
+      action,
+    })
+  },
+
+  async groupAddMember(convId, accountId) {
+    const rows = memberRows(convId)
+    const c = conv(convId)
+    if (!c || c.type !== 'group') throw memberError('not_found', 'Kikundi hakipatikani.')
+    if (!(await this.groupCan(convId, 'add_member'))) {
+      throw memberError('chat_group_no_permission_add', 'Hauna ruhusa kuongeza wanachama.')
+    }
+    if (rows.some((r) => r.userId === accountId)) {
+      throw memberError('chat_group_already_member', 'Tayari ni mwanachama wa kikundi hiki.')
+    }
+    const settings = db().groupSettings[convId] || {}
+    const limit = settings.memberLimit || groupMemberLimit(settings.type || 'normal')
+    const active = rows.filter((r) => r.status === 'active').length
+    if (active >= limit) throw memberError('chat_group_member_limit', 'Kikomo cha wanachama kimefikiwa.')
+    const row = { userId: accountId, role: 'member', status: 'active', permissions: null, isMe: false }
+    rows.push(row)
+    touch(convId, { members: rows.length })
+    notify(convId)
+    return { ...row, name: memberName(accountId), warnings: [] }
+  },
+
+  async groupSetMember(convId, accountId, patch = {}) {
+    const rows = memberRows(convId)
+    const me = rows.find((r) => r.isMe)
+    const target = rows.find((r) => r.userId === accountId)
+    if (!target) throw memberError('chat_group_member_not_found', 'Mwanachama huyo hakupatikana kwenye kikundi.')
+    if (accountId === 'me') {
+      throw memberError('chat_group_self_role_change_forbidden', 'Hauwezi kubadilisha role yako mwenyewe.')
+    }
+    if (target.role === 'owner') {
+      throw memberError('chat_group_owner_immutable', 'Mmiliki hawezi kuondolewa au kubadilishwa kwa njia hii.')
+    }
+    const rank = GROUP_ROLE_RANK[me?.role] ?? 0
+    const targetRank = GROUP_ROLE_RANK[target.role] ?? 0
+    if (patch.role && patch.role !== target.role) {
+      if (!(await this.groupCan(convId, 'manage_roles'))) {
+        throw memberError('chat_group_no_permission_roles', 'Hauna ruhusa kubadilisha roles au ruhusa.')
+      }
+      if ((GROUP_ROLE_RANK[patch.role] ?? 0) >= rank) {
+        throw memberError('chat_group_cannot_grant_equal_or_higher', 'Huwezi kumpa mtu cheo cha juu/kulingana nawe.')
+      }
+      if (targetRank >= rank) {
+        throw memberError('chat_group_insufficient_rank', 'Cheo hiki ni cha juu/kulingana nawe — huwezi kuibadilisha.')
+      }
+    }
+    if (patch.status && patch.status !== target.status) {
+      const allowed = (await this.groupCan(convId, 'restrict_members')) || (await this.groupCan(convId, 'manage_members'))
+      if (!allowed) throw memberError('chat_group_no_permission_members', 'Hauna ruhusa kusimamia wanachama.')
+      if (targetRank >= rank) {
+        throw memberError('chat_group_insufficient_rank', 'Cheo hiki ni cha juu/kulingana nawe — huwezi kuibadilisha.')
+      }
+    }
+    if (patch.permissions !== undefined && patch.permissions !== null) {
+      if (!groupPermissionsValid(patch.role || target.role, patch.permissions)) {
+        throw memberError('chat_group_invalid_permissions', 'Ruhusa ulizochagua hazihalali kwa role hii.')
+      }
+    }
+    if (patch.role !== undefined) target.role = patch.role
+    if (patch.status !== undefined) target.status = patch.status
+    if (patch.permissions !== undefined) target.permissions = patch.permissions
+    notify(convId)
+    return { ...target, name: memberName(target.userId), warnings: [] }
+  },
+
+  async groupJoin(convId) {
+    const c = conv(convId)
+    if (!c || c.type !== 'group') throw memberError('chat_group_not_found', 'Kikundi hakipatikani.')
+    const settings = db().groupSettings[convId] || {}
+    const rows = memberRows(convId)
+    const mine = rows.find((r) => r.isMe)
+    if (mine) {
+      if (mine.status === 'banned') throw memberError('chat_group_banned', 'Hauwezi kujiunga — umezuiliwa kwenye kikundi hiki.')
+      if (mine.status === 'active' || mine.status === 'pending') {
+        throw memberError('chat_group_already_member', 'Tayari u mwanachama wa kikundi hiki.')
+      }
+    }
+    const join = settings.joinMethod || 'request'
+    const privacy = settings.privacy || 'private'
+    if (join === 'invite' || join === 'invite_link') throw memberError('chat_group_invite_required', 'Kikundi hiki kinahitaji mwaliko ili kujiunga.')
+    if (join === 'direct' && privacy === 'private') throw memberError('chat_group_join_restricted', 'Kikundi hiki ni cha faragha — ombi la kujiunga linahitajika.')
+    const status = join === 'direct' ? 'active' : 'pending'
+    if (mine) mine.status = status
+    else rows.push({ userId: 'me', role: 'member', status, permissions: null, isMe: true })
+    notify(convId)
+    return { userId: 'me', status, warnings: [] }
+  },
+
+  async groupLeave(convId) {
+    const rows = memberRows(convId)
+    const mine = rows.find((r) => r.isMe)
+    if (!mine || mine.status !== 'active') throw memberError('chat_group_not_member', 'Wewe si mwanachama hai wa kikundi hiki.')
+    if (mine.role === 'owner') throw memberError('chat_group_owner_must_transfer', 'Hamisha umiliki kwa mwanachama mwingine kwanza.')
+    mine.status = 'left'
+    notify(convId)
+    return { userId: 'me', status: 'left', warnings: [] }
+  },
+
+  async groupTransferOwnership(convId, newOwnerId) {
+    const rows = memberRows(convId)
+    const mine = rows.find((r) => r.isMe)
+    const target = rows.find((r) => r.userId === newOwnerId)
+    if (mine?.role !== 'owner') throw memberError('chat_group_owner_only', 'Ni mmiliki pekee anayeweza kuhamisha umiliki.')
+    if (newOwnerId === 'me') throw memberError('chat_group_transfer_self', 'Hauwezi kuhamisha umiliki kwako mwenyewe.')
+    if (!target || target.status !== 'active') throw memberError('chat_group_transfer_invalid_target', 'Mwanachama huyo hayupo kikamilifu kwenye kikundi.')
+    mine.role = 'admin'
+    target.role = 'owner'
+    touch(convId, { ownerId: newOwnerId })
+    notify(convId)
+    return { oldOwner: 'admin', newOwner: 'owner', warnings: [] }
   },
 
   async search(query = '') {
