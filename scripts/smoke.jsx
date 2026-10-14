@@ -166,9 +166,16 @@ const viewerFixture = {
 const textViewerMarkup = renderToString(<feedPanels.StatusViewerPanel group={viewerFixture} />)
 assert(
   textViewerMarkup.includes('Maelezo ya fixture yako ndani ya viewer.')
-    && textViewerMarkup.includes('psh-status-story__caption')
-    && textViewerMarkup.includes('Maoni ya Status hayapatikani kwa sasa.'),
-  'Story viewer huweka text ndani ya story na kuonyesha wazi comments ambazo hazijatekelezwa',
+    && textViewerMarkup.includes('psh-story__caption')
+    /* Majibu ya Status yanatumwa kwa Chat halisi; hakuna "maoni ya uongo". */
+    && textViewerMarkup.includes('psh-stv__reply')
+    && textViewerMarkup.includes('Jibu kwa Chat'),
+  'Story viewer huweka text ndani ya story na njia ya kujibu kupitia Chat',
+  'maandishi yako ndani ya caption; jibu linatumwa kwa Chat (chatService)',
+)
+assert(
+  textViewerMarkup.includes('psh-stv__reaction'),
+  'Story viewer huonyesha hisia za haraka (reactions)',
 )
 const imageViewerMarkup = renderToString(<feedPanels.StatusViewerPanel group={{
   ...viewerFixture,

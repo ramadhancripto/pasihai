@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="sw" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pasihai — Status viewer (component check)</title>
+<style>
+  html, body { margin: 0; background: var(--bg, #fff); color: var(--t-1, #17201d); }
+  /* Toast ya harness: inaonyesha majibu ya vitendo (onToast) */
+  .harness-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    z-index: 90;
+    max-width: min(92vw, 420px);
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--t-1, #17201d);
+    color: var(--bg, #fff);
+    font: 500 13px/1.4 var(--font-ui, sans-serif);
+    opacity: 0;
+    transform: translate(-50%, 8px);
+    transition: opacity .2s ease, transform .2s ease;
+    pointer-events: none;
+  }
+  .harness-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+  <div id="status-harness"></div>
+  <script type="module" src="/scripts/status-viewer-harness.jsx"></script>
+</body>
+</html>
