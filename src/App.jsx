@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Header from './components/Header.jsx'
 import useChromeHide from './hooks/useChromeHide.js'
 import { useOnlineStatus } from './hooks/useOnlineStatus.js'
+import { distributionService } from './services/distributionService.js'
 import BottomNav, { NAV_ITEMS } from './components/BottomNav.jsx'
 import Sheet from './components/Sheet.jsx'
 import Home from './pages/Home.jsx'
@@ -18,6 +19,7 @@ import Gundua from './pages/Gundua.jsx'
 import Spaces from './pages/Spaces.jsx'
 import PlaceholderPage from './pages/PlaceholderPage.jsx'
 import StyleGuide from './pages/StyleGuide.jsx'
+import LocalRelayLab from './pages/LocalRelayLab.jsx'
 import {
   NotificationsPanel,
   ProfilePanel,
@@ -59,7 +61,7 @@ import { useTheme } from './hooks/useTheme.js'
 // 'studio' ni Creator Studio: inafikiwa kutoka kwenye CreatePanel (kiingilio kimoja) na hash #/studio.
 // 'contacts' haina kitufe kwenye BottomNav: inafikiwa kutoka Chat (New Chat) na
 // Gundua (Ongeza Rafiki) kwa sababu ni safu ya watu, si sehemu ya kusogeza kila siku.
-const NAV_ROUTE_IDS = new Set([...NAV_ITEMS.map(({ id }) => id), 'studio', 'contacts'])
+const NAV_ROUTE_IDS = new Set([...NAV_ITEMS.map(({ id }) => id), 'studio', 'contacts', 'relay-lab'])
 
 function routeFromHash(hash = '') {
   const segment = String(hash).replace(/^#\/?/, '').split(/[/?#]/, 1)[0]
@@ -173,9 +175,17 @@ export default function App() {
     syncEngine.start()
     console.log('[App] Store-and-Forward initialized')
 
-    // Cleanup wakati app inafungwa
+    const vis = () => document.visibilityState !== 'hidden'
+    distributionService.autoStart({ appVisible: vis() })
+    const onVis = () => {
+      distributionService.autoStart({ appVisible: vis() })
+    }
+    document.addEventListener('visibilitychange', onVis)
+
     return () => {
       syncEngine.stop()
+      document.removeEventListener('visibilitychange', onVis)
+      distributionService.stopMesh()
     }
   }, [])
 
@@ -679,6 +689,12 @@ export default function App() {
         {visitedRoutes.has('business') ? (
           <div className="psh-route" data-route="business" hidden={route !== 'business'}>
             <PlaceholderPage pageKey="business" />
+          </div>
+        ) : null}
+
+        {visitedRoutes.has('relay-lab') ? (
+          <div className="psh-route" data-route="relay-lab" hidden={route !== 'relay-lab'}>
+            <LocalRelayLab />
           </div>
         ) : null}
       </main>

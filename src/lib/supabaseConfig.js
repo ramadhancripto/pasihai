@@ -6,19 +6,19 @@
 // zinaitumia hapa.
 //
 // Kanuni:
-//   - Hakuna fallback kimya. Ikiwa usanidi una tatizo, `problems` si tupu
-//     na AuthGate inaonyesha ujumbe wa kosa badala ya kupakia mock data.
+//   - Hakuna fallback kimya kwenda mock. Mode tupu = tatizo, si bidhaa ya demo.
 //   - Live inahitaji VITE_SUPABASE_MODE=live, VITE_SUPABASE_URL na
 //     VITE_SUPABASE_PUBLISHABLE_KEY, zote tatu.
-//   - URL/key zikiwekwa lakini mode si 'live', ni kosa (ni hali ya kawaida
-//     ya usanidi usio sahihi).
+//   - Mock inaruhusiwa tu ikiwa VITE_SUPABASE_MODE=mock (majaribio/SSR smoke).
+//     Haifichwi kama success ya production.
+//   - URL/key zikiwekwa lakini mode si 'live', ni kosa.
 //   - Secret / service_role key HAIRUHUSIWI kwenye browser.
 //
 // Moduli hii ni safi (pure): haitegemei Vite, kwa hiyo inaweza kujaribiwa
 // na Node moja kwa moja.
 // ══════════════════════════════════════════════════════════════
 
-export const SUPABASE_MODES = ['mock', 'live']
+export const SUPABASE_MODES = ['live']
 
 /** Inatambua secret/service_role key (hairuhusiwi kwenye browser). */
 export function isSecretKey(key) {
@@ -61,15 +61,22 @@ export function isValidSupabaseUrl(url) {
  */
 export function resolveSupabaseConfig(env = {}) {
   const rawMode = String(env.VITE_SUPABASE_MODE ?? '').trim()
-  // Herufi kubwa/ndogo hazijalishi: 'LIVE', ' Live ' na 'live' zote ni 'live'.
-  const mode = rawMode === '' ? 'mock' : rawMode.toLowerCase()
+  const mode = rawMode === '' ? '' : rawMode.toLowerCase()
   const url = String(env.VITE_SUPABASE_URL ?? '').trim()
   const key = String(env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '').trim()
 
   const problems = []
 
-  if (!SUPABASE_MODES.includes(mode)) {
-    problems.push(`VITE_SUPABASE_MODE lazima iwe "mock" au "live" (sasa: "${rawMode}").`)
+  if (mode === '') {
+    problems.push(
+      'VITE_SUPABASE_MODE haijawekwa. Weka VITE_SUPABASE_MODE=live pamoja na URL na publishable key. Mock si sehemu ya bidhaa.',
+    )
+  } else if (mode === 'mock') {
+    problems.push(
+      'VITE_SUPABASE_MODE=mock haikubaliwi. Pasihai haina mock runtime; weka live na credentials.',
+    )
+  } else if (!SUPABASE_MODES.includes(mode)) {
+    problems.push(`VITE_SUPABASE_MODE lazima iwe "live" (sasa: "${rawMode}").`)
   }
 
   if (isSecretKey(key)) {
@@ -83,7 +90,7 @@ export function resolveSupabaseConfig(env = {}) {
   if (mode !== 'live' && hasUrlOrKey) {
     problems.push(
       'VITE_SUPABASE_URL au VITE_SUPABASE_PUBLISHABLE_KEY zimewekwa, lakini VITE_SUPABASE_MODE si "live". ' +
-        'Weka VITE_SUPABASE_MODE=live, au ondoa URL na key kama unataka mock.',
+        'Weka VITE_SUPABASE_MODE=live.',
     )
   }
 
@@ -103,14 +110,16 @@ export function resolveSupabaseConfig(env = {}) {
 
   const liveRequested = mode === 'live'
   const isLive = liveRequested && problems.length === 0
+  const isMock = mode === 'mock' && problems.length === 0
 
   return {
-    mode,
+    mode: mode || 'unconfigured',
     liveRequested,
     url,
     key,
     isConfigured: Boolean(url && key),
     isLive,
+    isMock,
     problems,
   }
 }

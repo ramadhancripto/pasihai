@@ -201,19 +201,24 @@ check('4.5: chatRepository exported', repos.chatRepository !== undefined)
 check('4.6: gunduaRepository exported', repos.gunduaRepository !== undefined)
 check('4.7: spacesRepository exported', repos.spacesRepository !== undefined)
 
-// In mock mode, contentRepository should be mockContentRepository
-const mockContent = await import('../src/data/repositories/contentRepository.js')
-check('4.8: contentRepository = mock (mode=mock)', repos.contentRepository === mockContent.mockContentRepository)
+check('4.8: contentRepository is not a mock module', !('mockContentRepository' in repos))
+check('4.9: REPOSITORY_MODE is not mock', repos.REPOSITORY_MODE !== 'mock', String(repos.REPOSITORY_MODE))
 
-// ── Test 5: Feed service integration ───────────────────────
 console.log('')
-console.log('── 5. Feed service integration (mock mode) ──')
+console.log('── 5. Feed service without live backend ──')
 
 const { feedService } = await import('../src/services/feedService.js')
-const feedResult = await feedService.getFeed({ tab: 'mchanganyiko' })
-check('5.1: getFeed returns items', feedResult.items?.length > 0, `${feedResult.items?.length} items`)
-check('5.2: getFeed returns tab', feedResult.tab === 'mchanganyiko')
-check('5.3: getFeed returns total', typeof feedResult.total === 'number')
+let feedThrew = false
+let feedResult = null
+try {
+  feedResult = await feedService.getFeed({ tab: 'mchanganyiko' })
+} catch (err) {
+  feedThrew = true
+  check('5.1: getFeed does not invent posts when unconfigured', /inahitaji VITE_SUPABASE_MODE=live|Repository/.test(String(err?.message)), err?.message)
+}
+if (!feedThrew) {
+  check('5.1: getFeed without session does not invent a social graph', Array.isArray(feedResult?.items) && feedResult.items.length === 0, String(feedResult?.items?.length))
+}
 
 // ── Results ────────────────────────────────────────────────
 console.log('')

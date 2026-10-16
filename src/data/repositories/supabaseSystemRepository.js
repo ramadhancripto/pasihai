@@ -19,6 +19,11 @@
 import { supabase, isSupabaseLive } from '../../lib/supabaseClient.js'
 import { parseSupabaseError } from '../../utils/errors.js'
 import { storage } from '../../utils/storage.js'
+import {
+  RELAY_POLICY as SHARED_RELAY_POLICY,
+  parseDailyMb,
+  evaluateRelayAttempt,
+} from '../../utils/distribution/relayPolicy.js'
 
 function handleError(error, context) {
   const parsed = parseSupabaseError(error, context)
@@ -28,6 +33,8 @@ function handleError(error, context) {
 
 /* ── Relay Policy (constant — defined by Pasihai design) ──── */
 
+const fragmentBytes = new Map()
+
 const RELAY_POLICY = {
   eligible: [
     { id: 'text', label: 'Maandishi' },
@@ -35,12 +42,12 @@ const RELAY_POLICY = {
     { id: 'statusUpdate', label: 'Sasisha la hali' },
     { id: 'notification', label: 'Arifa' },
   ],
-  maxMessageKb: 20,
-  hardMaxMb: 5,
-  defaultDailyMb: 3,
+  maxMessageKb: SHARED_RELAY_POLICY.maxMessageBytes / 1024,
+  hardMaxMb: SHARED_RELAY_POLICY.hardMaxMb,
+  defaultDailyMb: SHARED_RELAY_POLICY.defaultDailyMb,
+  period: SHARED_RELAY_POLICY.period,
   alternatives: [
-    { id: 'bluetooth', label: 'Bluetooth' },
-    { id: 'wifiDirect', label: 'Wi-Fi Direct' },
+    { id: 'lan', label: 'Wi-Fi ya karibu (NSD/HTTP)' },
     { id: 'cache', label: 'Cache ya kifaa' },
   ],
   messages: {
@@ -343,29 +350,53 @@ export const supabaseSystemRepository = {
 
   async setRelayDailyLimit(mb) {
     const userId = await getUserId()
-    const value = Number(mb)
-    if (!Number.isFinite(value) || value <= 0) {
-      return { ok: false, reason: 'invalid', message: 'Thamani si sahihi', relay: await this.getInternetRelay() }
-    }
-    if (value > RELAY_POLICY.hardMaxMb) {
+    const value = parseDailyMb(mb)
+    if (value == null) {
       return {
-        ok: false, reason: 'above_max',
-        message: `Ukomo wa juu ni ${RELAY_POLICY.hardMaxMb} MB / siku — imekataliwa`,
+        ok: false,
+        reason: 'invalid',
+        message: 'Chagua MB 3 au MB 5 kwa siku (quota ya kila siku)',
         relay: await this.getInternetRelay(),
       }
     }
 
     if (userId && supabase) {
       try {
-        await supabase
-          .from('mb_balances')
-          .upsert({ user_id: userId, daily_relay_limit_mb: value }, { onConflict: 'user_id' })
+        const { data, error } = await supabase.rpc('set_relay_daily_limit', { p_mb: value })
+        if (error) {
+          const missing = /does not exist|42883|schema cache/i.test(error.message || '')
+          return {
+            ok: false,
+            reason: missing ? 'rpc_missing' : 'rpc_rejected',
+            message: missing
+              ? 'set_relay_daily_limit haipo kwenye server (038 haijatumika)'
+              : (error.message || 'Backend imekataa'),
+            relay: await this.getInternetRelay(),
+          }
+        }
+        const result = typeof data === 'string' ? JSON.parse(data) : data
+        if (!result || result.ok === false) {
+          return {
+            ok: false,
+            reason: result?.reason || 'rpc_rejected',
+            message: result?.message || 'Backend imekataa',
+            relay: await this.getInternetRelay(),
+          }
+        }
+        return { ok: true, reason: '', message: `Ukomo: ${value} MB / siku`, relay: await this.getInternetRelay() }
       } catch (err) {
         handleError(err, 'setRelayDailyLimit')
+        return { ok: false, reason: 'error', message: 'Hitilafu ya kuweka ukomo', relay: await this.getInternetRelay() }
       }
     }
 
-    return { ok: true, reason: '', message: `Ukomo: ${value} MB / siku`, relay: await this.getInternetRelay() }
+    storage.set('relayDailyMb', value)
+    return {
+      ok: true,
+      reason: 'local_only',
+      message: `Ukomo wa ndani: ${value} MB / siku (si server)`,
+      relay: await this.getInternetRelay(),
+    }
   },
 
   async getRelayMessages() {
@@ -409,34 +440,42 @@ export const supabaseSystemRepository = {
     return this.getRelayChoices()
   },
 
-  async relayMessage({ kind = 'text', kb = 0, label = '' } = {}) {
+    async relayMessage({ kind = 'text', kb = 0, label = '', recipientId = null, fragmentGroupId = null } = {}) {
     const userId = await getUserId()
     if (!userId || !supabase) {
       return { ok: false, reason: 'offline', message: 'Hakuna mtandao', chargedKb: 0, relay: await this.getInternetRelay() }
     }
-
-    // Policy checks (client-side pre-check before server RPC)
-    const eligible = RELAY_POLICY.eligible.some((e) => e.id === kind)
-    if (!eligible) {
+    if (!recipientId) {
       return {
-        ok: false, reason: 'media', message: RELAY_POLICY.messages.blocked,
-        alternatives: RELAY_POLICY.alternatives, chargedKb: 0, relay: await this.getInternetRelay(),
+        ok: false,
+        reason: 'no_recipient',
+        message: 'Internet Relay inahitaji mpokeaji. Foleni peke yake si uwasilishaji.',
+        chargedKb: 0,
+        relay: await this.getInternetRelay(),
       }
     }
 
+    // Policy checks (client-side pre-check before server RPC)
     const relay = await this.getInternetRelay()
-    if (!relay.enabled) {
-      return { ok: false, reason: 'off', message: RELAY_POLICY.messages.off, chargedKb: 0, relay }
-    }
-
-    if (!Number.isFinite(kb) || kb <= 0) {
-      return { ok: false, reason: 'invalid', message: 'Ukubwa haujulikani', chargedKb: 0, relay }
-    }
-
-    if (kb > RELAY_POLICY.maxMessageKb) {
+    const gate = evaluateRelayAttempt({
+      kind,
+      payloadBytes: Math.round((Number(kb) || 0) * 1024),
+      dailyLimitMb: relay.limitMb,
+      usedBytes: Math.round((relay.usedMb || 0) * 1024 * 1024),
+      messagesSent: relay.messagesRelayed || 0,
+      fragmentGroupId,
+      fragmentStore: fragmentBytes,
+      enabled: relay.enabled,
+    })
+    if (!gate.ok) {
       return {
-        ok: false, reason: 'too_large', message: RELAY_POLICY.messages.tooLarge,
-        capKb: RELAY_POLICY.maxMessageKb, alternatives: RELAY_POLICY.alternatives, chargedKb: 0, relay,
+        ok: false,
+        reason: gate.reason,
+        message: gate.message,
+        alternatives: RELAY_POLICY.alternatives,
+        chargedKb: 0,
+        relay,
+        remainingMb: (gate.remainingBytes || 0) / (1024 * 1024),
       }
     }
 
@@ -447,7 +486,7 @@ export const supabaseSystemRepository = {
 
     try {
       const { data, error } = await supabase.rpc('relay_message', {
-        p_recipient_id: null,
+        p_recipient_id: recipientId,
         p_message_id: messageId,
         p_kind: kind,
         p_payload_bytes: payloadBytes,
@@ -468,6 +507,42 @@ export const supabaseSystemRepository = {
     } catch (err) {
       handleError(err, 'relayMessage')
       return { ok: false, reason: 'error', message: 'Hitilafu ya relay', chargedKb: 0, relay }
+    }
+  },
+
+  async fetchRelayInbox() {
+    if (!supabase) return { ok: false, reason: 'offline', items: [] }
+    try {
+      const { data, error } = await supabase.rpc('fetch_relay_inbox', { p_limit: 50 })
+      if (error) {
+        return { ok: false, reason: error.message || 'rpc_missing', items: [] }
+      }
+      const result = typeof data === 'string' ? JSON.parse(data) : data
+      return { ok: !!result?.ok, items: result?.items || [], reason: result?.reason || null }
+    } catch (err) {
+      handleError(err, 'fetchRelayInbox')
+      return { ok: false, reason: 'error', items: [] }
+    }
+  },
+
+  async ackRelayDelivered(messageId) {
+    if (!supabase) return { ok: false, reason: 'offline', delivered: false }
+    if (!messageId) return { ok: false, reason: 'invalid', delivered: false }
+    try {
+      const { data, error } = await supabase.rpc('ack_relay_delivered', { p_message_id: messageId })
+      if (error) {
+        return { ok: false, reason: error.message || 'rpc_missing', delivered: false }
+      }
+      const result = typeof data === 'string' ? JSON.parse(data) : data
+      return {
+        ok: !!result?.ok,
+        delivered: result?.state === 'delivered',
+        state: result?.state || null,
+        reason: result?.reason || null,
+      }
+    } catch (err) {
+      handleError(err, 'ackRelayDelivered')
+      return { ok: false, reason: 'error', delivered: false }
     }
   },
 
@@ -499,7 +574,12 @@ export const supabaseSystemRepository = {
         label: `Ujumbe (${r.kind})`,
         detail: `${Math.round(r.compact_bytes / 1024)} KB`,
         at: new Date(r.created_at).toLocaleString('sw'),
-        state: r.state === 'queued' ? 'waiting' : r.state === 'relayed' || r.state === 'delivered' ? 'synced' : r.state,
+        state:
+          r.state === 'delivered' ? 'delivered'
+          : r.state === 'read' ? 'read'
+          : r.state === 'relayed' || r.state === 'forwarded' ? 'forwarded'
+          : r.state === 'queued' ? 'queued'
+          : r.state,
       }))
     } catch (err) {
       handleError(err, 'listQueue')
@@ -570,27 +650,17 @@ export const supabaseSystemRepository = {
   /* ── Nearby (real detection where possible) ──────────────── */
 
   async getNearby() {
-    // Web Bluetooth can discover BLE devices but with major limitations
     const hasBLE = typeof navigator !== 'undefined' && !!navigator.bluetooth
-    let bleDevices = []
-
-    if (hasBLE) {
-      try {
-        // Note: requestDevice() requires user gesture, so we can only check availability
-        bleDevices = [{ id: 'ble-available', name: 'Bluetooth LE', type: 'bluetooth', available: true }]
-      } catch {
-        // BLE not available or permission denied
-      }
-    }
-
     return {
-      people: bleDevices.filter((d) => d.type === 'person').map((d) => ({ userId: d.id, user: null })),
+      people: [],
       content: [],
       hubs: [],
-      notes: bleDevices.length > 0
-        ? ['Bluetooth LE imegunduliwa. Unganisha na mtu karibu.']
-        : ['Hakuna kifaa cha karibu kilichogunduliwa. Wi-Fi Direct na mesh zinahitaji native module.'],
-      available: bleDevices.length > 0,
+      notes: [
+        hasBLE
+          ? 'Kivinjari kina API ya Bluetooth, lakini ugunduzi na uhamisho wa Pasihai haujatekelezwa.'
+          : 'Hakuna ugunduzi wa vifaa vya karibu. Mesh inahitaji moduli asilia ya Android.',
+      ],
+      available: false,
     }
   },
 
@@ -680,19 +750,8 @@ export const supabaseSystemRepository = {
   },
 
   async shareNearby(id) {
-    const userId = await getUserId()
-    if (!userId || !supabase) return []
-
-    try {
-      await supabase
-        .from('local_shares')
-        .update({ status: 'completed', updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .eq('user_id', userId)
-    } catch (err) {
-      handleError(err, 'shareNearby')
-    }
-
+    // Hakuna transport ya karibu kwenye WebView hii — usiandike 'completed'.
+    console.warn('[SupabaseSystemRepo:shareNearby] Local transfer haijatekelezwa; haijahitimishwa.', id)
     return this.getLocalContent()
   },
 

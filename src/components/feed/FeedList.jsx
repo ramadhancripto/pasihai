@@ -241,7 +241,7 @@ export default function FeedList({
           <p className="psh-feed__emptyText">
             {spaceId
               ? `Wanachama wa ${spaceLabel || 'nafasi hii'} hawajachapisha kitu bado — wewe waweza kuanza.`
-              : 'Jaribu kichujio kingine, au tab nyingine — Mchanganyiko ina kila kitu.'}
+              : 'Hakuna chapisho halisi hapa bado. Chapisha kwanza, au subiri maudhui kutoka kwa watu unaowafuata.'}
           </p>
         </div>
       ) : (

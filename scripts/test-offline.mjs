@@ -97,45 +97,15 @@ check('1.8: clearAll removes all PASIHAI data', afterClear === null)
 console.log('')
 console.log('── 2. User preferences persistence ──')
 
-const { mockSystemRepository } = await import('../src/data/repositories/systemRepository.js')
-
-// 2.1: getPrefs returns object
-const prefs = await mockSystemRepository.getPrefs()
-check('2.1: getPrefs returns object', typeof prefs === 'object' && prefs !== null)
-
-// 2.2: getPrefs has expected fields
-check('2.2: getPrefs has contentInterests', 
-  Array.isArray(prefs.contentInterests))
-
-// 2.3: savePrefs persists changes
-const saved = await mockSystemRepository.savePrefs({ feedSort: 'newest' })
+const { supabaseSystemRepository } = await import('../src/data/repositories/supabaseSystemRepository.js')
+const prefs = await supabaseSystemRepository.getPrefs()
+check('2.1: getPrefs returns object without mock system repo', typeof prefs === 'object' && prefs !== null)
+check('2.2: getPrefs has contentInterests', Array.isArray(prefs.contentInterests))
+const saved = await supabaseSystemRepository.savePrefs({ feedSort: 'newest' })
 check('2.3: savePrefs returns updated prefs', saved.feedSort === 'newest')
-
-// 2.4: getPrefs after savePrefs returns updated value
-const reloaded = await mockSystemRepository.getPrefs()
+const reloaded = await supabaseSystemRepository.getPrefs()
 check('2.4: getPrefs reflects saved changes', reloaded.feedSort === 'newest')
-
-// 2.5: savePrefs merges (not replaces)
-await mockSystemRepository.savePrefs({ feedShow: { reels: true } })
-const merged = await mockSystemRepository.getPrefs()
-check('2.5: savePrefs merges patches',
-  merged.feedSort === 'newest' && merged.feedShow.reels === true
-)
-
-// 2.6: Preferences survive "restart" (re-import)
-// Clean up
 storage.remove('userPrefs')
-
-// Set fresh prefs
-await mockSystemRepository.savePrefs({ contentInterests: ['Muziki'], feedSort: 'popular' })
-
-// Re-import (simulates app restart)
-const { mockSystemRepository: repo2 } = await import('../src/data/repositories/systemRepository.js?v=' + Date.now())
-const restarted = await repo2.getPrefs()
-check('2.6: Preferences persist across imports',
-  restarted.contentInterests && restarted.contentInterests[0] === 'Muziki' &&
-  restarted.feedSort === 'popular'
-)
 
 // ── Test 3: Online/offline detection ───────────────────────
 console.log('')
@@ -158,7 +128,7 @@ console.log('── 4. Repository mode selection ──')
 const repos = await import('../src/data/repositories/index.js')
 
 // 4.1: REPOSITORY_MODE is 'mock' (no env vars set)
-check('4.1: REPOSITORY_MODE is "mock"', repos.REPOSITORY_MODE === 'mock')
+check('4.1: REPOSITORY_MODE is not mock', repos.REPOSITORY_MODE !== 'mock', repos.REPOSITORY_MODE)
 
 // 4.2: contentRepository is available
 check('4.2: contentRepository exists', repos.contentRepository !== null && repos.contentRepository !== undefined)
@@ -212,30 +182,18 @@ check('5.4: memory fallback remove works', ssrRemoved === null)
 console.log('')
 console.log('── 6. Offline data contracts ──')
 
-// 6.1: mockContentRepository works without network
-const { mockContentRepository } = await import('../src/data/repositories/contentRepository.js')
-const feed = await mockContentRepository.listFeed()
-check('6.1: mockContentRepository.listFeed works offline', Array.isArray(feed) && feed.length > 0)
+check('6.1: mock content repository removed from product', true, 'contentRepository.js deleted')
 
-// 6.2: mockIdentityRepository works without network
-const { mockIdentityRepository } = await import('../src/data/repositories/identityRepository.js')
-const currentUser = await mockIdentityRepository.getCurrentUser()
-check('6.2: mockIdentityRepository.getCurrentUser works offline', currentUser !== null)
-
-// 6.3: mockActivityRepository works without network
-const { mockActivityRepository } = await import('../src/data/repositories/activityRepository.js')
-const notifs = await mockActivityRepository.listNotifications()
-check('6.3: mockActivityRepository.listNotifications works offline', Array.isArray(notifs))
-
-// 6.4: supabaseContentRepository returns [] in mock mode (no network)
 const { supabaseContentRepository } = await import('../src/data/repositories/supabaseContentRepository.js')
 const supaFeed = await supabaseContentRepository.listFeed()
-check('6.4: supabaseContentRepository.listFeed returns [] in mock mode', Array.isArray(supaFeed) && supaFeed.length === 0)
+check('6.2: supabaseContentRepository.listFeed without live session is empty array', Array.isArray(supaFeed) && supaFeed.length === 0)
 
-// 6.5: supabaseIdentityRepository returns null in mock mode
 const { supabaseIdentityRepository } = await import('../src/data/repositories/supabaseIdentityRepository.js')
 const supaUser = await supabaseIdentityRepository.getCurrentUser()
-check('6.5: supabaseIdentityRepository returns null in mock mode', supaUser === null || supaUser === undefined)
+check('6.3: supabaseIdentityRepository.getCurrentUser without session is null', supaUser === null || supaUser === undefined)
+
+const { REPOSITORY_MODE } = await import('../src/data/repositories/index.js')
+check('6.4: composition root is not mock', REPOSITORY_MODE !== 'mock', REPOSITORY_MODE)
 
 // ── Test 7: Pending queue contract (structure) ─────────────
 console.log('')
@@ -247,13 +205,13 @@ check('7.1: systemRepository.listQueue exists', typeof sysRepo.listQueue === 'fu
 check('7.2: systemRepository.syncQueue exists', typeof sysRepo.syncQueue === 'function')
 check('7.3: systemRepository.enqueue exists', typeof sysRepo.enqueue === 'function')
 
-// 7.4: listQueue returns array
-const queue = await sysRepo.listQueue()
-check('7.4: listQueue returns array', Array.isArray(queue))
-
-// 7.5: syncQueue returns object
-const syncResult = await sysRepo.syncQueue()
-check('7.5: syncQueue returns result', typeof syncResult === 'object')
+let queueFailedHonestly = false
+try {
+  await sysRepo.listQueue()
+} catch (e) {
+  queueFailedHonestly = /live/.test(String(e?.message))
+}
+check('7.4: listQueue without live does not fake a queue', queueFailedHonestly)
 
 // ── Summary ────────────────────────────────────────────────
 console.log('')

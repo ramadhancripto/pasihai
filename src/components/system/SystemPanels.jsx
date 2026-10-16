@@ -237,6 +237,10 @@ export function SystemBody({ view, onOpen, onToast }) {
         Data Saved ({formatMb(view.dataSaved.total)}) na Relay ni sehemu ya mfumo mmoja — si kurasa
         tofauti.
       </p>
+      <p className="psh-note">
+        <a href="#/relay-lab">Local Relay Lab</a> — majaribio ya engine (simulated peers, si simu
+        halisi).
+      </p>
     </div>
   )
 }
@@ -953,9 +957,13 @@ export function ShareNearbyPanel({ onToast }) {
   const view = items ? { ...initial, items } : initial
 
   const onShare = async (id) => {
-    const res = await systemService.shareNearby(id)
-    setItems(res.items)
-    onToast?.('Inashirikiwa kwa kifaa cha karibu — hakuna data ya internet inayotumika')
+    try {
+      const res = await systemService.shareNearby(id)
+      setItems(res.items)
+      onToast?.('Ombi limepokelewa. Uhamisho wa karibu haujatekelezwa kwenye toleo hili.')
+    } catch (err) {
+      onToast?.(err?.message || 'Kushiriki karibu hakujatekelezwa.')
+    }
   }
 
   return <ShareNearbyBody view={view} onShare={onShare} onToast={onToast} />

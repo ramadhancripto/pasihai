@@ -9,11 +9,7 @@
 //         RLS (Row Level Security) ndio ulinzi wa kweli — hata kama
 //         mtu anapata anon key, hawezi kufikia data asiyostahili.
 //
-// Hali ya sasa: SUPABASE_MODE = 'mock' (default)
-//   - Repositories bado zinarudisha mock data.
-//   - Client hii ipo tayari lakini haitumiki hadi mode ibadilishwe.
-//   - Kubadilisha: weka VITE_SUPABASE_MODE='live' kwenye .env.local
-//     (baada ya schema na RLS kuwepo).
+// Mode tupu si mock: AuthGate inaonyesha kosa. MODE=mock inakataliwa.
 // ══════════════════════════════════════════════════════════════
 
 import { createClient } from '@supabase/supabase-js'
@@ -28,8 +24,8 @@ const supabaseKey = config.key
 
 /**
  * Hali ya mfumo: 'mock' | 'live'
- * - 'mock': repositories zinarudisha mock data (default, salama)
- * - 'live': repositories zinatuma queries kwa Supabase (inahitaji schema + RLS)
+ * - 'live': queries kwa Supabase
+ * - 'unconfigured': kosa; mock haikubaliwi
  */
 export const SUPABASE_MODE = config.mode
 
@@ -42,6 +38,9 @@ export const isSupabaseConfigured = config.isConfigured
  * Je, Supabase ipo katika hali ya 'live' bila matatizo ya usanidi?
  */
 export const isSupabaseLive = config.isLive
+
+/** Mock ya majaribio tu (si default ya production). */
+export const isSupabaseMock = config.isMock === true
 
 /**
  * Orodha ya matatizo ya usanidi (tupu = sawa). AuthGate inaitumia

@@ -326,26 +326,11 @@ export const chatService = {
       note: NOTES[state] || '',
     })
 
-    /* ── Kuiga risiti za mpokeaji (MOCK PEKEE) ──────────────────
-       Mfumo halisi (Supabase) bado hauna risiti — hizi ni za majaribio
-       ili hali zote zionekane kwenye kifaa hiki. Kila risiti inabeba
-       `simulated: true` na UI inaandika "majaribio".
-         ONLINE  → delivered (1.4s) → read (3.2s)
-         LIMITED → delivered kwa relay (2.0s)
-         LOCAL/OFFLINE → HAKUNA kuendelea: ujumbe unabaki kwenye foleni
-                         (hakuna kubuni uwasilishaji usiofanyika) */
-    const demoSteps =
-      connection.state === 'ONLINE'
-        ? [
-            { state: 'delivered', afterMs: 1400, receipt: { deliveredAt: 'sasa hivi', transport: 'internet' } },
-            { state: 'read', afterMs: 3200, receipt: { readAt: 'sasa hivi' } },
-          ]
-        : connection.state === 'LIMITED' || connection.state === 'WAITING_SYNC'
-          ? [{ state: 'delivered', afterMs: 2000, route: 'relay', receipt: { deliveredAt: 'sasa hivi', transport: 'relay' } }]
-          : []
-    chatRepository.demoDelivery?.(convId, message.id, demoSteps)
+    // Hakuna timer za delivered/read. Risiti zinahitaji uthibitisho wa backend.
+    const fresh = Array.isArray(updated)
+      ? (updated.find((m) => m.id === message.id) || message)
+      : message
 
-    const fresh = updated.find((m) => m.id === message.id) || message
     return {
       message: { ...fresh, route, stateInfo: MESSAGE_STATES[fresh.state] || MESSAGE_STATES.sent },
       conversation,

@@ -42,16 +42,14 @@ console.log('\n═══ PASIHAI Auth Tests (Batch 1) ═══\n')
 
 /* ── Test 1: Mock mode boot ─────────────────────────────── */
 console.log('── 1. Mock mode boot ──')
-test('1.1: .env.example ina VITE_SUPABASE_MODE=mock', () => {
+test('1.1: .env.example ina VITE_SUPABASE_MODE=live (si mock kimya)', () => {
   const envExample = readFileSync(join(ROOT, '.env.example'), 'utf8')
-  assert(envExample.includes('VITE_SUPABASE_MODE=mock'), '.env.example haina VITE_SUPABASE_MODE=mock')
+  assert(envExample.includes('VITE_SUPABASE_MODE=live'), '.env.example haina VITE_SUPABASE_MODE=live')
 })
 
-test('1.2: supabaseClient.js ina default ya mock', () => {
-  const client = readFileSync(join(ROOT, 'src/lib/supabaseClient.js'), 'utf8')
-  // Angalia kwamba kuna fallback kwa 'mock' (inaweza kuwa katika env au moja kwa moja)
-  assert(client.includes("'mock'") || client.includes('"mock"'), 
-    'supabaseClient.js haina default ya mock')
+test('1.2: supabaseConfig haitumii mock kama default ya env tupu', () => {
+  const config = readFileSync(join(ROOT, 'src/lib/supabaseConfig.js'), 'utf8')
+  assert(config.includes("rawMode === '' ? ''"), 'empty mode must not default to mock')
 })
 
 /* ── Test 2: Publishable key acceptance ─────────────────── */

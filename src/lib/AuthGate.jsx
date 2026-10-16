@@ -16,8 +16,13 @@
 // ══════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from 'react'
+
+function isRelayLabHash() {
+  if (typeof window === 'undefined') return false
+  return String(window.location.hash).replace(/^#\/?/, '').split(/[/?#]/, 1)[0] === 'relay-lab'
+}
 import { useAuth } from './AuthContext.jsx'
-import { isSupabaseLive, supabaseConfigProblems } from './supabaseClient.js'
+import { isSupabaseLive, isSupabaseMock, supabaseConfigProblems } from './supabaseClient.js'
 import { waitForSupabaseRepos } from '../data/repositories/index.js'
 import { Button } from '../components/ui.jsx'
 import Login from '../pages/Login.jsx'
@@ -40,8 +45,12 @@ function ConfigError({ problems }) {
         ))}
       </ul>
       <p style={{ margin: 0, fontSize: 13 }}>
-        Mfano sahihi kwa Supabase: <code>VITE_SUPABASE_MODE=live</code>, <code>VITE_SUPABASE_URL=https://&lt;project-ref&gt;.supabase.co</code>,
-        {' '}<code>VITE_SUPABASE_PUBLISHABLE_KEY=&lt;publishable-key&gt;</code>. Kwa mock tu, ondoa URL na key.
+        Mfano sahihi: <code>VITE_SUPABASE_MODE=live</code>, <code>VITE_SUPABASE_URL=https://&lt;project-ref&gt;.supabase.co</code>,
+        {' '}<code>VITE_SUPABASE_PUBLISHABLE_KEY=&lt;publishable-key&gt;</code>. Mock ni kwa majaribio pekee.
+      </p>
+      <p style={{ margin: 0 }}>
+        Bila backend, unaweza kufungua{' '}
+        <a href="#/relay-lab">Local Relay Lab</a> (majaribio ya offline — si login, si simu halisi).
       </p>
     </div>
   )
@@ -51,6 +60,13 @@ export function AuthGate({ children }) {
   const { loading: authLoading, isAuthenticated, authEvent } = useAuth()
   const [repo, setRepo] = useState({ status: 'idle', error: null })
   const [attempt, setAttempt] = useState(0)
+  const [relayLab, setRelayLab] = useState(isRelayLabHash)
+
+  useEffect(() => {
+    const sync = () => setRelayLab(isRelayLabHash())
+    window.addEventListener('hashchange', sync)
+    return () => window.removeEventListener('hashchange', sync)
+  }, [])
 
   // PASSWORD_RECOVERY: mtumiaji amefika kupitia link ya kurejesha nenosiri.
   // Lazima tuonyeshe Login (yenye fomu ya nenosiri jipya) badala ya App,
@@ -76,13 +92,21 @@ export function AuthGate({ children }) {
     }
   }, [needsRepos, attempt])
 
+  // Lab ya local relay: hakuna Supabase, hakuna mock ya watumiaji.
+  if (relayLab) {
+    return <>{children}</>
+  }
+
   // Tatizo lolote la usanidi: onyesha kosa wazi, usipakie App wala mock.
   if (supabaseConfigProblems.length > 0) {
     return <ConfigError problems={supabaseConfigProblems} />
   }
 
-  // Katika mock mode, rudi moja kwa moja kwa children
+  // Mock ni wazi (majaribio). Hali nyingine isiyo live haipaswi kufungua App.
   if (!isSupabaseLive) {
+    if (!isSupabaseMock) {
+      return <ConfigError problems={['Usanidi si live wala mock ya majaribio.']} />
+    }
     return <>{children}</>
   }
 

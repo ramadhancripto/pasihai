@@ -12,7 +12,7 @@
 //   ONLINE · LIMITED · LOCAL · OFFLINE · WAITING_SYNC · SYNCING
 // ══════════════════════════════════════════════════════════════
 
-import { identityRepository, systemRepository } from '../data/repositories/index.js'
+import { identityRepository, systemRepository, REPOSITORY_MODE } from '../data/repositories/index.js'
 
 /* ── Kanuni za upatikanaji (contextual rules) ──────────────── */
 
@@ -143,7 +143,7 @@ export const systemService = {
         note: policy.messages.separate,
       },
       guardrail:
-        'PASIHAI haitumii data ya mtu mwingine kimya kimya. Internet Relay inahitaji idhini yako ya wazi, hubeba ujumbe mfupi pekee, na huacha mara ukomo wa kila siku unapofikiwa. Local Mesh (Wi-Fi Direct · Bluetooth · Wi-Fi ya karibu) hubeba content kubwa bila data ya simu.',
+        'Internet Relay: ujumbe mfupi, quota ya MB 3 au 5 kwa SIKU baada ya kukubali. Local transfer iliyojengwa ni Wi-Fi ya karibu (NSD/HTTP). Bluetooth na Wi-Fi Direct bado havijatekelezwa.',
       measurable: policy.messages.measurable,
       purpose: policy.messages.purpose,
     }
@@ -293,6 +293,9 @@ export const systemService = {
   },
 
   async shareNearby(id) {
+    if (REPOSITORY_MODE === 'supabase') {
+      throw new Error('Kushiriki karibu hakujatekelezwa (hakuna transport ya kifaa).')
+    }
     const items = await systemRepository.shareNearby(id)
     return { items }
   },

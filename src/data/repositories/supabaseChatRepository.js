@@ -16,7 +16,7 @@
 // ══════════════════════════════════════════════════════════════
 
 import { supabase, isSupabaseLive } from '../../lib/supabaseClient.js'
-import { chatFilters } from '../mock.js'
+import { chatFilters } from '../appCatalog.js'
 import { groupMemberLimit } from '../../config/groupLimits.js'
 import { normalizeDraftSettings, rowToSettings, settingsToRow } from './groupSettingsShape.js'
 
@@ -1055,9 +1055,28 @@ export const supabaseChatRepository = {
   },
 
   /* ── WRITE: React to message ──────────────────────────────── */
-  async reactToMessage(convId, msgId, reaction = 'heart') {
-    // Phase: reactions on messages not yet in DB schema
-    return { msgId, reaction }
+  subscribe(cb) {
+    if (!isSupabaseLive || !supabase || typeof cb !== 'function') return () => {}
+    const channel = supabase
+      .channel('pasihai-chat-messages')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'chat_messages' },
+        (payload) => {
+          const convId = payload.new?.conversation_id || payload.old?.conversation_id
+          cb(convId)
+        },
+      )
+      .subscribe()
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  },
+
+  async reactToMessage() {
+    const err = new Error('Hisia kwenye ujumbe bado hazijaunganishwa na database.')
+    err.code = 'NOT_IMPLEMENTED'
+    throw err
   },
 
   /* ── WRITE: Resolve media ─────────────────────────────────── */
@@ -1066,8 +1085,12 @@ export const supabaseChatRepository = {
   },
 
   /* ── WRITE: Set message state ─────────────────────────────── */
-  async setMessageState(convId, msgId, patch = {}) {
-    return { msgId, ...patch }
+  async setMessageState() {
+    const err = new Error(
+      'Hali ya delivered/read haihifadhiwi kwenye server. Risiti za mpokeaji bado hazijatekelezwa.',
+    )
+    err.code = 'NOT_IMPLEMENTED'
+    throw err
   },
 
   /* ── WRITE: Create media message ──────────────────────────── */

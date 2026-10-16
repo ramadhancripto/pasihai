@@ -54,24 +54,26 @@ const GOOD_KEY = 'sb_publishable_TESTKEY_not_real'
 console.log('')
 console.log('--- Supabase config tests ---')
 
-test('Empty environment uses mock mode without problems', function () {
+test('Empty environment is unconfigured and reports problems (no silent mock)', function () {
   const c = resolveSupabaseConfig({})
 
-  assert(c.mode === 'mock', 'mode=' + c.mode)
-  assert(c.problems.length === 0, JSON.stringify(c.problems))
+  assert(c.isLive === false, 'must not be live')
+  assert(c.isMock !== true, 'must not be mock')
+  assert(c.problems.length > 0, 'empty env must have problems')
   assert(
-    c.isLive === false && c.liveRequested === false,
-    'Should not be live'
+    c.problems.some((p) => /VITE_SUPABASE_MODE haijawekwa/.test(p)),
+    JSON.stringify(c.problems)
   )
 })
 
-test('Mock mode without URL or key has no problems', function () {
+test('Mock mode is rejected as a product runtime', function () {
   const c = resolveSupabaseConfig({
     VITE_SUPABASE_MODE: 'mock'
   })
 
+  assert(c.isLive === false && c.isMock !== true, 'must not be live/mock')
   assert(
-    c.problems.length === 0 && !c.isLive,
+    c.problems.some(function (p) { return /mock haikubaliwi/.test(p) }),
     JSON.stringify(c.problems)
   )
 })
@@ -82,12 +84,12 @@ test('URL and key without mode produce an explicit problem', function () {
     VITE_SUPABASE_PUBLISHABLE_KEY: GOOD_KEY
   })
 
-  assert(c.problems.length === 1, 'problems=' + c.problems.length)
+  assert(c.problems.length >= 1, 'problems=' + c.problems.length)
   assert(
-    c.problems[0].includes('VITE_SUPABASE_MODE'),
-    c.problems[0]
+    c.problems.some((p) => p.includes('VITE_SUPABASE_MODE')),
+    JSON.stringify(c.problems)
   )
-  assert(c.isLive === false, 'Must not be live')
+  assert(c.isLive === false && c.isMock !== true, 'Must not be live or mock')
 })
 
 test('Mock mode with URL and key produces an explicit problem', function () {
@@ -97,11 +99,8 @@ test('Mock mode with URL and key produces an explicit problem', function () {
     VITE_SUPABASE_PUBLISHABLE_KEY: GOOD_KEY
   })
 
-  assert(
-    c.problems.length === 1 &&
-      c.problems[0].includes('si "live"'),
-    JSON.stringify(c.problems)
-  )
+  assert(c.isLive === false, 'Must not be live')
+  assert(c.problems.length >= 1, JSON.stringify(c.problems))
 })
 
 test('Live mode without URL and key reports both problems', function () {

@@ -20,7 +20,7 @@
 // ══════════════════════════════════════════════════════════════
 
 const DB_NAME = 'pasihai'
-const DB_VERSION = 3 // v3: contentSharingIndex table
+const DB_VERSION = 4 // v4: distribution manifests, chunks, transfer jobs
 
 /* ── Database instance ─────────────────────────────────────── */
 let db = null
@@ -75,6 +75,27 @@ const SCHEMA = {
       { name: 'origin', keyPath: 'origin' },
       { name: 'visibility', keyPath: 'accessPermissions.visibility' },
       { name: 'expiry', keyPath: 'expiry' },
+    ],
+  },
+  contentManifests: {
+    keyPath: 'contentId',
+    indexes: [
+      { name: 'sha256', keyPath: 'sha256' },
+      { name: 'visibility', keyPath: 'visibility' },
+      { name: 'complete', keyPath: 'complete' },
+    ],
+  },
+  contentChunks: {
+    keyPath: 'id',
+    indexes: [
+      { name: 'contentId', keyPath: 'contentId' },
+    ],
+  },
+  transferJobs: {
+    keyPath: 'id',
+    indexes: [
+      { name: 'contentId', keyPath: 'contentId' },
+      { name: 'status', keyPath: 'status' },
     ],
   },
   metadata: {
@@ -334,5 +355,8 @@ export const messages = createStoreWrapper('messages')
 export const profiles = createStoreWrapper('profiles')
 export const outbox = createStoreWrapper('outbox')
 export const metadata = createStoreWrapper('metadata')
+export const contentManifests = createStoreWrapper('contentManifests')
+export const contentChunks = createStoreWrapper('contentChunks')
+export const transferJobs = createStoreWrapper('transferJobs')
 
 export default localDb

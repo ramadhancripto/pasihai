@@ -14,24 +14,24 @@ import {
   IconBusiness,
 } from './icons.jsx'
 
-const PREVIEW_STATUS = 'Preview ya prototype; data na vitendo vya tab hii bado si huduma kamili ya backend.'
+const LIVE_STATUS = 'Inahitaji VITE_SUPABASE_MODE=live na backend; si huduma kamili bila hiyo.'
 
 export const NAV_ITEMS = [
   {
     id: 'home', label: 'Home', Icon: IconHome, purpose: 'Kutazama',
-    statusLabel: 'Demo', statusDescription: PREVIEW_STATUS,
+    statusLabel: 'Live', statusDescription: LIVE_STATUS,
   },
   {
     id: 'chat', label: 'Chat', Icon: IconChat, purpose: 'Mawasiliano',
-    statusLabel: 'Demo', statusDescription: PREVIEW_STATUS,
+    statusLabel: 'Live', statusDescription: LIVE_STATUS,
   },
   {
     id: 'gundua', label: 'Gundua', Icon: IconGundua, purpose: 'Kugundua',
-    statusLabel: 'Demo', statusDescription: PREVIEW_STATUS,
+    statusLabel: 'Live', statusDescription: LIVE_STATUS,
   },
   {
     id: 'spaces', label: 'Spaces', Icon: IconSpaces, purpose: 'Kushiriki',
-    statusLabel: 'Demo', statusDescription: PREVIEW_STATUS,
+    statusLabel: 'Live', statusDescription: LIVE_STATUS,
   },
   {
     id: 'business',
